@@ -69,6 +69,12 @@ async function initTeams(): Promise<app.Context | null> {
 }
 
 async function init(): Promise<AuthState> {
+  // Fail fast instead of opening a sign-in that can only time out.
+  if (config.entra.clientId.includes("REPLACE_ME") || config.entra.tenantId.includes("REPLACE_ME")) {
+    throw new Error(
+      "Sign-in is not set up yet: the Entra app registration is missing (client and tenant ID in src/config.ts). See docs/setup/entra-app.md.",
+    );
+  }
   const authority = `https://login.microsoftonline.com/${config.entra.tenantId}`;
 
   // TeamsJS must be initialised before MSAL (Microsoft guidance).
