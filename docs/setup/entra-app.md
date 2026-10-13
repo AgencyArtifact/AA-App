@@ -61,6 +61,8 @@ On the app's **Overview** page copy:
 2. Under the **Single-page application** platform, select **Add URI** and add
    the two `auth.html` URIs from `npm run entra:values`.
 3. Leave **Implicit grant and hybrid flows** (Access tokens, ID tokens) **unchecked**.
+   In the current Entra interface these are on the **Settings** tab of
+   **Authentication**, not next to the redirect URIs (seen 2026-10-13).
 4. Select **Save**.
 
 You should now have exactly three SPA redirect URIs and no Web or Mobile platform.
