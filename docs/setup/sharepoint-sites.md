@@ -52,7 +52,8 @@ Check (this is the "no Everyone grant" check of go criterion 3):
 - [ ] The **Advanced permissions settings** page lists only the three site groups (Owners, Members, Visitors), with no other row.
 - [ ] Owners contains exactly Galileo and Chris. Members and Visitors are empty.
 - [ ] No row and no group member is `Everyone`, `Everyone except external users`, or any other group.
-- [ ] Ribbon **Check Permissions**: enter `Everyone except external users`, select **Check Now**. Result: **None**. Repeat for `Everyone`.
+- [ ] Ribbon **Check Permissions**: enter `Everyone except external users`, select **Check Now**. Result: **None**.
+- [ ] `Everyone`: the people picker may refuse it (seen 2026-10-13: it cannot be typed). Then the two checks above (no `Everyone` row on this page, Members and Visitors empty) are the check. Note: **People and Groups** may list `Everyone` and `Everyone except external users` as entries; that list alone is not a grant. Go criterion 3 is the behavioural proof.
 - [ ] **Site Collection Administrators** (Site settings > Users and Permissions): note who is listed. A tenant admin role group may appear there; that is expected and not a grant to staff. Write what you see in the test checklist.
 
 ### AA Operations: Galileo, Chris, and aa.test at Contribute
