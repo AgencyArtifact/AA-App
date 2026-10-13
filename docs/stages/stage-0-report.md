@@ -35,8 +35,9 @@ Assumed (low-risk technical choices):
 - `aa.test` granted Contribute directly rather than through a custom group (one test user).
 
 Open questions for Galileo:
-- Q8. Pacific time zone on both sites: confirm. The India date-boundary case is measured against it.
-- Q9. `AA Operations` without a Microsoft 365 group for stage 0 (data.md open question stays open for the real rollout): confirm.
+- Q8. Galileo, 2026-10-13: "I want 2 time zones, India and US." A SharePoint site holds one regional time zone, so two zones are carried by people and devices, not by the site: each entry uses the device's local date (`WorkDate` text), and one reminder flow runs per zone. Proposed: both sites keep Pacific as the storage reference. Awaiting confirmation.
+- Q9. `AA Operations` without a Microsoft 365 group for stage 0 (data.md open question stays open for the real rollout): not yet answered.
+- Galileo is getting the Microsoft 365 admin credentials and asked to be guided through the admin process: `docs/setup/m365-admin.md` (new) orders every admin step (role check, `aa.test`, Teams custom app upload, Entra, SharePoint, India device) and links the other two setup files.
 
 Parked:
 - On `AA Principals`, restrict sharing to site owners only (site sharing settings), as extra hardening.
