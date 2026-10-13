@@ -148,7 +148,7 @@ stage 0 tests cover those.
 | Step | Status | Source |
 |---|---|---|
 | Create site: Active sites > Create; first Team site option is group-connected; URL from the name, suffixed if taken | Docs | [Create a site](https://learn.microsoft.com/en-us/sharepoint/create-site-collection) (updated 2026-07-06) |
-| "Browse more sites" > Team site gives a site with no group; time zone chosen at creation | Not in docs (the page does not say which template is groupless) | Interface; checked by the "no group" check in step 1 |
+| "Other options" > Team site gives a site with no group; time zone chosen at creation | Not in docs. Seen on screen 2026-10-13: tenant shows **Other options** > template **Team site**, text "This option does not create a Microsoft 365 Group, shared Outlook inbox, shared calendar, OneNote notebook, or Planner plan." | Interface (Galileo's screenshot) |
 | Group-connected team sites: default groups' permissions cannot be modified | Docs | [Customize SharePoint site permissions](https://learn.microsoft.com/en-us/sharepoint/customize-sharepoint-site-permissions) (updated 2026-07-01), note under *Assign a new permission level* |
 | Grant Permissions > Show options > choose permission level; Edit User Permissions | Docs | same page, *Grant site access to a group*, *Assign a new permission level* |
 | Members group default is Edit; Edit includes Manage Lists; Contribute does not | Docs | [Understanding permission levels](https://learn.microsoft.com/en-us/sharepoint/understanding-permission-levels) (updated 2026-07-01) |
