@@ -190,6 +190,29 @@ All in one commit `cleanup to CLAUDE.md 1.0`, except A0 (a tag, before the commi
 
 - `README.md` is one line; a short pointer to CLAUDE.md and the commands would help a future maintainer.
 
-## Step 8: verification
+## Step 7: executed (2026-10-13)
 
-Not run yet. Appended here after the approved actions are executed.
+Galileo approved every item ("Approved", all of A0 to A10 and E0 to E7, including E7).
+- Tag `pre-constitution-1.0` on `04799bd`.
+- Commit `273c83c` "cleanup to CLAUDE.md 1.0": A1 to A6 and E0 to E7. CLAUDE.md is 1.1; both stage 0 briefs expect 1.1.
+- Removed outside git (never tracked): `CLAUDE_Old.md`, `files.zip`, empty `files/` and `Init_code/`.
+- A10: `BLAST System Protocol.docx` moved to `C:\Projects_Cowork\AA_Planning\` (assumption: no planning folder was named, so I created this one next to the repo).
+- Not pushed. The hosted site still serves `04799bd`; the next push to `main` deploys this commit.
+
+## Step 8: verification (2026-10-13)
+
+**Build and app: verified.**
+- `npm test`: 2 files, 22 tests passed.
+- `npm run build`: passed (`tsc --noEmit`, then Vite built `dist/index.html`, `dist/auth.html`, `dist/assets/main-D-cX7ZLJ.js`).
+- `npm run entra:values` (now `tools/`): runs, prints the same redirect URIs and manifest values as before.
+- `npm run teams:package` (now `tools/`): runs and stops with "src/config.ts still contains REPLACE_ME values", its intended guard. Same behaviour as before the move.
+- Dev: `npm run dev` served `http://localhost:5173/AA-App/` with HTTP 200, title "Agency Artifact"; `src/main.tsx` and `auth.html` also 200.
+- Hosted: `https://agencyartifact.github.io/AA-App/` HTTP 200, title "Agency Artifact", serving `assets/main-D-cX7ZLJ.js`, the same bundle hash as the local build of this commit (the cleanup changed no app code, only one comment).
+- Checked over HTTP, not rendered in a browser or in Teams.
+
+**Tree against the file map.** Every top-level item is in the file map except:
+- `README.md`, `package.json`, `package-lock.json`, `tsconfig.json`, `vite.config.ts`, `.gitignore`: standard project files, kept by convention.
+- `node_modules/`, `dist/`: git-ignored install and build output.
+- `.claude/`: git-ignored, machine-local Claude Code settings.
+
+**Project CLAUDE.md.** The root `CLAUDE.md` is the only one in the repo and in its parent folders.
