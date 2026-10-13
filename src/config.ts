@@ -23,7 +23,7 @@ export const config = {
 
   sharepoint: {
     // Example: "agencyartifact.sharepoint.com"
-    hostname: "REPLACE_ME.sharepoint.com",
+    hostname: "agencyartifact.sharepoint.com",
     operations: {
       sitePath: "/sites/AAOperations",
       lists: {
