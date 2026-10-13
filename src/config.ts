@@ -16,9 +16,9 @@ export const config = {
 
   entra: {
     // Application (client) ID of the "Agency Artifact" registration.
-    clientId: "REPLACE_ME_CLIENT_ID",
+    clientId: "503412e0-1cec-47b4-8a28-888cda0c8493",
     // Directory (tenant) ID of the Agency Artifact tenant.
-    tenantId: "REPLACE_ME_TENANT_ID",
+    tenantId: "6a257495-c628-470a-855d-94ccaedc4d7a",
   },
 
   sharepoint: {
