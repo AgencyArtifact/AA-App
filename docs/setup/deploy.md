@@ -1,7 +1,7 @@
 # Hosting and Teams package (stage 0, task T4)
 
 The app is a static site on GitHub Pages: repository `AgencyArtifact/AA-App`
-(public while it holds no real data; see the public repository rule in
+(public while it holds no real data; see "Public repo" under Current state in
 `CLAUDE.md`). There is no server.
 
 ## 1. The one address

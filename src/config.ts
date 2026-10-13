@@ -2,7 +2,7 @@
 // Galileo fills the REPLACE_ME values (see docs/setup/entra-app.md and
 // docs/setup/deploy.md).
 //
-// This file is also read by the Node scripts in scripts/ (Node type
+// This file is also read by the Node scripts in tools/ (Node type
 // stripping), so keep it to plain declarations: no enums, no namespaces,
 // no imports.
 

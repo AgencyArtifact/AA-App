@@ -12,8 +12,8 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "teams:package": "node scripts/build-teams-package.mjs",
-    "entra:values": "node scripts/print-entra-values.mjs"
+    "teams:package": "node tools/build-teams-package.mjs",
+    "entra:values": "node tools/print-entra-values.mjs"
   },
   "dependencies": {
     "@azure/msal-browser": "5.25.0",
