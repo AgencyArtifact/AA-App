@@ -1,0 +1,9 @@
+node_modules/
+dist/
+dist-teams/
+*.local
+.env*
+# Real workbooks (real names, rates, fees). Never commit. Fictional copies are in test-data/excel/.
+Excell/
+# Machine-local Claude Code settings.
+.claude/settings.local.json

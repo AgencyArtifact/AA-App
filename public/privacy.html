@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Privacy · Agency Artifact</title>
+    <style>
+      :root { --bg: #fff; --fg: #111; --muted: #6b6b6b; color-scheme: light dark; }
+      @media (prefers-color-scheme: dark) { :root { --bg: #111; --fg: #f2f2f2; --muted: #a0a0a0; } }
+      body { margin: 0; background: var(--bg); color: var(--fg);
+             font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+      main { max-width: 640px; margin: 0 auto; padding: 24px 16px 48px; }
+      .brand { font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+      h1 { font-size: 26px; margin: 8px 0 24px; }
+      h2 { font-size: 18px; margin: 28px 0 8px; }
+      p, li { margin: 0 0 8px; }
+      ul { padding-left: 20px; }
+      .muted { color: var(--muted); font-size: 14px; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="brand">Agency Artifact</div>
+      <h1>Privacy</h1>
+      <p>This page explains, in plain words, what the Agency Artifact app keeps about you and who can see it.</p>
+
+      <h2>What the app stores</h2>
+      <p>What you enter yourself: your own hours, your tasks and any unplanned work you log.</p>
+
+      <h2>Where it is stored</h2>
+      <p>In the firm's own Microsoft 365, the same place as our other work files. The app is only a set of pages: it reads and saves through your own Microsoft sign-in, and keeps nothing on a server of its own.</p>
+
+      <h2>Who sees what</h2>
+      <ul>
+        <li><strong>Principals</strong> see everything, including financial information.</li>
+        <li><strong>Coordinators</strong> see the day-to-day status of all projects. They do not see financial information.</li>
+        <li><strong>Team members</strong> see the tasks, deliverables and deadlines of their own projects.</li>
+      </ul>
+      <p>Financial information is kept in a separate area of Microsoft 365 that only the principals can open. That is enforced by Microsoft 365 permissions, not just by hiding screens.</p>
+
+      <h2>What the app does not do</h2>
+      <ul>
+        <li>It does not read your email, calendar or file activity, and does not guess your hours or tasks from them.</li>
+        <li>It does not send anything outside the office automatically.</li>
+      </ul>
+
+      <h2>Questions</h2>
+      <p>Ask either principal.</p>
+
+      <p class="muted">Last updated 12 October 2026.</p>
+    </main>
+  </body>
+</html>
