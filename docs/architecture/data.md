@@ -1,53 +1,91 @@
 # Data layer
 
-SOP. Version 1.0, 2026-10-13.
-Status: everything in this file is ASSUMED until the stage 0 report verifies it. Update each section to "verified" with a reference to the report as evidence arrives.
+SOP. Version 1.1, 2026-10-13 (stage 0 Blueprint, T1). Changes from 1.0 are listed at the end.
+Status: everything in this file is ASSUMED until the stage 0 report verifies it. Each statement is marked "docs" when current Microsoft documentation states it (source in `docs/setup/`), otherwise it is assumed. Update to "verified" with a reference to the report as evidence arrives.
 
 ## Principle
 
 The financial boundary lives here. Access is decided by SharePoint permissions, applied to the signed-in user's own delegated token. The app never decides access. Because the app can only do what the user can already do in SharePoint, the boundary holds even if the app has a bug.
+Docs: a delegated Graph token "can't access anything the signed-in user couldn't access" (Graph permissions overview).
 
 ## Sites
 
 | Site | Holds | Members | Teams connection |
 |---|---|---|---|
-| `AA Principals` | All financial data, and anything calculated from it | Galileo, Chris | None. Standalone, never connected to a Teams team, because team membership would then control site membership. |
-| `AA Operations` | Operational data: register (operational fields), hours, tasks, deliverables | All staff | Open question |
+| `AA Principals` (`/sites/AAPrincipals`) | All financial data, and anything calculated from it | Galileo, Chris | None. Team site with no Microsoft 365 group, never connected to a Teams team, because team membership would then control site membership. |
+| `AA Operations` (`/sites/AAOperations`) | Operational data: register (operational fields), hours, tasks, deliverables | All staff | Open question. Stage 0 uses a team site with no Microsoft 365 group (see below). |
 
 Rules:
 - Financial data, and anything calculated from it, lives only on `AA Principals`.
 - `AA Principals` has no grants to Everyone, Everyone except external users, or any group beyond the principals.
 - Hours are operational and live on `AA Operations`. Hours converted into money live only on `AA Principals`.
+- Both sites use the Pacific time zone in their regional settings. Assumed: this setting decides how date-only values are stored (see Dates).
+
+Why no Microsoft 365 group on `AA Operations` either (docs): on group-connected team sites the permissions of the default groups cannot be modified, the Members group has the Edit level, and on Public sites "Everyone except external users" is added to Members automatically. The permission design below needs team members at Contribute, not Edit.
 
 ## Permission levels on AA Operations
 
 | Role | Level | Effect on hour lists |
 |---|---|---|
-| Principals | Full Control (site owners) | Everything |
+| Principals | Full Control (site Owners group) | Everything |
 | Coordinators | Custom level "Coordinator": Contribute plus Override List Behaviors | Edit and delete any row |
-| Team | Contribute | Create rows; edit and delete only rows they created |
+| Team | Contribute, granted directly or through a custom group, never the default Members group | Create rows; edit and delete only rows they created |
+
+Team members must never hold Edit (the default Members level). Docs: Edit includes Manage Lists, Contribute does not. With Manage Lists a team member could change list settings, including the own-items rule below.
 
 Hour lists use the list setting "Create and edit access: create items and edit items that were created by the user". Users whose level includes Override List Behaviors bypass it.
-Assumed: the bypass applies to Graph writes the same way it applies in the SharePoint interface. Tested in stage 0.
+- Docs (SharePoint Server page only): Override List Behaviors lets a user "change or override settings which allow users to read/edit only their own items"; it is in Full Control and Design, not in Edit or Contribute. The SharePoint in Microsoft 365 page names the same permission "Override Check-Out" and does not mention the own-items bypass.
+- Not in docs: the item-level setting itself, whether it also blocks deleting other users' rows, and whether the bypass applies to Graph writes the same way as in the SharePoint interface. Tested in stage 0 (criterion 6).
 
-Audit: version history is on for every list holding hours, so every correction shows who changed what.
-Assumed: version history is on by default for new lists. Checked in stage 0.
+Audit: version history is on for every list holding hours, so every correction shows who changed what. It is switched on explicitly in each list's Versioning settings. Docs do not state a default for lists, so the default is never relied on.
 
 ## App registration
 
-Single-tenant Entra app, SPA platform, delegated Graph permissions `User.Read` and `Sites.ReadWrite.All`, admin consent, no client secret. Exact steps in `docs/setup/entra-app.md` (written in stage 0).
+Single-tenant Entra app, SPA platform, delegated Graph permissions `User.Read` and `Sites.ReadWrite.All`, admin consent, no client secret. Exact steps in `docs/setup/entra-app.md`.
+Docs: `Sites.ReadWrite.All` is the least-privileged delegated permission for creating, updating and deleting list items. A narrower delegated `Sites.Selected` exists but needs an explicit per-site grant; parked.
 
 ## Dates and time zones
 
 Open. The team works in Los Angeles and India.
-Assumed: SharePoint date-only columns are stored as a UTC instant derived from the site's regional time zone, so a "today" written from India can read as a different date elsewhere.
+Assumed: SharePoint date-only columns are stored as a UTC instant derived from the site's regional time zone, so a "today" written from India can read as a different date elsewhere. Docs are silent on storage and on how to write a date-only value through Graph.
 Stage 0 compares a date column with a `YYYY-MM-DD` text column. No real list gets a date column until the result is in.
 
 ## Lists
 
-Stage 0 test lists only: `TestHours` (Operations), `TestFees` (Principals). Real lists are defined in the Blueprint gate of the stage that introduces the project register.
+Stage 0 test lists only. Real lists are defined in the Blueprint gate of the stage that introduces the project register. Column names are internal names: created exactly as written, never renamed. Setup: `docs/setup/sharepoint-sites.md`.
+
+### TestHours (AA Operations)
+
+| Column | SharePoint type | Graph field and value written | Notes |
+|---|---|---|---|
+| `Title` | Single line of text (default, required) | `Title`: string | Short label written by the app |
+| `Person` | Person, single | `PersonLookupId`: string, the user's id in the site's User Information List | Assumed convention (Microsoft Q&A only). The app looks the id up by UPN; if not found the field is left empty |
+| `Date` | Date and time, date only | `Date`: `YYYY-MM-DD`, device-local date | Raw value returned by Graph is recorded by the diagnostic |
+| `WorkDate` | Single line of text | `WorkDate`: `YYYY-MM-DD`, device-local date | Same date as `Date`, as plain text |
+| `Hours` | Number, 1 decimal | `Hours`: number, multiples of 0.5 | Unit: hours |
+
+Settings: Read access "Read all items"; Create and Edit access "Create items and edit items that were created by the user"; versioning on.
+Access: team (Contribute) creates rows and edits or deletes its own; coordinators and principals edit or delete any.
+
+### TestFees (AA Principals)
+
+| Column | SharePoint type | Notes |
+|---|---|---|
+| `Title` | Single line of text (default) | |
+| `Project` | Single line of text | One row holds a distinctive made-up word, used for the Microsoft Search check |
+| `Fee` | Number | Financial. The app reads the item count only, never field values |
+
+Access: principals only, by site membership.
 
 ## Open questions
 
-- Can team members read other people's hours, or only their own? The direction brief says hours are operational and visible, but not to whom.
-- Is `AA Operations` connected to a Teams team?
+- Can team members read other people's hours, or only their own? Stage 0 uses "Read all items". The direction brief says hours are operational and visible, but not to whom.
+- Is `AA Operations` connected to a Teams team? Stage 0 says no; connecting it would give team members Edit through the group, which this SOP forbids.
+
+## Changes from 1.0
+
+- Sites: both are team sites with no Microsoft 365 group, Pacific time zone, URLs fixed. Reason: docs on group-connected sites (default groups not editable, Members at Edit, Everyone except external users on Public sites).
+- Team level: "never the default Members group (Edit)". Reason: docs, Edit includes Manage Lists.
+- Override List Behaviors: documentation status recorded (Server page only; SharePoint Online page calls it Override Check-Out).
+- Version history: set explicitly, default not relied on. Reason: docs state no default for lists.
+- Lists: column schemas of `TestHours` and `TestFees` written out.

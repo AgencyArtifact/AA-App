@@ -31,6 +31,13 @@ Done once in stage 0 (2026-10-13): local repo linked to
 set to **GitHub Actions** (repository **Settings** > **Pages** > **Build and
 deployment** > **Source**).
 
+Push as `AgencyArtifact`. On this machine plain `git push` uses the
+`Galileo1986` login and is refused (403, see `docs/findings.md`). Use:
+
+```powershell
+git -c credential.helper= -c "credential.helper=!gh auth git-credential" push -u origin main
+```
+
 Every push to `main` runs `.github/workflows/deploy-pages.yml`: install, test,
 build, publish. When the run in the **Actions** tab is green, these open in a
 browser:

@@ -37,10 +37,13 @@ If `appUrl` changes (custom subdomain), the three redirect URIs change. Follow
 
 ### 1. Register the app
 
-1. Open <https://entra.microsoft.com> and sign in with your Global Admin account.
+1. Open <https://entra.microsoft.com> and sign in with your Global Admin account
+   (Application Developer is enough to register; granting admin consent needs
+   Cloud Application Administrator or higher).
 2. Go to **Entra ID** > **App registrations** > **New registration**.
 3. **Name:** `Agency Artifact`
-4. **Supported account types:** *Accounts in this organizational directory only (single tenant)*.
+4. **Supported account types:** *Single tenant only - <your tenant>* (older
+   wording: *Accounts in this organizational directory only*).
 5. **Redirect URI:** platform **Single-page application (SPA)**, value: the
    `brk-multihub://` URI from `npm run entra:values`.
 6. Select **Register**.
@@ -84,7 +87,7 @@ Application ID URI under **Expose an API**, and do not create anything under
 - [ ] No certificates or secrets.
 - [ ] Client ID and tenant ID pasted into `src/config.ts`.
 
-## Sources (checked 2026-10-12)
+## Sources (checked 2026-10-13)
 
 | Setting | Why | Source |
 |---|---|---|
@@ -92,15 +95,18 @@ Application ID URI under **Expose an API**, and do not create anything under
 | `brk-multihub://<domain>` | "The redirect URI indicates to the Microsoft identity platform that your app can be brokered by supported hosts"; origin only, no sub-path. | same page, *Add trusted brokers* |
 | No Application ID URI, no server | The page's comparison table marks *Register API in Microsoft Entra ID*, *Define a custom scope*, *Authorize Teams client apps* and *Conduct an OBO exchange on the server* as required for traditional Teams SSO but **not** for NAA. | same page, comparison table |
 | `auth.html` redirect | MSAL.js v5 requires a redirect bridge page that calls `broadcastResponseToMainFrame()`, served from the same origin, and matching the registered redirect URI exactly. | [MSAL v4 → v5 migration](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/v4-migration.md) |
-| Single tenant | Only Agency Artifact accounts sign in. | [Configure single-page app](https://learn.microsoft.com/en-us/entra/identity-platform/scenario-spa-app-configuration) |
-| `Sites.ReadWrite.All` delegated | Least-privileged delegated permission for creating list items. | [Create listItem](https://learn.microsoft.com/en-us/graph/api/listitem-create?view=graph-rest-1.0), permissions table |
-| Admin consent | The button is *Grant admin consent for {tenant}*. | [API permissions and admin consent](https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-configure-app-access-web-apis) |
-| `webApplicationInfo.id` in the manifest | Recommended for NAA so admins can approve the app's permissions in the Teams admin center. Uses the client ID only; `resource` is optional and not set. | NAA page, note under the comparison table |
+| Single tenant, click path | Only Agency Artifact accounts sign in. Path *Entra ID > App registrations > New registration*; option *Single tenant only*. | [Register an application](https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-register-app) (updated 2026-06-15) |
+| `Sites.ReadWrite.All` delegated | Least-privileged delegated permission for creating, updating and deleting list items (reads need only `Sites.Read.All`, which it includes). | [Create listItem](https://learn.microsoft.com/en-us/graph/api/listitem-create) (updated 2026-07-09), [Update](https://learn.microsoft.com/en-us/graph/api/listitem-update) (2026-06-19), [Delete](https://learn.microsoft.com/en-us/graph/api/listitem-delete) (2026-07-09), permissions tables |
+| Delegated cannot exceed the user | "The application can't access anything the signed-in user couldn't access." | [Permissions overview](https://learn.microsoft.com/en-us/graph/permissions-overview) (updated 2026-09-04) |
+| Admin consent | Path *API permissions > Add a permission > Microsoft Graph > Delegated permissions*; the button is *Grant admin consent for {tenant}*. | [Configure app access to web APIs](https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-configure-app-access-web-apis) (updated 2026-06-15) |
+| `webApplicationInfo.id` in the manifest | Recommended, not required, for NAA (lets admins approve the app's permissions in the Teams admin center). Required only for token prefetch, which is parked. Uses the client ID only. | NAA page, note under the comparison table |
+| Client support | The NAA page has no per-client table and warns that some older clients may lack support (the app then stops with a FATAL message, no fallback). A Microsoft developer blog post (2025-05-06, not Learn) says NAA is supported on desktop, mobile and web for personal tabs. The test matrix verifies each client. | NAA page; [Microsoft 365 Developer blog](https://devblogs.microsoft.com/microsoft365dev/) |
+| Popup, not redirect | Under NAA, `loginRedirect` and `acquireTokenRedirect` are not supported; `acquireTokenSilent`, `ssoSilent` and `acquireTokenPopup` are. `src/auth/graphAuth.ts` uses only those three. | [NAA in Office add-ins](https://learn.microsoft.com/en-us/office/dev/add-ins/develop/enable-nested-app-authentication-in-your-add-in) (updated 2026-01-23), same MSAL behaviour |
 
 ## Note on `Sites.ReadWrite.All`
 
 The name sounds broad. As a **delegated** permission it does not give the app
 access to every site: Graph acts as the signed-in user, and SharePoint applies
 that user's own permissions. aa.test gets nothing on `AA Principals` because
-aa.test is not a member of it. That is exactly what go criterion 2 tests.
+aa.test is not a member of it. That is what go criterion 3 tests.
 A narrower model (`Sites.Selected`) is parked in the stage report.

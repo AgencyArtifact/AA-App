@@ -1,5 +1,48 @@
 # Stage 0 report: Microsoft 365 feasibility
 
+Brief: `stage-0-feasibility.md` version 2. CLAUDE.md 1.1.
+
+## Gate status (brief v2)
+
+| Gate | Status | Date |
+|---|---|---|
+| T0 cleanup | Passed. Report approved, step 8 appended: `docs/stages/stage-0-T0-cleanup-report.md` | 2026-10-13 |
+| Blueprint (T1) | **Awaiting Galileo's approval (HALT)** | 2026-10-13 |
+| Link (T2 to T5, test matrix) | Not started | |
+| Stylize | Not started | |
+| Trigger | Not started | |
+
+## T1: Blueprint
+
+Delivered:
+- `docs/setup/sharepoint-sites.md` (new): both sites, both lists, own-items setting, versioning, Coordinator level, Everyone-grant check, Search positive control. Every step marked "Docs" or "Not in docs" with its source.
+- `docs/setup/entra-app.md` (revised): current Entra wording and roles, sources rechecked 2026-10-13, client support and popup-only notes.
+- `docs/architecture/data.md` 1.0 to 1.1: changes listed at the end of that file. Summary below.
+- `src/config.ts`: already holds client ID, tenant ID (placeholders), host name, site paths and list names from the v1 rounds. No change needed.
+
+Where the documentation changed `data.md`:
+1. Both sites are team sites with no Microsoft 365 group. Docs: on group-connected team sites the default groups' permissions cannot be modified and Members get Edit.
+2. Team members get Contribute and never the default Members group, because Edit includes Manage Lists (docs), which would let them switch off the own-items rule.
+3. Override List Behaviors and its own-items bypass are documented only for SharePoint Server. The SharePoint in Microsoft 365 page calls the permission "Override Check-Out". Criterion 6 is the real test.
+4. Version history is switched on explicitly: docs state no default for lists.
+5. Sites set to the Pacific time zone at creation, since the date-only assumption depends on it.
+
+Not found in any current Microsoft documentation (so they rest on the tests, not on docs): the item-level permission setting and its wording, the "Check Permissions" route for Everyone groups, how date-only values are stored or written through Graph, the `PersonLookupId` field convention, which "Browse more sites" template is groupless.
+
+Assumed (low-risk technical choices):
+- Site addresses `AAPrincipals` and `AAOperations`, matching `src/config.ts`.
+- TestHours keeps the default `Title` column; the app writes a label in it.
+- `aa.test` granted Contribute directly rather than through a custom group (one test user).
+
+Open questions for Galileo:
+- Q8. Pacific time zone on both sites: confirm. The India date-boundary case is measured against it.
+- Q9. `AA Operations` without a Microsoft 365 group for stage 0 (data.md open question stays open for the real rollout): confirm.
+
+Parked:
+- On `AA Principals`, restrict sharing to site owners only (site sharing settings), as extra hardening.
+
+## Rounds 1 and 2 (brief v1), kept for reference
+
 Status (2026-10-13): **code and instructions delivered; pushed to
 `AgencyArtifact/AA-App` and deployed to GitHub Pages; tenant tests not yet
 run.** No go/no-go yet.
@@ -95,7 +138,7 @@ are case-sensitive (`/aa-app/` returns 404).
 | 6 | `public/privacy.html`, `public/terms.html`; manifest points at them. |
 | 7 | `config.appUrl` is the single address; origin, host, base path, redirect URIs, tab URLs, privacy/terms URLs derived in `src/config.ts`. `vite.config.ts` and both scripts use the derived values. New `npm run entra:values`. *Switching the domain* section in `deploy.md`; `entra-app.md` uses the configured address. |
 | 8 | Manifest name *Agency Artifact* (short and full); tabs **Home** (`#/`) and **Diagnostic**. App screens titled Agency Artifact. |
-| — | SharePoint calls moved to `src/graph/sharepoint.ts` and date helpers to `src/dates.ts`, shared by the diagnostic and `#/log`. Same behaviour. |
+| n/a | SharePoint calls moved to `src/graph/sharepoint.ts` and date helpers to `src/dates.ts`, shared by the diagnostic and `#/log`. Same behaviour. |
 | Icons | `outline.png` regenerated as a solid "A" (the logo glyph with its hairline gaps closed). `color.png` unchanged. |
 
 ## Test matrix
