@@ -34,13 +34,13 @@ is the simplest single role that covers every part below.
    - First name `AA`, last name `Test`, display name `AA Test`, username `aa.test`, domain: the firm's domain.
    - Password: keep **Automatically create a password** and **Require this user to change their password when they first sign in**.
    - **Next**.
-3. **Assign product licenses**: location **United States**, license **Microsoft 365 Business Basic**. **Next**.
+3. **Assign product licenses**: location **United States**, license **Microsoft 365 Business Standard** only (the tenant has no Business Basic; Standard is a superset, and Teams and SharePoint behave the same). Leave **Power Automate Free** unticked: aa.test only receives reminders. **Next**. Remove the license when stage 0 ends to free the seat.
 4. **Optional settings**: leave **Roles** as *User (no admin center access)*. **Next**.
 5. **Finish adding**. Copy the temporary password from the completion page; keep it off the repo and off chat.
 6. In a private browser window, sign in once as `aa.test` at <https://www.office.com>, set the new password, and complete any sign-in security prompt.
 
 Check:
-- [ ] `aa.test@<domain>` appears in **Active users** with Business Basic.
+- [ ] `aa.test@<domain>` appears in **Active users** with Business Standard.
 - [ ] `aa.test` can sign in and open Teams on the web (<https://teams.microsoft.com>).
 
 ## 3. Allow custom app upload in Teams

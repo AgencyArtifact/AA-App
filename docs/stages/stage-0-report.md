@@ -34,6 +34,9 @@ Assumed (low-risk technical choices):
 - TestHours keeps the default `Title` column; the app writes a label in it.
 - `aa.test` granted Contribute directly rather than through a custom group (one test user).
 
+Deviations from the brief:
+- `aa.test` has Microsoft 365 Business Standard, not Business Basic: the tenant has no Business Basic licenses (Galileo's screen, 2026-10-13: Business Standard 3 of 12 available, Power Automate Free). Standard includes everything Basic does; Teams, SharePoint and sign-in are the same, so the test is unaffected. One paid seat in use; release it after stage 0.
+
 Open questions for Galileo:
 - Q8. Galileo, 2026-10-13: "I want 2 time zones, India and US." A SharePoint site holds one regional time zone, so two zones are carried by people and devices, not by the site: each entry uses the device's local date (`WorkDate` text), and one reminder flow runs per zone. Proposed: both sites keep Pacific as the storage reference. Awaiting confirmation.
 - Q9. `AA Operations` without a Microsoft 365 group for stage 0 (data.md open question stays open for the real rollout): not yet answered.
