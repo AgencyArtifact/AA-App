@@ -42,38 +42,73 @@ Check:
 
 ## 2. Members of each site
 
-### AA Principals: Galileo and Chris only
+This part uses three SharePoint pages. Each has a fixed address; paste it in
+the browser to be sure you are on the right one. `<site>` is
+`https://agencyartifact.sharepoint.com/sites/AAPrincipals` or
+`.../sites/AAOperations`.
 
-1. On the site: **Settings** > **Site permissions** > **Advanced permissions settings**.
-2. Open the **AA Principals Owners** group and add Chris (you are already in it as primary administrator).
-3. Leave **Members** and **Visitors** groups empty.
+| Page | Address | How you recognise it |
+|---|---|---|
+| **P1. Permissions page** | `<site>/_layouts/15/user.aspx` | Title "Permissions"; ribbon with **Grant Permissions**, **Check Permissions**, **Permission Levels**; table with columns **Name**, **Type**, **Permission Levels** |
+| **P2. A group's page** | open it from P1 by selecting the group's name | Title "People and Groups > <group name>"; menu **New**, **Actions**, **Settings**; list of the group's members |
+| **P3. Site collection administrators** | `<site>/_layouts/15/mngsiteadmin.aspx` | Title "Site Collection Administrators"; one box with names |
 
-Check (this is the "no Everyone grant" check of go criterion 3):
-- [ ] The **Advanced permissions settings** page lists only the three site groups (Owners, Members, Visitors), with no other row.
-- [ ] Owners contains exactly Galileo and Chris. Members and Visitors are empty.
-- [ ] No row and no group member is `Everyone`, `Everyone except external users`, or any other group.
-- [ ] Ribbon **Check Permissions**: enter `Everyone except external users`, select **Check Now**. Result: **None**.
-- [ ] `Everyone`: the people picker may refuse it (seen 2026-10-13: it cannot be typed). Then the two checks above (no `Everyone` row on this page, Members and Visitors empty) are the check. Note: **People and Groups** may list `Everyone` and `Everyone except external users` as entries; that list alone is not a grant. Go criterion 3 is the behavioural proof.
-- [ ] **Site Collection Administrators** (Site settings > Users and Permissions): note who is listed. A tenant admin role group may appear there; that is expected and not a grant to staff. Write what you see in the test checklist.
+The page called **People and Groups** with a list of groups (your screenshot of
+2026-10-13) is a fourth page. It is not used here; ignore the `Everyone`
+entries it may show.
 
-### AA Operations: Galileo, Chris, and aa.test at Contribute
+### 2a. AA Principals: Galileo and Chris only
 
-1. On the site: **Settings** > **Site permissions** > **Advanced permissions settings**.
-2. Open the **AA Operations Owners** group and add Chris.
-3. Back on **Advanced permissions settings**, ribbon **Grant Permissions**.
-4. Type `aa.test`. Select **Show options**.
-5. Under **Select a permission level**, choose **Contribute**.
-   Not the default (**Members**, which is **Edit**): Edit includes *Manage
-   Lists*, which would let aa.test switch off the own-items rule of step 4.
-6. Untick **Send an email invitation** if you prefer. Select **Share**.
+On **P1** (`https://agencyartifact.sharepoint.com/sites/AAPrincipals/_layouts/15/user.aspx`):
+1. Look at the table. Expected: three rows, *AA Principals Owners* (Full Control), *AA Principals Members*, *AA Principals Visitors*. Nothing else.
+2. Ribbon **Check Permissions**: type `Everyone except external users`, select it, **Check Now**. Expected: **None**.
+   (`Everyone` cannot be typed in this tenant. That is fine: step 1 and 2b cover it.)
+3. Select the name **AA Principals Owners**. This opens P2 for that group.
+
+On **P2, AA Principals Owners**:
+4. **New** > **Add Users** > type `Chris` > **Share**. Expected members: you and Chris, nobody else.
+5. Go back to P1 (browser Back, or paste the P1 address again).
+
+On **P1** again:
+6. Select **AA Principals Members**. On its P2: expected empty. Back to P1.
+7. Select **AA Principals Visitors**. On its P2: expected empty.
+
+On **P3** (`https://agencyartifact.sharepoint.com/sites/AAPrincipals/_layouts/15/mngsiteadmin.aspx`):
+8. Read the names in the box. Change nothing. Send them to Claude Code. A tenant admin entry may appear; that is expected.
+
+Check (the "no Everyone grant" part of go criterion 3):
+- [ ] P1 shows only the three AA Principals groups.
+- [ ] Check Permissions for `Everyone except external users`: None.
+- [ ] Owners: Galileo and Chris. Members and Visitors: empty.
+- [ ] Names on P3 sent to Claude Code.
+
+### 2b. AA Operations: Galileo, Chris, and aa.test at Contribute
+
+On **P1** (`https://agencyartifact.sharepoint.com/sites/AAOperations/_layouts/15/user.aspx`):
+1. Select the name **AA Operations Owners**. This opens its P2.
+
+On **P2, AA Operations Owners**:
+2. **New** > **Add Users** > type `Chris` > **Share**. Expected members: you and Chris.
+3. Go back to P1.
+
+On **P1** again:
+4. Ribbon **Grant Permissions**. A sharing box opens.
+5. Type `aa.test` and select the account. Select **Show options**.
+6. Under **Select a permission level**, choose **Contribute**.
+   Not the default (*AA Operations Members*, which is **Edit**): Edit includes
+   *Manage Lists*, which would let aa.test switch off the own-items rule of part 4.
+7. Untick **Send an email invitation** if you prefer. **Share**.
+8. The table now shows a row `AA Test`, type User, permission level **Contribute**.
+9. Ribbon **Check Permissions**: type `aa.test`, **Check Now**. Expected: **Contribute**, given directly, and nothing else.
 
 Check:
-- [ ] The page lists `aa.test` as its own row with permission level **Contribute**, and aa.test is in no site group.
-- [ ] Ribbon **Check Permissions** for `aa.test`: **Contribute** only.
+- [ ] P1 shows the three AA Operations groups plus `AA Test` at Contribute.
+- [ ] Check Permissions for aa.test: Contribute only.
+- [ ] Owners: Galileo and Chris. aa.test is not in Members, Owners or Visitors.
 
 ## 3. Coordinator permission level (on AA Operations)
 
-1. On AA Operations: **Settings** > **Site permissions** > **Advanced permissions settings**.
+1. On AA Operations, open **P1** (`https://agencyartifact.sharepoint.com/sites/AAOperations/_layouts/15/user.aspx`).
 2. Ribbon **Permission Levels**. Select the name **Contribute** (the link, not the checkbox).
 3. At the bottom select **Copy Permission Level**.
 4. **Name:** `Coordinator`. **Description:** `Contribute plus Override List Behaviors: edit and delete any row in own-items lists.`
@@ -88,8 +123,8 @@ Do not assign it to anyone yet. The test matrix assigns it to aa.test later.
 Check:
 - [ ] **Permission Levels** lists `Coordinator`. Open it: the Contribute permissions plus Override List Behaviors, nothing else.
 
-How to assign it later (test matrix, aa.test as coordinator): **Advanced
-permissions settings** > tick the `aa.test` row > ribbon **Edit User
+How to assign it later (test matrix, aa.test as coordinator): on **P1** of
+AA Operations, tick the `aa.test` row > ribbon **Edit User
 Permissions** > tick **Coordinator**, untick **Contribute** > **OK**. To go back,
 reverse the ticks.
 
