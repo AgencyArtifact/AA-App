@@ -1,7 +1,8 @@
 # Stage 0 report: Microsoft 365 feasibility
 
-Status after round 2 (2026-10-12): **code and instructions delivered; not
-pushed, not deployed; tenant tests not yet run.** No go/no-go yet.
+Status (2026-10-13): **code and instructions delivered; pushed to
+`AgencyArtifact/AA-App` and deployed to GitHub Pages; tenant tests not yet
+run.** No go/no-go yet.
 
 ## Step 1 answer: sign-in method
 
@@ -18,9 +19,9 @@ printed by `npm run entra:values`):
 
 | Item | Value with the current `appUrl` | Purpose |
 |---|---|---|
-| SPA redirect URI | `brk-multihub://agency-artifact.github.io` | Lets Teams (and other Microsoft 365 hosts) broker sign-in for the app: NAA. |
-| SPA redirect URI | `https://agency-artifact.github.io/aa-app/auth.html` | Browser-only popup sign-in returns here (blank bridge page). |
-| SPA redirect URI | `http://localhost:5173/aa-app/auth.html` | Same, for `npm run dev`. |
+| SPA redirect URI | `brk-multihub://agencyartifact.github.io` | Lets Teams (and other Microsoft 365 hosts) broker sign-in for the app: NAA. |
+| SPA redirect URI | `https://agencyartifact.github.io/AA-App/auth.html` | Browser-only popup sign-in returns here (blank bridge page). |
+| SPA redirect URI | `http://localhost:5173/AA-App/auth.html` | Same, for `npm run dev`. |
 | Application ID URI | **none** | NAA needs no exposed API, custom scope or pre-authorised Teams clients. |
 
 `docs/setup/entra-app.md` covers all four (now including the explicit "no
@@ -47,8 +48,11 @@ table showing no API registration / custom scope / OBO for NAA);
     Timeline, Forecast, Economics*; phase fees and staff hours per week.
   - `AA_Project_Tracker.xlsx`: a 2026 master schedule of projects.
 
-  These must not enter the public repo. I did not move, delete or ignore them;
-  waiting for your decision (Q1).
+  **Resolved 2026-10-13:** `Excell/` is git-ignored (verified with
+  `git check-ignore`; never staged). Fictional copies were made and committed
+  in `test-data/excel/` (see `test-data/excel/README.md`). Galileo decided that
+  the formulas of Chris's models are not sensitive, only names and figures;
+  `CLAUDE.md`'s public repository rule was updated accordingly.
 - Also seen, judged not to be real data under the rule (confirm, Q6): first
   names "Galileo" and "Chris" and their roles in `CLAUDE.md` and the docs;
   the brief copy in `Handoff/`.
@@ -57,18 +61,20 @@ table showing no API registration / custom scope / OBO for NAA);
 
 ## Step 3: push and deploy
 
-**Not done.** Two independent blockers:
+**Done 2026-10-13.** Repository `https://github.com/AgencyArtifact/AA-App`
+(public; GitHub user account `AgencyArtifact`, not an organization). The local
+repo was built on top of the remote's initial README commit; pushed as
+`AgencyArtifact` (the machine's older `Galileo1986` login is still stored but
+inactive). `config.appUrl` changed to the repo's exact case, since Pages paths
+are case-sensitive (`/aa-app/` returns 404).
 
-1. Step 2 found real data in the working tree; your instruction is to not push.
-2. The GitHub account signed in on this machine (`Galileo1986`) cannot see an
-   organization named `agency-artifact`: `GET /orgs/agency-artifact` returns
-   404, and the account lists no organization memberships. A public
-   organization is normally visible to anyone, so the name may differ (Q2).
-
-Pages URL: none yet. Expected after deploy:
-`https://agency-artifact.github.io/aa-app/`. First deploy result: not run.
-`docs/setup/deploy.md` has the exact commands for when both blockers are
-cleared.
+- **Pages URL: `https://agencyartifact.github.io/AA-App/`**, source *GitHub Actions*.
+- **First deploy: succeeded** (Actions run 38362378431: install, 22 tests, build, deploy).
+- Live check in a browser: Home, `#/log`, `privacy.html`, `terms.html` render;
+  all assets return 200; no page errors.
+- Warnings from GitHub on that run, not failures: the Node 20 based actions
+  are deprecated (forced onto Node 24), and `ubuntu-latest` moves to Ubuntu 26
+  from 2026-10-19. Parked.
 
 ## Go criteria status
 
@@ -133,7 +139,7 @@ Round 2:
   `--allow-placeholders` the manifest validates against the official v1.29
   schema (placeholders replaced by dummy values). It shows name *Agency
   Artifact*, tabs Home (`…/aa-app/#/`) and Diagnostic, privacy and terms
-  URLs on `…/aa-app/`, `validDomains` `agency-artifact.github.io`.
+  URLs on `…/AA-App/`, `validDomains` `agencyartifact.github.io`.
 - `outline.png`: 32×32 RGBA, every visible pixel pure white; checked
   visually at 8× zoom: a solid "A".
 - **Browser sign-in success path, against a mocked identity provider and
@@ -152,8 +158,6 @@ item ids only.
 
 ## Assumed
 
-- The organization is named `agency-artifact` and the repo will be
-  `agency-artifact/aa-app` (not reachable from this machine, Q2).
 - Real Microsoft Entra behaves like the mock for the browser popup:
   `response_mode=fragment`, the id token claims MSAL checks, `client_info`.
   The mock proves the app side of the flow, not Entra's.
@@ -210,15 +214,17 @@ item ids only.
 
 ## Open questions
 
-- Q1. `Excell/` real-data workbooks: move them out of the project folder (my recommendation; a `.gitignore` entry can be bypassed by one forced add or rename) or add `Excell/` to `.gitignore`?
-- Q2. Exact GitHub organization name, and which GitHub account should push (this machine is signed in as `Galileo1986`, which sees no organization `agency-artifact`)?
+- Q1. Resolved 2026-10-13: `Excell/` git-ignored; fictional copies in `test-data/excel/`.
+- Q2. Resolved 2026-10-13: `AgencyArtifact/AA-App`, pushed as `AgencyArtifact`.
 - Q3. Stopwatch start: the Teams icon on the phone's home screen (as written), or the Agency Artifact icon inside Teams? And is Teams in the background the pass condition, with a cold start only informative?
 - Q4. During stage 0, should the Home tab open directly on the log test to remove one tap from the timing?
 - Q5. Firm website URL for the manifest (`teamsApp.developerWebsiteUrl`, still `REPLACE_ME`).
 - Q6. Do first names and roles of the principals in `CLAUDE.md` and docs count as "staff data" under the public repo rule? I assumed not.
-- Q7. Keep `Handoff/stage-0-feasibility.md` (duplicate of `docs/stages/stage-0-feasibility.md`) in the repo, or remove it before the first commit?
+- Q7. Keep `Handoff/stage-0-feasibility.md` (duplicate of `docs/stages/stage-0-feasibility.md`) in the repo, or remove it? (It was included in the first commit.)
 
 ## Parked
+
+- Update the deploy workflow's actions to Node 24 based versions; `ubuntu-latest` moves to Ubuntu 26 on 2026-10-19.
 
 - Token prefetching via `webApplicationInfo.nestedAppAuthInfo` to speed first load (desktop and web only).
 - Evaluate delegated `Sites.Selected` to narrow Graph access to the two AA sites.
