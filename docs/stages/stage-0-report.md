@@ -304,7 +304,9 @@ Manage-scope test, safety run (aa.test at Contribute, Teams web, same build, 20:
 
 Criterion 6 status: team half verified (refused by every route). Coordinator half: not possible through the app with any single permission set. Decision needed on the mechanism (see options below, updated).
 
-Options now (Galileo's decision):
+**Decision (Galileo, 2026-10-13): option 1, coordinator corrections through a Power Automate flow.** Link probe first (`docs/setup/correction-flow.md`): an instant flow, as Galileo, edits and restores aa.test's row with the own-items setting on. Unknown until run: whether the SharePoint connector, itself an app, gets past the rule. Full design after the probe. Deviation from the brief to note: criterion 6 asks that version history show the coordinator as editor; with a flow it shows the flow's connection account, and the coordinator is recorded on the correction request instead.
+
+Options considered:
 1. **Power Automate flow applies coordinator corrections** (the brief's fallback). Works with today's permissions. Version history shows the flow's account; the coordinator's name is recorded in the request and the flow run.
 2. **Per-row permissions**: each new row gets unique permissions (creator: Contribute; coordinators and principals: edit), and the own-items setting goes off. SharePoint then checks the user, so team stays refused and coordinators pass, through Graph with today's scope. Costs one permission change per row (by a flow on creation) and many unique permissions over time; proportionate only while volume is small. Untested.
 3. **Separate coordinator app registration** with a manage scope, restricted in Entra to assigned users (coordinators only). Team members could not get its token. Second registration to maintain, and its scope would let coordinators past the rule on every list. Untested.
