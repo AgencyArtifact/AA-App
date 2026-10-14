@@ -64,6 +64,7 @@ export function LogTestScreen() {
       const created = await createTestHoursItem(t.siteId, {
         title: "stage0-log",
         date,
+        workDate: date,
         hours,
         personId: t.personId,
       });

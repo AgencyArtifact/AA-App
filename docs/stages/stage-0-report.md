@@ -7,8 +7,8 @@ Brief: `stage-0-feasibility.md` version 2. CLAUDE.md 1.1.
 | Gate | Status | Date |
 |---|---|---|
 | T0 cleanup | Passed. Report approved, step 8 appended: `docs/stages/stage-0-T0-cleanup-report.md` | 2026-10-13 |
-| Blueprint (T1) | **Awaiting Galileo's approval (HALT)** | 2026-10-13 |
-| Link (T2 to T5, test matrix) | Not started | |
+| Blueprint (T1) | Passed. Approved by Galileo in session | 2026-10-13 |
+| Link (T2 to T5, test matrix) | In progress. T2 checked, T3 revised (built and unit-tested, not yet run against the tenant) | 2026-10-13 |
 | Stylize | Not started | |
 | Trigger | Not started | |
 
@@ -18,7 +18,7 @@ Delivered:
 - `docs/setup/sharepoint-sites.md` (new): both sites, both lists, own-items setting, versioning, Coordinator level, Everyone-grant check, Search positive control. Every step marked "Docs" or "Not in docs" with its source.
 - `docs/setup/entra-app.md` (revised): current Entra wording and roles, sources rechecked 2026-10-13, client support and popup-only notes.
 - `docs/architecture/data.md` 1.0 to 1.1: changes listed at the end of that file. Summary below.
-- `src/config.ts`: already holds client ID, tenant ID (placeholders), host name, site paths and list names from the v1 rounds. No change needed.
+- `src/config.ts`: fully filled during T1 (client ID, tenant ID, host name, site paths, list names, firm website). No placeholders left.
 
 Where the documentation changed `data.md`:
 1. Both sites are team sites with no Microsoft 365 group. Docs: on group-connected team sites the default groups' permissions cannot be modified and Members get Edit.
@@ -53,13 +53,39 @@ Setup evidence (Galileo's screenshots, 2026-10-13):
 - Regional settings time zone: Pacific on both sites (Galileo's confirmation, 2026-10-13).
 - Microsoft Search positive control passed (screenshot, 2026-10-13): Galileo, organization scope, `Zanthorpe` finds `Fee test` in AA Principals > TestFees, "modified 26 minutes ago". The result snippet shows field values, so aa.test's search must return nothing at all. A first search from the start page was scoped to the root Communication site and found nothing; setup doc corrected.
 
+Decisions at T1 approval (Galileo, 2026-10-13):
+- Coordinator permission level: Galileo believes it is set correctly. Recorded as assumed, not verified: the ticked permission was never seen on screen. Criterion 6 tests it. If a coordinator is denied editing another user's row, check that permission first, before treating it as a Microsoft 365 limit.
+- Both Christopher Torres accounts stay as Owners of AA Principals, no further check. Untested: whether either is a guest account. Criterion 3 is judged with this unchecked.
+
 Open questions for Galileo:
-- Q8. Galileo, 2026-10-13: "I want 2 time zones, India and US." A SharePoint site holds one regional time zone, so two zones are carried by people and devices, not by the site: each entry uses the device's local date (`WorkDate` text), and one reminder flow runs per zone. Proposed: both sites keep Pacific as the storage reference. Awaiting confirmation.
-- Q9. `AA Operations` without a Microsoft 365 group for stage 0 (data.md open question stays open for the real rollout): not yet answered.
+- Q8. Closed (Galileo, 2026-10-13, reconfirmed at T1 approval): two time zones, India and US. Carried by people and devices: each entry stores the device's local date in `WorkDate`, and one reminder flow runs per zone. Both sites keep Pacific as the storage reference.
+- Q9. Closed for stage 0 (Galileo, 2026-10-13): stage 0 sites have no Microsoft 365 group. Whether the real `AA Operations` connects to a Teams team stays open in data.md.
 - Galileo is getting the Microsoft 365 admin credentials and asked to be guided through the admin process: `docs/setup/m365-admin.md` (new) orders every admin step (role check, `aa.test`, Teams custom app upload, Entra, SharePoint, India device) and links the other two setup files.
 
 Parked:
 - On `AA Principals`, restrict sharing to site owners only (site sharing settings), as extra hardening.
+
+## T2: authentication module
+
+`src/auth/graphAuth.ts` checked against brief v2: one exported function (`getGraphToken`) returns a delegated Graph token; NAA inside Teams, standard MSAL popup in a plain browser; silent first, interactive fallback; no secrets, no server; stops with an error if a Teams client does not recommend NAA. No change.
+
+## T3: diagnostic screen (revised for brief v2)
+
+Changed files: `src/graph/graph.ts` (PATCH allowed), `src/graph/sharepoint.ts`, `src/dates.ts`, `src/diagnostic/runDiagnostic.ts`, `src/diagnostic/report.ts`, `src/diagnostic/report.test.ts`, `src/diagnostic/DiagnosticScreen.tsx`, `src/log/LogTestScreen.tsx` (writes WorkDate too). Matches `data.md` 1.1; no SOP change needed.
+
+The report now shows: Teams host client; device time zone with UTC offset; the local date used as "today"; the write with Date and WorkDate both set to that date, and both values as Graph returns them (raw); an edit of a row created by another user, then its restore; TestFees item count only; seconds from page load to the write result, with the run number.
+
+Verified (2026-10-13, on Galileo's machine, clean install in a scratch copy): `tsc --noEmit` passes; `vitest run` 26 of 26 pass; `npm run build` succeeds.
+
+Assumed (low-risk technical choices):
+- The edit test changes the other user's `Title` by appending ` [diag edit]`, then restores it. Version history keeps both changes, which is the evidence criterion 6 asks for. A leftover mark from a failed restore is removed on the next run.
+- "Another user's row" is the first row whose creator differs from the signed-in user, compared by Entra object id (`createdBy.user.id`), falling back to email against UPN. Not in docs that the two ids are the same; if the comparison fails the row is still found by email.
+- New outcome SKIPPED when no row by another user exists. It is neither a pass nor a denial.
+- Timer: `performance.now()` counts from page load inside the Teams webview. Time spent by Teams before loading the page is not included, so criterion 2 is still timed by hand (stopwatch) from tapping the app; the on-screen figure is a cross-check. Reruns are labelled "not a cold start".
+
+Untested: everything above against the tenant (test matrix not run).
+
+Needed for the test matrix (goes into the checklist rewrite): a row created by `aa.test` must exist in TestHours, otherwise Galileo's edit test shows SKIPPED; a row created by Galileo (`Galileo row`) must exist for `aa.test`'s.
 
 ## Rounds 1 and 2 (brief v1), kept for reference
 

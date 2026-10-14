@@ -15,7 +15,7 @@ export interface GraphResult<T> {
 }
 
 export async function graph<T>(
-  method: "GET" | "POST" | "DELETE",
+  method: "GET" | "POST" | "PATCH" | "DELETE",
   pathOrUrl: string,
   body?: unknown,
   extraHeaders: Record<string, string> = {},

@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { runDiagnostic } from "./runDiagnostic";
-import { formatReport, type DiagnosticReport, type Outcome } from "./report";
+import { formatElapsed, formatReport, type DiagnosticReport, type Outcome } from "./report";
 
 const outcomeColor: Record<Outcome, string> = {
   PASS: "var(--pass)",
   DENIED: "var(--denied)",
   ERROR: "var(--error)",
+  SKIPPED: "var(--muted)",
 };
 
 export function DiagnosticScreen() {
@@ -61,6 +62,16 @@ export function DiagnosticScreen() {
             <dd>{report.user}</dd>
             <dt>Host</dt>
             <dd>{report.host}</dd>
+            <dt>Time zone</dt>
+            <dd>{report.timeZone}</dd>
+            <dt>Today</dt>
+            <dd>{report.localToday}</dd>
+            <dt>Write</dt>
+            <dd>
+              {report.writeElapsedMs === null
+                ? "no write attempted"
+                : `${formatElapsed(report.writeElapsedMs)} from page load (run ${report.runNumber})`}
+            </dd>
             <dt>Auth</dt>
             <dd>
               {report.authMode}, prompts: {report.interactivePrompts}
