@@ -38,8 +38,9 @@ export const config = {
       // Copied from a principal's diagnostic report, so the boundary test can
       // also try the by-id routes as a user who cannot look them up. Empty
       // until then: those steps show SKIPPED. Identifiers, not secrets.
-      siteId: "",
-      testFeesListId: "",
+      // From Galileo's diagnostic report, 2026-10-13 19:11 Los Angeles.
+      siteId: "agencyartifact.sharepoint.com,45102b95-5693-4911-bb67-ef42900b0555,f5c3c54c-fc59-4dee-9550-187326553846",
+      testFeesListId: "ff681976-d232-4464-9216-01ff2b76b163",
       // Distinctive fictional word in the one TestFees row (Microsoft Search check).
       searchWord: "Zanthorpe",
     },

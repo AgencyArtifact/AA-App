@@ -221,7 +221,44 @@ Principals read (TestFees): DENIED (HTTP 403 accessDenied)
 
 Diagnosis of the C1 owner 403, check 1 (Galileo, 2026-10-13 about 18:55): in the SharePoint list interface Galileo edited an aa.test-created row (Title to `aa.test row`, Date and WorkDate to 2026-01-01) and it **saved**. So the own-items bypass works for an Owner in the interface; the 403 is on the Graph route. Galileo also deleted five aa.test-created rows in the interface: allowed. List afterwards (screenshot): `Galileo delete row` (Galileo), `Hours test` (Galileo, today), `aa.test row` (aa.test, 2026-01-01). Checks 2 (same PATCH in Graph Explorer) and 3 (rerun with the item-level setting off) pending. Galileo's own row is titled `Hours test`, not `Galileo row`.
 
-Reading of C6: every result as expected for team. Principals denied at the site lookup (403), app route of criterion 3 holds on Teams web. Edit of Galileo's row denied, as criterion 6 expects for team. TestHours held 7 items at this point (leftover log-screen rows; to be cleaned before the reminder tests).
+### C6 rerun with the extended diagnostic: Teams web, aa.test at Contribute (2026-10-13 19:12 Los Angeles)
+
+```
+Agency Artifact - stage 0 diagnostic
+Time:        2026-10-14T02:12:15.249Z (local 2026-10-13 19:12:15, America/Los_Angeles)
+App URL:     https://agencyartifact.github.io/AA-App/#/diagnostic
+User:        AA TEST <aa.test UPN>
+Host:        TeamsModern web (NAA recommended: true)
+Time zone:   America/Los_Angeles (UTC-07:00)
+Local today: 2026-10-13
+Auth mode:   teams-naa
+Prompts:     0
+Write:       1.9 s from page load (run 1, first run)
+
+Sign-in (Graph /me): PASS (HTTP 200)
+Operations read (TestHours): PASS (HTTP 200)
+  items: 4
+Operations write + delete (TestHours): PASS (HTTP 204)
+  created item 18 (HTTP 201). written Date and WorkDate "2026-10-13". Graph returns Date "2026-10-13T07:00:00Z", WorkDate "2026-10-13". deleted (HTTP 204). Person set
+Operations edit of another user's row (TestHours): DENIED (HTTP 403 accessDenied)
+  item 1 by Galileo Morandi: edit refused, nothing changed
+Operations delete of another user's row (TestHours): DENIED (HTTP 403 accessDenied)
+  item 17 by Galileo Morandi: delete refused, row kept. own "stage0-delete-target" for the other account: created item 19
+Principals site lookup (by path): DENIED (HTTP 403 accessDenied)
+  site lookup refused
+Principals read (TestFees, by path): DENIED (HTTP 403 accessDenied)
+  list read refused
+Principals read (TestFees, by site id): SKIPPED (HTTP 0)
+  site id unknown: copy it from a principal's report into config.ts
+Principals read (TestFees, by list id): SKIPPED (HTTP 0)
+  list id unknown: copy it from a principal's report into config.ts
+Principals search ("Zanthorpe"): DENIED (HTTP 200)
+  hits: 0, inside AA Principals: 0 (not visible)
+```
+
+Reading: all as expected for team. Criterion 6 team half holds through Graph for edit and delete. Criterion 3 on Teams web: site lookup, list by path and Microsoft Search (Graph search API) all refuse; by-id routes pending the ids from Galileo's report.
+
+Reading of C6 (first run): every result as expected for team. Principals denied at the site lookup (403), app route of criterion 3 holds on Teams web. Edit of Galileo's row denied, as criterion 6 expects for team. TestHours held 7 items at this point (leftover log-screen rows; to be cleaned before the reminder tests).
 
 ## Open questions (brief v2)
 
