@@ -182,7 +182,7 @@ Check:
 
 Check:
 - [ ] List URL ends in `/Lists/TestFees`.
-- [ ] After 30 minutes or more, **Galileo** searches the word in Microsoft Search (office.com or the SharePoint start page) and **finds** the row. This is the positive control: aa.test finding nothing only proves something once Galileo's search shows the row is indexed.
+- [ ] After 30 minutes or more, **Galileo** (signed in as himself) opens the SharePoint start page `https://agencyartifact.sharepoint.com`, types the word in **Search in SharePoint** (blue bar, top), presses Enter, stays on the **All** tab, and **finds** the `Fee test` item of TestFees. If nothing appears, indexing is not done yet: try again later (it can take hours). This is the positive control: aa.test finding nothing only proves something once Galileo's search shows the row is indexed.
 
 ## 6. Send back to Claude Code
 
