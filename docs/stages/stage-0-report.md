@@ -37,6 +37,12 @@ Assumed (low-risk technical choices):
 Deviations from the brief:
 - `aa.test` has Microsoft 365 Business Standard, not Business Basic: the tenant has no Business Basic licenses (Galileo's screen, 2026-10-13: Business Standard 3 of 12 available, Power Automate Free). Standard includes everything Basic does; Teams, SharePoint and sign-in are the same, so the test is unaffected. One paid seat in use; release it after stage 0.
 
+Setup evidence (Galileo's screenshots, 2026-10-13):
+- Sites created as "Other options" > Team site; on-screen text: no Microsoft 365 group. `AA Operations` at `https://agencyartifact.sharepoint.com/sites/AAOperations`. Q9 answered by this choice.
+- `AA Principals` P1 (`_layouts/15/user.aspx`): three rows only, AA Principals Members (Edit), Owners (Full Control), Visitors (Read). Check Permissions for `Everyone except external users`: None. `Everyone` cannot be entered in the people picker.
+- `AA Principals` site collection administrators: Galileo Morandi only.
+- `AA Principals` Owners: Galileo Morandi and two accounts both named Christopher Torres. Galileo's decision: keep both. Not checked: whether either is a guest (external) account. If one is, it has full access to `AA Principals`; check before real financial data enters.
+
 Open questions for Galileo:
 - Q8. Galileo, 2026-10-13: "I want 2 time zones, India and US." A SharePoint site holds one regional time zone, so two zones are carried by people and devices, not by the site: each entry uses the device's local date (`WorkDate` text), and one reminder flow runs per zone. Proposed: both sites keep Pacific as the storage reference. Awaiting confirmation.
 - Q9. `AA Operations` without a Microsoft 365 group for stage 0 (data.md open question stays open for the real rollout): not yet answered.
