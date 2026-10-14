@@ -23,9 +23,8 @@ export async function spRest<T>(
     const e = error as { errorCode?: string; message?: string };
     return { ok: false, status: 0, code: `token: ${e.errorCode || e.message || String(error)}`, data: null };
   }
-  let response: Response;
-  try {
-    response = await fetch(`${siteRestBase(sitePath)}${path}`, {
+  const send = () =>
+    fetch(`${siteRestBase(sitePath)}${path}`, {
       method,
       headers: {
         Authorization: `Bearer ${token}`,
@@ -36,10 +35,26 @@ export async function spRest<T>(
       body: body !== undefined ? JSON.stringify(body) : undefined,
       cache: "no-store",
     });
-  } catch {
-    // A browser blocks a cross-origin response without CORS headers the same way as a network failure.
-    return { ok: false, status: 0, code: "networkError (CORS or network)", data: null };
+  let response: Response;
+  let firstFailure = "";
+  try {
+    response = await send();
+  } catch (first) {
+    // A browser reports a cross-origin response without CORS headers the same
+    // way as a network failure, with no status. Keep the message, retry once.
+    firstFailure = `first attempt failed (${(first as Error).message || String(first)}), retried: `;
+    try {
+      response = await send();
+    } catch (second) {
+      return {
+        ok: false,
+        status: 0,
+        code: `networkError (CORS or network): ${firstFailure}${(second as Error).message || String(second)}`,
+        data: null,
+      };
+    }
   }
+  if (firstFailure) retryNotes.push(`${path.split("?")[0]}: ${firstFailure}HTTP ${response.status}`);
 
   const text = await response.text();
   let json: unknown = null;
@@ -57,7 +72,20 @@ export async function spRest<T>(
   return { ok: false, status: response.status, code, data: null };
 }
 
-const listByTitle = (title: string) => `/web/lists/getbytitle('${title.replace(/'/g, "''")}')`;
+// Calls that only worked on the retry, for the diagnostic report.
+const retryNotes: string[] = [];
+
+/** Returns and clears the notes about calls that needed a retry. */
+export function takeRetryNotes(): string[] {
+  return retryNotes.splice(0);
+}
+
+/** Basic site read: the web's Title. */
+export function spWebTitle(sitePath: string): Promise<GraphResult<{ Title: string }>> {
+  return spRest("GET", sitePath, "/web?$select=Title");
+}
+
+const listByTitle =(title: string) => `/web/lists/getbytitle('${title.replace(/'/g, "''")}')`;
 
 /** Counts list items by Id only. */
 export async function spCountItems(

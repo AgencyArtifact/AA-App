@@ -27,7 +27,7 @@ import {
   type HoursRow,
   type Me,
 } from "../graph/sharepoint";
-import { spCountItems, spRecycleItem, spUpdateTitle } from "../graph/spRest";
+import { spCountItems, spRecycleItem, spUpdateTitle, spWebTitle, takeRetryNotes } from "../graph/spRest";
 import { deviceTimeZone, localDate, localTime, utcOffset } from "../dates";
 import { classify, type DiagnosticReport, type StepResult } from "./report";
 import {
@@ -186,9 +186,12 @@ async function restSteps(rows: HoursRow[], me: Me): Promise<StepResult[]> {
   const site = sp.operations.sitePath;
   const steps: StepResult[] = [];
 
+  const web = await spWebTitle(site);
+  steps.push(step(`REST token + site read (AA Operations)`, web, web.ok && web.data ? `site title: ${web.data.Title}` : "token or site read failed"));
+
   const read = await spCountItems(site, hoursList);
-  steps.push(step(`REST token + read (${hoursList})`, read.result, read.count === null ? "token or read failed" : `items: ${read.count}`));
-  if (!read.result.ok) return steps;
+  steps.push(step(`REST read (${hoursList})`, read.result, read.count === null ? "list read failed" : `items: ${read.count}`));
+  if (!read.result.ok && !web.ok) return steps;
 
   const editName = `REST edit of another user's row (${hoursList})`;
   const row = pickEditTarget(rows, me);
@@ -342,6 +345,17 @@ export async function runDiagnostic(): Promise<DiagnosticReport> {
     }
 
     report.steps.push(...(await principalsSteps()));
+
+    const retries = takeRetryNotes();
+    if (retries.length > 0) {
+      report.steps.push({
+        name: "REST calls that failed once, then were retried",
+        outcome: "ERROR",
+        httpStatus: 0,
+        graphCode: null,
+        detail: retries.join(" | "),
+      });
+    }
   } catch (error) {
     const e = error as { errorCode?: string; message?: string };
     // MSAL messages already start with the error code.
