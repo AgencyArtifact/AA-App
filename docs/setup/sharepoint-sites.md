@@ -13,6 +13,21 @@ Column names: type them exactly as written, and never rename a column after
 creating it. SharePoint fixes a column's internal name (the one Graph uses)
 when the column is created; renaming changes only the label.
 
+## Direct links (after setup)
+
+TestHours list id `3d4f19f9-ac90-49fb-a089-918818410229` (from its List settings address, 2026-10-13).
+
+| Page | Address |
+|---|---|
+| TestHours list | `https://agencyartifact.sharepoint.com/sites/AAOperations/Lists/TestHours/AllItems.aspx` |
+| TestHours list settings | `https://agencyartifact.sharepoint.com/sites/AAOperations/_layouts/15/listedit.aspx?List=%7B3d4f19f9-ac90-49fb-a089-918818410229%7D` |
+| TestHours advanced settings (item-level permissions) | `https://agencyartifact.sharepoint.com/sites/AAOperations/_layouts/15/advsetng.aspx?List=%7B3d4f19f9-ac90-49fb-a089-918818410229%7D` |
+| AA Operations permissions | `https://agencyartifact.sharepoint.com/sites/AAOperations/_layouts/15/user.aspx` |
+| AA Operations recycle bin | `https://agencyartifact.sharepoint.com/sites/AAOperations/_layouts/15/RecycleBin.aspx` |
+| AA Principals permissions | `https://agencyartifact.sharepoint.com/sites/AAPrincipals/_layouts/15/user.aspx` |
+
+Versioning settings: open List settings and choose **Versioning settings** (its page address was not recorded yet).
+
 ## 1. Create the two sites (no Microsoft 365 group)
 
 Both sites are team sites **without** a Microsoft 365 group, so no Teams team

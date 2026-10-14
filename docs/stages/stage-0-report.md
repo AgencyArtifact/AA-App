@@ -260,6 +260,19 @@ Reading: all as expected for team. Criterion 6 team half holds through Graph for
 
 Reading of C6 (first run): every result as expected for team. Principals denied at the site lookup (403), app route of criterion 3 holds on Teams web. Edit of Galileo's row denied, as criterion 6 expects for team. TestHours held 7 items at this point (leftover log-screen rows; to be cleaned before the reminder tests).
 
+## Criterion 6: result and decision needed (2026-10-13)
+
+Verified, Teams desktop and web, with the extended diagnostic:
+- aa.test at Contribute: edit and delete of Galileo's rows through Graph DENIED (403). Team half of criterion 6 holds.
+- Galileo, Owner: edit and delete of aa.test's rows through Graph DENIED (403) with the own-items setting on; PASS (200, 204) with it off (run 2026-10-13 19:19 Los Angeles, setting restored afterwards). In the SharePoint interface the Owner can edit and delete them with the setting on.
+- So the Coordinator level (a subset of Owner) cannot correct hours through Graph with this design. Not yet run as Coordinator; expected the same. Per the brief this is stopped and reported, and it is **not a no-go** on Microsoft 365.
+
+Options (Galileo's decision; recommendation first):
+1. **Test SharePoint's own REST API for coordinator writes** (recommended to test first). The SharePoint interface, which honours the bypass, uses this API. Needs one more delegated permission on the Entra app (SharePoint `AllSites.Write`) and admin consent; still no server or secret. The app would use it only for coordinator corrections. Cost: about one hour plus a 10-minute test. Unknown until tested whether nested app authentication in Teams issues SharePoint tokens as it does Graph tokens.
+2. **Coordinator corrections through a Power Automate flow** (the brief's fallback). A coordinator asks for a correction, a flow running with an owner's connection applies it. Traceable in the flow's history and version history, but version history shows the flow's account, not the coordinator, which weakens "Version history shows aa.test as the editor".
+3. **Per-row permissions** (each row gets its own unique permissions on creation). Works through Graph, but thousands of unique permissions per year and a fragile setup; not proportionate.
+4. Rejected: switching the setting off and letting the app decide who may edit. CLAUDE.md: the app never decides access.
+
 ## Open questions (brief v2)
 
 - Q10. One static tab (brief v2) or two (Home and Diagnostic, as now)? With one, it should point at `#/diagnostic` for stage 0, so a cold start runs the diagnostic directly (Home has links to the log screen). Recommendation: keep two until stage 0 closes; the checklist works with both.
