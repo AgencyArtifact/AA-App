@@ -300,7 +300,7 @@ Manage-scope test, safety run (aa.test at Contribute, Teams web, same build, 20:
 - Galileo: Graph manage edit PASS, delete PASS (item 46, aa.test's test row).
 - Principals: all six routes still DENIED for aa.test, PASS for Galileo. Nothing outside the test rows changed; every edit restored.
 - Conclusion (verified): the rule follows the app's scope, not the user's level. No app permission separates coordinators from team. Hypothesis "intersection" disproved by the team run.
-- Action: Galileo asked to revoke and remove `Sites.Manage.All`, `AllSites.Manage` and `AllSites.Write` in Entra (2026-10-13 about 21:00). Code back to Graph only (REST and manage steps removed; build stamp kept). Findings, `data.md` and `entra-app.md` updated.
+- Action: Galileo revoked and removed `Sites.Manage.All`, `AllSites.Manage` and `AllSites.Write` in Entra (2026-10-13 about 21:00). Screenshot of API permissions afterwards: Microsoft Graph (2), `Sites.ReadWrite.All` and `User.Read`, Delegated, both "Granted for Agency Artifact"; no "Other permissions granted" section. Code back to Graph only (REST and manage steps removed; build stamp kept). Findings, `data.md` and `entra-app.md` updated.
 
 Criterion 6 status: team half verified (refused by every route). Coordinator half: not possible through the app with any single permission set. Decision needed on the mechanism (see options below, updated).
 
