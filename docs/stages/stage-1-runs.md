@@ -27,3 +27,23 @@ Harvest other person's time: SKIPPED (HTTP 0)
 ```
 
 Reading: matches expectations for an Administrator. Earlier run at 22:01Z (Teams signed in as aa.test, Harvest connected as Galileo) shows the Harvest login is independent of the Teams login (`docs/findings.md`).
+
+## Run B: aa.test in Teams, Harvest still signed in as Galileo (partly invalid)
+
+2026-10-14 23:05Z, build 2026-10-14T22:40:09Z, Teams web, Graph user aa.test.
+
+```
+Sign-in (Graph /me): PASS (HTTP 200)
+Planner my tasks: PASS (HTTP 200)
+  count 0; "AA Stage1 Test Task" NOT FOUND
+Planner complete: SKIPPED (HTTP 0)
+  test task not listed
+Planner reset: SKIPPED (HTTP 0)
+  test task not listed
+Harvest connect: PASS (HTTP 200)
+  account 2260464; user galileo morandi, Harvest user ID 5759248; roles: administrator; ...
+```
+
+Reading:
+- Planner (criterion 1): `GET /me/planner/tasks` as aa.test returns no tasks. Consistent with the docs (premium plans are not on the Planner API). **Provisional** until Galileo confirms the test task exists in the premium plan and is assigned to aa.test (`docs/setup/planner-premium.md`).
+- Harvest lines invalid for the Member test: the popup reused Galileo's Harvest session in the same browser (`docs/findings.md`). Same outcomes as run A. Rerun in a private window.
