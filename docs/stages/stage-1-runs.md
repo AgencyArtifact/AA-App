@@ -91,3 +91,23 @@ Reading:
 - Criterion 4, Member, Teams web: no money value in any response. Money keys are present with null values (`budget`, `hourly_rate`, `billable_rate`, `cost_rate`); Harvest keeps the keys and empties them. Other person's time: 200 with no entries by anyone else (Harvest filters, does not refuse). **Depends on** Galileo having at least one entry on ZT-01 at the time: to confirm.
 - Criterion 5: write + delete PASS; unassigned project refused with HTTP 422 "User isn't assigned to the project".
 - Planner: same as run B.
+
+## Run F: aa.test as Member, Teams web, with Galileo's entry on ZT-01
+
+2026-10-14 23:21Z, build 2026-10-14T22:40:09Z. Before the run Galileo logged 1:00 on ZT-01 / Concept for today and left it. Separate windows: normal for Galileo, InPrivate for aa.test.
+
+```
+Harvest connect: PASS (HTTP 200)
+  account 2260464; user AA Test, Harvest user ID 5759361; roles: member; money fields: none
+Harvest my assignments: PASS (HTTP 200)
+  count 1: ZT-01 Test Project [ZT-01] (Concept, sd); money fields: budget null, hourly_rate null
+Harvest write + delete: PASS (HTTP 200)
+  write HTTP 201, entry 3028690980; delete HTTP 200; write response money fields: billable_rate null, budget null, cost_rate null, hourly_rate null
+Harvest unassigned write: DENIED (HTTP 422)
+  Harvest: User isn't assigned to the project · expected: refused
+Harvest other person's time: PASS (HTTP 200)
+  expected: refused or only own entries; returned 0 entries, 0 by other people; money fields: none
+```
+(Graph and Planner lines as run E. Write 8.2 s from page load, run 2, not a cold start.)
+
+Reading: criterion 4 for Member on Teams web holds. `GET /time_entries?user_id=<Galileo>` as aa.test returns 200 with no entries while Galileo has one on a project both are assigned to: Harvest filters to the Member's own time, it does not refuse. Pass under the proposed rule (only own entries, or 403), which Galileo has not formally confirmed.
