@@ -149,8 +149,15 @@ reverse the ticks.
 4. **Settings** > **List settings** > **Versioning settings** >
    *Create a version each time you edit an item in this list?* **Yes**. Keep the
    number of versions shown. **OK**.
-5. Add one row yourself (as Galileo), for the edit and delete tests: Title
-   `Galileo row`, Person you, Date today, WorkDate today as `YYYY-MM-DD`, Hours `1`.
+5. Add one row yourself (as Galileo), for the edit and delete tests. How to
+   add a row: on the list page select the blue **+ New** button (top left); a
+   form opens on the right; fill the fields; **Save** at the bottom of the form.
+   The row then appears in the list.
+   - **Title:** `Galileo row`
+   - **Person:** you (person picker)
+   - **Date:** today (calendar picker)
+   - **WorkDate:** today typed as `YYYY-MM-DD`, for example `2026-10-13`
+   - **Hours:** `1`
 
 Check:
 - [ ] List URL ends in `/Lists/TestHours`.
@@ -162,9 +169,16 @@ Check:
 
 1. On AA Principals: **New** > **List**. Under *Create from blank* choose **List**. **Name:** `TestFees`. Leave **Show list in site navigation** ticked: it only adds a link in the site menu and changes no permission. **Create**.
 2. Add columns: `Project` (Single line of text), `Fee` (Number).
-3. Add one row: Title `Fee test`, Project a distinctive made-up word that
-   appears nowhere else in the tenant (for example `Zanthorpe`), Fee `1000`.
-   Write the word in the test checklist: Microsoft Search looks for it.
+3. Add one row (blue **+ New** button, top left; fill the form on the right;
+   **Save**):
+   - **Title:** `Fee test`
+   - **Project:** a made-up word that cannot appear anywhere else in the
+     firm's files or email, for example `Zanthorpe`
+   - **Fee:** `1000`
+
+   Send the word to Claude Code; it goes in the test checklist, because
+   Microsoft Search looks for it. The word and the figure are fictional, so
+   they may sit in the public repo.
 
 Check:
 - [ ] List URL ends in `/Lists/TestFees`.
