@@ -42,6 +42,7 @@ Setup evidence (Galileo's screenshots, 2026-10-13):
 - `AA Principals` P1 (`_layouts/15/user.aspx`): three rows only, AA Principals Members (Edit), Owners (Full Control), Visitors (Read). Check Permissions for `Everyone except external users`: None. `Everyone` cannot be entered in the people picker.
 - `AA Principals` site collection administrators: Galileo Morandi only.
 - `AA Principals` Owners: Galileo Morandi and two accounts both named Christopher Torres. Galileo's decision: keep both. Not checked: whether either is a guest (external) account. If one is, it has full access to `AA Principals`; check before real financial data enters.
+- `AA Principals` Members and Visitors: empty (Galileo, 2026-10-13). Part 2a complete.
 
 Open questions for Galileo:
 - Q8. Galileo, 2026-10-13: "I want 2 time zones, India and US." A SharePoint site holds one regional time zone, so two zones are carried by people and devices, not by the site: each entry uses the device's local date (`WorkDate` text), and one reminder flow runs per zone. Proposed: both sites keep Pacific as the storage reference. Awaiting confirmation.
