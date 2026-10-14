@@ -16,7 +16,7 @@ import {
   type AuthenticationResult,
   type IPublicClientApplication,
 } from "@azure/msal-browser";
-import { authRedirectUrl, config, devAuthRedirectUrl, sharePointScopes } from "../config";
+import { authRedirectUrl, config, devAuthRedirectUrl } from "../config";
 
 export type AuthMode = "teams-naa" | "browser";
 
@@ -144,8 +144,9 @@ function findAccount(state: AuthState): AccountInfo | null {
   return pca.getAllAccounts()[0] ?? null;
 }
 
-async function acquire(state: AuthState, scopes: string[]): Promise<AuthenticationResult> {
+async function acquire(state: AuthState): Promise<AuthenticationResult> {
   const { pca, context } = state;
+  const scopes = [...config.graphScopes];
   const loginHint = context?.user?.loginHint;
   const account = findAccount(state);
 
@@ -170,41 +171,22 @@ async function acquire(state: AuthState, scopes: string[]): Promise<Authenticati
   }
 }
 
-// Concurrent callers for the same scopes share one acquisition, and
-// acquisitions for different resources run one after another, so two
-// prompts never overlap.
-const inFlight = new Map<string, Promise<string>>();
-let queue: Promise<unknown> = Promise.resolve();
-
-/** Delegated token for an explicit scope set (stage 0 permission tests). */
-export function getToken(scopes: readonly string[]): Promise<string> {
-  const key = scopes.join(" ");
-  const existing = inFlight.get(key);
-  if (existing) return existing;
-  const run = async () => {
-    const state = await getState();
-    const result = await acquire(state, [...scopes]);
-    if (result.account) state.pca.setActiveAccount(result.account);
-    return result.accessToken;
-  };
-  const p = queue.catch(() => undefined).then(run);
-  queue = p;
-  inFlight.set(key, p);
-  p.finally(() => inFlight.delete(key)).catch(() => undefined);
-  return p;
-}
+// Concurrent callers share one acquisition, so two prompts never overlap.
+let inFlight: Promise<string> | null = null;
 
 /** Returns a delegated Graph access token for the signed-in user. */
 export function getGraphToken(): Promise<string> {
-  return getToken(config.graphScopes);
-}
-
-/**
- * Returns a delegated SharePoint REST token (audience: the tenant's
- * SharePoint host) for the signed-in user. Stage 0: coordinator-correction test.
- */
-export function getSharePointToken(): Promise<string> {
-  return getToken(sharePointScopes);
+  if (!inFlight) {
+    inFlight = (async () => {
+      const state = await getState();
+      const result = await acquire(state);
+      if (result.account) state.pca.setActiveAccount(result.account);
+      return result.accessToken;
+    })().finally(() => {
+      inFlight = null;
+    });
+  }
+  return inFlight;
 }
 
 /** Host information, for diagnostics. Initialises auth if needed. */

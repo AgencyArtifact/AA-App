@@ -291,6 +291,24 @@ Result of the REST test (2026-10-13 20:34 and 20:37 Los Angeles, Teams web, new 
 
 Next test (Galileo approved, 2026-10-13): manage scopes `Sites.Manage.All` and `AllSites.Manage`, requested only by new diagnostic steps "Manage-scope edit/delete of another user's row". Entra step 4c.
 
+Manage-scope test, first run (Galileo, Teams web, build 2026-10-14T03:43:21Z, 20:54 Los Angeles), with the own-items setting on:
+- Edit of aa.test's row: Graph with `Sites.ReadWrite.All` DENIED (403); REST with `AllSites.Write` DENIED (403); **Graph with `Sites.Manage.All` PASS (200, restored 200)**; **REST with `AllSites.Manage` PASS (204, restored 204)**. `Prompts: 0`.
+- Delete not tested in that run (no aa.test delete target at that moment).
+
+Manage-scope test, safety run (aa.test at Contribute, Teams web, same build, 20:56) and Galileo rerun (20:57):
+- **aa.test: Graph `Sites.Manage.All` edit of Galileo's row PASS (200, restored), delete PASS (204, test row item 17); REST `AllSites.Manage` edit PASS (204, restored).** The own-items rule no longer protected Galileo's rows from a team member.
+- Galileo: Graph manage edit PASS, delete PASS (item 46, aa.test's test row).
+- Principals: all six routes still DENIED for aa.test, PASS for Galileo. Nothing outside the test rows changed; every edit restored.
+- Conclusion (verified): the rule follows the app's scope, not the user's level. No app permission separates coordinators from team. Hypothesis "intersection" disproved by the team run.
+- Action: Galileo asked to revoke and remove `Sites.Manage.All`, `AllSites.Manage` and `AllSites.Write` in Entra (2026-10-13 about 21:00). Code back to Graph only (REST and manage steps removed; build stamp kept). Findings, `data.md` and `entra-app.md` updated.
+
+Criterion 6 status: team half verified (refused by every route). Coordinator half: not possible through the app with any single permission set. Decision needed on the mechanism (see options below, updated).
+
+Options now (Galileo's decision):
+1. **Power Automate flow applies coordinator corrections** (the brief's fallback). Works with today's permissions. Version history shows the flow's account; the coordinator's name is recorded in the request and the flow run.
+2. **Per-row permissions**: each new row gets unique permissions (creator: Contribute; coordinators and principals: edit), and the own-items setting goes off. SharePoint then checks the user, so team stays refused and coordinators pass, through Graph with today's scope. Costs one permission change per row (by a flow on creation) and many unique permissions over time; proportionate only while volume is small. Untested.
+3. **Separate coordinator app registration** with a manage scope, restricted in Entra to assigned users (coordinators only). Team members could not get its token. Second registration to maintain, and its scope would let coordinators past the rule on every list. Untested.
+
 ## Open questions (brief v2)
 
 - Q10. One static tab (brief v2) or two (Home and Diagnostic, as now)? With one, it should point at `#/diagnostic` for stage 0, so a cold start runs the diagnostic directly (Home has links to the log screen). Recommendation: keep two until stage 0 closes; the checklist works with both.

@@ -154,23 +154,14 @@ export function updateTestHoursTitle(
   siteId: string,
   itemId: string,
   title: string,
-  scopes?: readonly string[],
 ): Promise<GraphResult<unknown>> {
-  return graph(
-    "PATCH",
-    `${testHoursItems(siteId)}/${encodeURIComponent(itemId)}/fields`,
-    { Title: title },
-    {},
-    scopes,
-  );
+  return graph("PATCH", `${testHoursItems(siteId)}/${encodeURIComponent(itemId)}/fields`, {
+    Title: title,
+  });
 }
 
-export function deleteTestHoursItem(
-  siteId: string,
-  itemId: string,
-  scopes?: readonly string[],
-): Promise<GraphResult<unknown>> {
-  return graph("DELETE", `${testHoursItems(siteId)}/${encodeURIComponent(itemId)}`, undefined, {}, scopes);
+export function deleteTestHoursItem(siteId: string, itemId: string): Promise<GraphResult<unknown>> {
+  return graph("DELETE", `${testHoursItems(siteId)}/${encodeURIComponent(itemId)}`);
 }
 
 // ---- Boundary routes (stage 0). Ids and counts only, never field values. ---

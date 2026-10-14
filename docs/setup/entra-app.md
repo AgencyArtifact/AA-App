@@ -76,25 +76,13 @@ You should now have exactly three SPA redirect URIs and no Web or Mobile platfor
 5. Select **Grant admin consent for <your tenant name>** and confirm **Yes**.
 6. Both rows must show a green tick and *Granted for <tenant>* in the Status column.
 
-### 4b. Add the delegated SharePoint permission (added 2026-10-13)
+### 4b. Never add manage-level or SharePoint permissions
 
-For coordinator corrections through SharePoint's own API (see `docs/architecture/data.md`, Access routes).
+Tested and removed in stage 0 (2026-10-13, `docs/findings.md`): with `Sites.Manage.All` (Graph) or `AllSites.Manage` (SharePoint) the app lets **every** user, team included, edit and delete other people's hours past the own-items rule. `AllSites.Write` adds nothing over Graph. If any of these three ever appears on this page:
 
-1. Open <https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade> > **Agency Artifact** > **API permissions**.
-2. **Add a permission** > **Microsoft APIs** tab > **SharePoint**.
-3. **Delegated permissions** > expand **AllSites** > tick **AllSites.Write** > **Add permissions**.
-4. **Grant admin consent for Agency Artifact** > **Yes**.
-5. Three rows, all *Granted for Agency Artifact*: `User.Read`, `Sites.ReadWrite.All` (Microsoft Graph), `AllSites.Write` (SharePoint).
-
-### 4c. Manage-scope test permissions (stage 0 test, added 2026-10-13)
-
-Approved by Galileo for the coordinator-corrections test. Both are removed again if the test fails; if Graph works, only `AllSites.Manage` (and `AllSites.Write`) are removed.
-
-1. Same page as 4b: <https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/~/CallAnAPI/appId/503412e0-1cec-47b4-8a28-888cda0c8493>.
-2. **Add a permission** > **Microsoft Graph** > **Delegated permissions** > search `Sites.Manage.All` > tick > **Add permissions**.
-3. **Add a permission** > **Microsoft APIs** > **SharePoint** > **Delegated permissions** > **AllSites** > tick **AllSites.Manage** > **Add permissions**.
-4. **Grant admin consent for Agency Artifact** > **Yes**. All rows *Granted*.
-
+1. Open <https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/~/CallAnAPI/appId/503412e0-1cec-47b4-8a28-888cda0c8493>.
+2. On its row: **...** > **Revoke admin consent** > **Yes**, then **...** > **Remove permission** > **Yes**.
+3. Exactly two rows remain: `User.Read` and `Sites.ReadWrite.All`, both *Granted*.
 Do **not** add anything under *Application permissions*, do not set an
 Application ID URI under **Expose an API**, and do not create anything under
 **Certificates & secrets**.
@@ -104,7 +92,7 @@ Application ID URI under **Expose an API**, and do not create anything under
 - [ ] Supported account types: single tenant.
 - [ ] Exactly the three SPA redirect URIs printed by `npm run entra:values`.
 - [ ] **Expose an API**: no Application ID URI, no scopes.
-- [ ] Three delegated permissions, all granted: `User.Read`, `Sites.ReadWrite.All` (Graph), `AllSites.Write` (SharePoint).
+- [ ] Exactly two delegated permissions, both granted: `User.Read`, `Sites.ReadWrite.All`. No manage-level and no SharePoint permissions (step 4b).
 - [ ] No certificates or secrets.
 - [ ] Client ID and tenant ID pasted into `src/config.ts`.
 

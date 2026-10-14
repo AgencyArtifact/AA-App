@@ -6,7 +6,7 @@
 // addresses, so no field value is ever shown, stored or logged.
 // TestHours is operational: its Date, WorkDate and Title values may be shown.
 
-import { config, manageScopes } from "../config";
+import { config } from "../config";
 import { getAuthStats, getHostInfo } from "../auth/graphAuth";
 import type { GraphResult } from "../graph/graph";
 import {
@@ -27,7 +27,6 @@ import {
   type HoursRow,
   type Me,
 } from "../graph/sharepoint";
-import { spCountItems, spRecycleItem, spUpdateTitle, spWebTitle, takeRetryNotes } from "../graph/spRest";
 import { deviceTimeZone, localDate, localTime, utcOffset } from "../dates";
 import { classify, type DiagnosticReport, type StepResult } from "./report";
 import {
@@ -177,109 +176,6 @@ async function deleteOtherStep(
   );
 }
 
-/**
- * The same edit and delete through SharePoint REST, the API the SharePoint
- * interface uses (stage 0 test of coordinator corrections). Team is still
- * expected DENIED; the question is whether coordinators and principals PASS.
- */
-async function restSteps(rows: HoursRow[], me: Me): Promise<StepResult[]> {
-  const site = sp.operations.sitePath;
-  const steps: StepResult[] = [];
-
-  const web = await spWebTitle(site);
-  steps.push(step(`REST token + site read (AA Operations)`, web, web.ok && web.data ? `site title: ${web.data.Title}` : "token or site read failed"));
-
-  const read = await spCountItems(site, hoursList);
-  steps.push(step(`REST read (${hoursList})`, read.result, read.count === null ? "list read failed" : `items: ${read.count}`));
-  if (!read.result.ok && !web.ok) return steps;
-
-  const editName = `REST edit of another user's row (${hoursList})`;
-  const row = pickEditTarget(rows, me);
-  if (!row) {
-    steps.push(skipped(editName, "no row created by another user exists"));
-  } else {
-    const original = row.title.endsWith(EDIT_MARK) ? row.title.slice(0, -EDIT_MARK.length) : row.title;
-    const target = `item ${row.id} by ${creatorName(row)}`;
-    const edited = await spUpdateTitle(site, hoursList, row.id, original + EDIT_MARK);
-    if (!edited.ok) {
-      steps.push(step(editName, edited, `${target}: edit refused, nothing changed`));
-    } else {
-      const restored = await spUpdateTitle(site, hoursList, row.id, original);
-      steps.push(
-        restored.ok
-          ? step(editName, edited, `${target}: edited (HTTP ${edited.status}), restored (HTTP ${restored.status})`)
-          : { ...step(editName, restored, `${target}: edit PASS, restore FAILED; set Title back to "${original}" by hand`), outcome: "ERROR" },
-      );
-    }
-  }
-
-  const deleteName = `REST delete of another user's row (${hoursList})`;
-  const target = pickDeleteTarget(rows, me);
-  if (!target) {
-    steps.push(skipped(deleteName, `no "${DELETE_TARGET_TITLE}" row by another user left (the Graph step may have deleted it)`));
-  } else {
-    const recycled = await spRecycleItem(site, hoursList, target.id);
-    const what = `item ${target.id} by ${creatorName(target)}`;
-    steps.push(step(deleteName, recycled, recycled.ok ? `${what}: moved to the recycle bin (HTTP ${recycled.status})` : `${what}: delete refused, row kept`));
-  }
-  return steps;
-}
-
-/**
- * Stage 0 permission test: the same edit and delete of another user's row
- * with a "manage" scope token (Sites.Manage.All for Graph, AllSites.Manage
- * for REST), whose level includes Override List Behaviors. Team is still
- * expected DENIED (delegated: never more than the user's own rights).
- */
-async function manageSteps(siteId: string, rows: HoursRow[], me: Me): Promise<StepResult[]> {
-  const site = sp.operations.sitePath;
-  const routes = [
-    {
-      label: "Graph, Sites.Manage.All",
-      edit: (id: string, t: string) => updateTestHoursTitle(siteId, id, t, manageScopes.graph),
-      remove: (id: string) => deleteTestHoursItem(siteId, id, manageScopes.graph),
-    },
-    {
-      label: "REST, AllSites.Manage",
-      edit: (id: string, t: string) => spUpdateTitle(site, hoursList, id, t, manageScopes.sharePoint),
-      remove: (id: string) => spRecycleItem(site, hoursList, id, manageScopes.sharePoint),
-    },
-  ];
-  const steps: StepResult[] = [];
-  let deleteTarget = pickDeleteTarget(rows, me);
-  const editTarget = pickEditTarget(rows, me);
-  for (const route of routes) {
-    const editName = `Manage-scope edit of another user's row (${route.label})`;
-    if (!editTarget) {
-      steps.push(skipped(editName, "no row created by another user exists"));
-    } else {
-      const original = editTarget.title.endsWith(EDIT_MARK) ? editTarget.title.slice(0, -EDIT_MARK.length) : editTarget.title;
-      const what = `item ${editTarget.id} by ${creatorName(editTarget)}`;
-      const edited = await route.edit(editTarget.id, original + EDIT_MARK);
-      if (!edited.ok) {
-        steps.push(step(editName, edited, `${what}: edit refused, nothing changed`));
-      } else {
-        const restored = await route.edit(editTarget.id, original);
-        steps.push(
-          restored.ok
-            ? step(editName, edited, `${what}: edited (HTTP ${edited.status}), restored (HTTP ${restored.status})`)
-            : { ...step(editName, restored, `${what}: edit PASS, restore FAILED; set Title back to "${original}" by hand`), outcome: "ERROR" },
-        );
-      }
-    }
-    const deleteName = `Manage-scope delete of another user's row (${route.label})`;
-    if (!deleteTarget) {
-      steps.push(skipped(deleteName, `no "${DELETE_TARGET_TITLE}" row by another user left (an earlier step may have deleted it)`));
-    } else {
-      const what = `item ${deleteTarget.id} by ${creatorName(deleteTarget)}`;
-      const removed = await route.remove(deleteTarget.id);
-      steps.push(step(deleteName, removed, removed.ok ? `${what}: deleted (HTTP ${removed.status})` : `${what}: delete refused, row kept`));
-      if (removed.ok) deleteTarget = null;
-    }
-  }
-  return steps;
-}
-
 /** Every route to TestFees on AA Principals. Ids and counts only. */
 async function principalsSteps(): Promise<StepResult[]> {
   const steps: StepResult[] = [];
@@ -321,11 +217,7 @@ async function principalsSteps(): Promise<StepResult[]> {
     steps.push(skipped(byId, "list id unknown: copy it from a principal's report into config.ts"));
   }
 
-  // Route 5: SharePoint REST, the interface's own API.
-  const rest = await spCountItems(sp.principals.sitePath, feesList);
-  steps.push(step(`Principals read (${feesList}, SharePoint REST)`, rest.result, rest.count === null ? "read refused or failed" : `items: ${rest.count}`));
-
-  // Route 6: Microsoft Search for the distinctive word. 0 hits in the site = not visible.
+  // Route 5: Microsoft Search for the distinctive word. 0 hits in the site = not visible.
   const searchName = `Principals search ("${sp.principals.searchWord}")`;
   const found = await searchListItems(sp.principals.searchWord);
   if (!found.ok || !found.data) {
@@ -389,11 +281,6 @@ export async function runDiagnostic(): Promise<DiagnosticReport> {
       if (listed.rows) {
         report.steps.push(await editOtherStep(ops.id, pickEditTarget(listed.rows, me.data)));
         report.steps.push(await deleteOtherStep(ops.id, listed.rows, me.data, personId));
-        // Fresh list: the Graph steps may have deleted the target or created this user's own.
-        const again = await listTestHoursRows(ops.id);
-        report.steps.push(...(await restSteps(again.rows ?? [], me.data)));
-        const third = await listTestHoursRows(ops.id);
-        report.steps.push(...(await manageSteps(ops.id, third.rows ?? [], me.data)));
       } else {
         report.steps.push(step(`Operations edit of another user's row (${hoursList})`, listed.result, "list read failed"));
       }
@@ -402,17 +289,6 @@ export async function runDiagnostic(): Promise<DiagnosticReport> {
     }
 
     report.steps.push(...(await principalsSteps()));
-
-    const retries = takeRetryNotes();
-    if (retries.length > 0) {
-      report.steps.push({
-        name: "REST calls that failed once, then were retried",
-        outcome: "ERROR",
-        httpStatus: 0,
-        graphCode: null,
-        detail: retries.join(" | "),
-      });
-    }
   } catch (error) {
     const e = error as { errorCode?: string; message?: string };
     // MSAL messages already start with the error code.
