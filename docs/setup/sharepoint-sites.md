@@ -182,7 +182,7 @@ Check:
 
 Check:
 - [ ] List URL ends in `/Lists/TestFees`.
-- [ ] After 30 minutes or more, **Galileo** (signed in as himself) opens the SharePoint start page `https://agencyartifact.sharepoint.com`, types the word in **Search in SharePoint** (blue bar, top), presses Enter, stays on the **All** tab, and **finds** the `Fee test` item of TestFees. If nothing appears, indexing is not done yet: try again later (it can take hours). This is the positive control: aa.test finding nothing only proves something once Galileo's search shows the row is indexed.
+- [ ] After 30 minutes or more, **Galileo** (signed in as himself) opens the SharePoint start page `https://agencyartifact.sharepoint.com`, types the word in **Search in SharePoint** (blue bar, top), presses Enter, then makes sure the search covers the whole organization: the line under the search box must read **Organization** only. If it reads *Organization > Communication site* (the start page is itself a site, so the first search is scoped to it, `scope=site` in the address; seen 2026-10-13), select **Organization**. Stay on the **All** tab. He must **find** the `Fee test` item of TestFees. If nothing appears, indexing is not done yet: try again later (it can take hours). This is the positive control: aa.test finding nothing only proves something once Galileo's search shows the row is indexed.
 
 ## 6. Send back to Claude Code
 
