@@ -40,7 +40,7 @@ export const config = {
     // them; paste them here. Empty = the step is skipped.
     test: {
       // Project ID of "ZT-02 Unassigned" (aa.test not assigned).
-      unassignedProjectId: "",
+      unassignedProjectId: "49428945",
       // Galileo's Harvest user ID, for "Harvest other person's time".
       otherUserId: "5759248",
     },

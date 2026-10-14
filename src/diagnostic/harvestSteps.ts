@@ -111,7 +111,8 @@ export async function runHarvestSteps(connectError: string | null): Promise<Harv
 
   // Harvest write + delete
   const test = assignments.find((a) => isProject(a.project, TEST_PROJECT_CODE));
-  const sd = test?.task_assignments.find((t) => t.task.name === TEST_TASK);
+  // Case-insensitive: the trial's task was created as "sd" (2026-10-14).
+  const sd = test?.task_assignments.find((t) => t.task.name.trim().toUpperCase() === TEST_TASK);
   if (!test || !sd) {
     steps.push(
       skipped(
