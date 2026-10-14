@@ -13,6 +13,13 @@ Cumulative across stages. Every failure or discovery that cost time gets one ent
 
 ## Entries
 
+### 2026-10-14: in a plain browser, one click opens only one sign-in popup
+- Stage and gate: stage 1, T3 (first Harvest run, Administrator).
+- Symptom: diagnostic opened directly in a browser (not Teams), **Connect Harvest and run**: `FATAL: popup_window_error` (MSAL), prompts 2, no Harvest lines.
+- Cause (suspected, from the order of calls): the click opened the Harvest popup first; the Microsoft sign-in popup that followed had no click left and the browser blocked it. The Graph failure then stopped the run before the Harvest lines. In Teams, Graph sign-in is silent (nested app authentication), so only one popup is needed.
+- Fix: Graph and Harvest lines are independent; a Graph failure no longer hides the Harvest lines.
+- Rule from now on: run the stage 1 diagnostic inside Teams. In a plain browser, expect the Microsoft sign-in to need its own click (Run again).
+
 ### 2026-10-14: Teams sign-in popups for a third-party provider need no provider domain in the manifest (docs)
 - Stage and gate: stage 1, T2 (Harvest sign-in).
 - Symptom: none; question from the brief (does `id.getharvest.com` go in `validDomains`?).

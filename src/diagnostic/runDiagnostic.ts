@@ -46,18 +46,35 @@ export async function runDiagnostic(options: RunOptions = { harvest: false }): P
     steps: [],
   };
 
+  const fatal = (error: unknown) => {
+    const e = error as { errorCode?: string; message?: string };
+    // MSAL messages already start with the error code.
+    const message = e.message || e.errorCode || String(error);
+    report.fatalError = report.fatalError ? `${report.fatalError}; ${message}` : message;
+  };
+
+  let host: Awaited<ReturnType<typeof getHostInfo>> | null = null;
+  let harvestConnectError: string | null = null;
   try {
-    const host = await getHostInfo();
+    host = await getHostInfo();
     report.host = host.inTeams
       ? `${host.hostName} ${host.clientType} (NAA recommended: ${host.naaRecommended})`
       : "plain browser (not in Teams)";
     // The Harvest popup opens before the Graph calls, while the click still counts.
-    const harvestConnectError = options.harvest ? await ensureHarvest(host.inTeams) : null;
+    if (options.harvest) harvestConnectError = await ensureHarvest(host.inTeams);
+  } catch (error) {
+    fatal(error);
+  }
 
-    const me = await getMe();
-    report.steps.push(step("Sign-in (Graph /me)", me));
-    if (!me.ok || !me.data) throw new Error("Graph /me failed; see step result.");
-    report.user = `${me.data.displayName} <${me.data.userPrincipalName}>`;
+  // Graph and Harvest are independent: a Graph failure does not hide the Harvest lines.
+  if (host) {
+    try {
+      const me = await getMe();
+      report.steps.push(step("Sign-in (Graph /me)", me));
+      if (me.ok && me.data) report.user = `${me.data.displayName} <${me.data.userPrincipalName}>`;
+    } catch (error) {
+      fatal(error);
+    }
 
     if (options.harvest) {
       const h = await runHarvestSteps(harvestConnectError);
@@ -65,10 +82,6 @@ export async function runDiagnostic(options: RunOptions = { harvest: false }): P
       // performance.now() counts from page load: the cold-start timing of criterion 6.
       if (h.writePassedAt !== null) report.writeElapsedMs = Math.round(h.writePassedAt);
     }
-  } catch (error) {
-    const e = error as { errorCode?: string; message?: string };
-    // MSAL messages already start with the error code.
-    report.fatalError = e.message || e.errorCode || String(error);
   }
 
   const stats = getAuthStats();
