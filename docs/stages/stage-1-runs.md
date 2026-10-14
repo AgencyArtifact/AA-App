@@ -45,7 +45,7 @@ Harvest connect: PASS (HTTP 200)
 ```
 
 Reading:
-- Planner (criterion 1): `GET /me/planner/tasks` as aa.test returns no tasks. Consistent with the docs (premium plans are not on the Planner API). **Provisional** until Galileo confirms the test task exists in the premium plan and is assigned to aa.test (`docs/setup/planner-premium.md`).
+- Planner (criterion 1): `GET /me/planner/tasks` as aa.test returns no tasks. Consistent with the docs (premium plans are not on the Planner API). **Invalid**: the plan did not exist yet (see the correction at the end).
 - Harvest lines invalid for the Member test: the popup reused Galileo's Harvest session in the same browser (`docs/findings.md`). Same outcomes as run A. Rerun in a private window.
 
 ## Run C: aa.test, plain browser, Harvest still Galileo (invalid for criteria 3 and 4)
@@ -131,3 +131,7 @@ Harvest other person's time: ERROR (HTTP 200)
 (Graph and Planner lines as run E. Run 3 in the same page; write timing not meaningful.)
 
 Reading: criterion 4 for the coordinator role holds. No money value in any response; cost rates, billable rates and budgets are present as empty keys only, including on Galileo's entry. A Project Manager who manages ZT-01 sees Galileo's hours there: expected for the role (hours are operational); the ERROR label is the Member expectation of the line, not a failure here.
+
+## Correction: Planner lines in runs B to G
+
+2026-10-14 23:30Z. Galileo had not yet set up Planner premium (`docs/setup/planner-premium.md` not run): no premium plan and no test task existed. "NOT FOUND" in runs B to G only shows there was nothing to find. They are **not evidence for criterion 1**. Rerun after the setup.
