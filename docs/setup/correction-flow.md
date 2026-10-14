@@ -32,3 +32,7 @@ Unknown: the rule is checked against the calling app's permission, and the Power
 Open <https://agencyartifact.sharepoint.com/sites/AAOperations/Lists/TestHours/AllItems.aspx>, row `aa.test row` > **...** > **Version history**: a version with `aa.test row [flow]`, then the restore, both **Modified by Galileo Morandi** (the flow runs with Galileo's connection).
 
 Send back: "both green" or the status code and message.
+
+**Result 2026-10-13 21:11 Los Angeles (Galileo, screenshot): both green** (Update item 0.4 s, Update item 1 0.3 s), connection galileo@, own-items setting on. The flow can edit another user's row. Delete by flow not yet run; it is part of the full design's test.
+
+Flow path in Power Automate: `.../environments/Default-6a257495-c628-470a-855d-94ccaedc4d7a/flows/1d01a372-8728-4f07-8522-8cfe1fe466f5`.
