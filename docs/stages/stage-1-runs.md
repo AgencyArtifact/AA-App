@@ -51,3 +51,7 @@ Reading:
 ## Run C: aa.test, plain browser, Harvest still Galileo (invalid for criteria 3 and 4)
 
 2026-10-14 23:10Z, build 2026-10-14T22:40:09Z. Host plain browser (app opened directly), Graph user aa.test via popup. Planner: same as run B (count 0, not found). Harvest: connected as Galileo, administrator; same outcomes as run A. Not a Member test.
+
+## Run D: aa.test, Teams web, Harvest still Galileo (invalid for criterion 4)
+
+2026-10-14 23:11Z, build 2026-10-14T22:40:09Z. Teams web, NAA, prompts 0, Graph user aa.test. Planner: same as run B. Harvest: connected as Galileo, administrator; same outcomes as run A. Not a Member test.
