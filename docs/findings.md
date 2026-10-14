@@ -17,7 +17,7 @@ Cumulative across stages. Every failure or discovery that cost time gets one ent
 - Stage and gate: stage 1, T3 (first Harvest run, Teams web, build 2026-10-14T22:00:17Z).
 - Symptom: Teams signed in as aa.test (Graph /me), yet "Harvest connect" returned Galileo's Harvest user, role administrator. No prompt appeared in the Harvest popup.
 - Cause (verified by the report): the Harvest popup reuses whatever Harvest ID session the browser holds. Nothing ties the Harvest identity to the Microsoft 365 identity.
-- Fix: none in stage 1. For test runs, sign Harvest in as the person under test (sign out of Harvest ID first, or use a separate browser profile).
+- Fix: the "Harvest connect" line prints identity MATCH or MISMATCH (Harvest email against the Microsoft sign-in name). For test runs, sign Harvest in as the person under test first. InPrivate windows share logins with each other until all are closed, so a "fresh" InPrivate window can still hold another person's Harvest login (seen 23:10Z the same day).
 - Rule from now on: every Harvest test run checks the Harvest user on the "Harvest connect" line before reading the rest. Matching the Harvest user to the Microsoft 365 user is an open design question for stage 2 (the connector holds a login per person).
 
 ### 2026-10-14: in a plain browser, one click opens only one sign-in popup

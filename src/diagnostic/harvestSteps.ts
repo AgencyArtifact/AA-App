@@ -71,7 +71,21 @@ export async function ensureHarvest(inTeams: boolean): Promise<string | null> {
 }
 
 /** Runs the Harvest lines. connectError comes from ensureHarvest. */
-export async function runHarvestSteps(connectError: string | null): Promise<HarvestRun> {
+/**
+ * Whether the Harvest user is the Microsoft 365 user. The Harvest popup reuses
+ * whatever Harvest login the browser holds (docs/findings.md), so a run can mix
+ * identities. Emails are compared, never printed.
+ */
+export function identityCheck(harvestEmail: string | undefined, graphUpn: string | null): string {
+  if (!graphUpn) return "identity: Microsoft user unknown";
+  if (!harvestEmail) return "identity: Harvest email absent";
+  return harvestEmail.trim().toLowerCase() === graphUpn.trim().toLowerCase()
+    ? "identity: MATCH (same person as the Microsoft sign-in)"
+    : "identity: MISMATCH (Harvest is signed in as someone else; this run does not test the Teams user)";
+}
+
+/** Runs the Harvest lines. connectError comes from ensureHarvest; graphUpn from Graph /me. */
+export async function runHarvestSteps(connectError: string | null, graphUpn: string | null): Promise<HarvestRun> {
   const steps: StepResult[] = [];
   let writePassedAt: number | null = null;
 
@@ -94,7 +108,7 @@ export async function runHarvestSteps(connectError: string | null): Promise<Harv
       "Harvest connect",
       me,
       me.data
-        ? `account ${session.accountId}${session.accountIds.length > 1 ? ` (of ${session.accountIds.join(", ")})` : ""}; user ${me.data.first_name} ${me.data.last_name}, Harvest user ID ${me.data.id}; roles: ${roles}; ${moneySummary(me.data)}`
+        ? `account ${session.accountId}${session.accountIds.length > 1 ? ` (of ${session.accountIds.join(", ")})` : ""}; user ${me.data.first_name} ${me.data.last_name}, Harvest user ID ${me.data.id}; roles: ${roles}; ${identityCheck(me.data.email, graphUpn)}; ${moneySummary(me.data)}`
         : `account ${session.accountId}`,
     ),
   );

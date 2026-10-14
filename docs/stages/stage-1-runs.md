@@ -47,3 +47,7 @@ Harvest connect: PASS (HTTP 200)
 Reading:
 - Planner (criterion 1): `GET /me/planner/tasks` as aa.test returns no tasks. Consistent with the docs (premium plans are not on the Planner API). **Provisional** until Galileo confirms the test task exists in the premium plan and is assigned to aa.test (`docs/setup/planner-premium.md`).
 - Harvest lines invalid for the Member test: the popup reused Galileo's Harvest session in the same browser (`docs/findings.md`). Same outcomes as run A. Rerun in a private window.
+
+## Run C: aa.test, plain browser, Harvest still Galileo (invalid for criteria 3 and 4)
+
+2026-10-14 23:10Z, build 2026-10-14T22:40:09Z. Host plain browser (app opened directly), Graph user aa.test via popup. Planner: same as run B (count 0, not found). Harvest: connected as Galileo, administrator; same outcomes as run A. Not a Member test.

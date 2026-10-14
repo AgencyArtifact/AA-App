@@ -69,17 +69,21 @@ export async function runDiagnostic(options: RunOptions = { harvest: false }): P
 
   // Graph and Harvest are independent: a Graph failure does not hide the Harvest lines.
   if (host) {
+    let graphUpn: string | null = null;
     try {
       const me = await getMe();
       report.steps.push(step("Sign-in (Graph /me)", me));
-      if (me.ok && me.data) report.user = `${me.data.displayName} <${me.data.userPrincipalName}>`;
+      if (me.ok && me.data) {
+        report.user = `${me.data.displayName} <${me.data.userPrincipalName}>`;
+        graphUpn = me.data.userPrincipalName;
+      }
       if (me.ok) report.steps.push(...(await runPlannerSteps()));
     } catch (error) {
       fatal(error);
     }
 
     if (options.harvest) {
-      const h = await runHarvestSteps(harvestConnectError);
+      const h = await runHarvestSteps(harvestConnectError, graphUpn);
       report.steps.push(...h.steps);
       // performance.now() counts from page load: the cold-start timing of criterion 6.
       if (h.writePassedAt !== null) report.writeElapsedMs = Math.round(h.writePassedAt);
