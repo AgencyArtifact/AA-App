@@ -35,6 +35,7 @@ Team members must never hold Edit (the default Members level). Docs: Edit includ
 
 Hour lists use the list setting "Create and edit access: create items and edit items that were created by the user". Users whose level includes Override List Behaviors bypass it.
 - Docs (SharePoint Server page only): Override List Behaviors lets a user "change or override settings which allow users to read/edit only their own items"; it is in Full Control and Design, not in Edit or Contribute. The SharePoint in Microsoft 365 page names the same permission "Override Check-Out" and does not mention the own-items bypass.
+- Observed on screen 2026-10-13 (TestHours, Advanced settings, Item-level Permissions): "Note: Users with the Cancel Checkout permission can read and edit all items." Cancel Checkout is the permission the docs call Override Check-Out (SharePoint in Microsoft 365) and Override List Behaviors (Server). This ties the bypass to the permission the Coordinator level adds, in the SharePoint interface.
 - Not in docs: the item-level setting itself, whether it also blocks deleting other users' rows, and whether the bypass applies to Graph writes the same way as in the SharePoint interface. Tested in stage 0 (criterion 6).
 
 Audit: version history is on for every list holding hours, so every correction shows who changed what. It is checked in each list's Versioning settings. Docs do not state a default for lists. Observed 2026-10-13 (stage 0 report): a new blank list in this tenant had versioning on, 50 versions. Each new list is still checked, not assumed.
