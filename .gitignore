@@ -7,3 +7,7 @@ dist-teams/
 Excell/
 # Machine-local Claude Code settings.
 .claude/settings.local.json
+# Planning pages and research: they name staff and describe how the office works. Not for a public repo.
+docs/planning/
+Research/
+Claude outputs/

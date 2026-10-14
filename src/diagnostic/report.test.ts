@@ -51,7 +51,7 @@ describe("formatReport", () => {
   it("produces the fixed plain-text layout", () => {
     expect(formatReport(base)).toBe(
       [
-        "Agency Artifact - stage 0 diagnostic",
+        "Agency Artifact - stage 1 diagnostic",
         "Time:        2026-10-12T22:00:00.000Z (local 2026-10-12 15:00:00, America/Los_Angeles)",
         "App URL:     https://example.github.io/aa/#/diagnostic",
         "User:        aa.test@example.com",

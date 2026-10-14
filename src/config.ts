@@ -21,31 +21,6 @@ export const config = {
     tenantId: "6a257495-c628-470a-855d-94ccaedc4d7a",
   },
 
-  sharepoint: {
-    // Example: "agencyartifact.sharepoint.com"
-    hostname: "agencyartifact.sharepoint.com",
-    operations: {
-      sitePath: "/sites/AAOperations",
-      lists: {
-        testHours: "TestHours",
-      },
-    },
-    principals: {
-      sitePath: "/sites/AAPrincipals",
-      lists: {
-        testFees: "TestFees",
-      },
-      // Copied from a principal's diagnostic report, so the boundary test can
-      // also try the by-id routes as a user who cannot look them up. Empty
-      // until then: those steps show SKIPPED. Identifiers, not secrets.
-      // From Galileo's diagnostic report, 2026-10-13 19:11 Los Angeles.
-      siteId: "agencyartifact.sharepoint.com,45102b95-5693-4911-bb67-ef42900b0555,f5c3c54c-fc59-4dee-9550-187326553846",
-      testFeesListId: "ff681976-d232-4464-9216-01ff2b76b163",
-      // Distinctive fictional word in the one TestFees row (Microsoft Search check).
-      searchWord: "Zanthorpe",
-    },
-  },
-
   teamsApp: {
     // Teams app ID (manifest "id"). Not an Entra value. Generated once; keep stable.
     id: "355c44aa-e3e3-4cea-a336-ecf8e6fe74fe",
@@ -57,7 +32,7 @@ export const config = {
 
   // Delegated Graph scopes requested at runtime. Must match the API
   // permissions granted in the app registration.
-  graphScopes: ["User.Read", "Sites.ReadWrite.All"],
+  graphScopes: ["User.Read"],
 } as const;
 
 // ---- Derived addresses. Do not edit; edit config.appUrl. ----------------

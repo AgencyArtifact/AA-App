@@ -1,5 +1,7 @@
 # Data layer
 
+> **Superseded 2026-10-14** (`docs/stages/stage-0-closeout.md`). The SharePoint data layer is not used. Kept as a record. Current architecture: `overview.md` 2.0.
+
 SOP. Version 1.2, 2026-10-13 (stage 0, decision on hours access). Changes are listed at the end.
 Status: everything in this file is ASSUMED until the stage 0 report verifies it. Each statement is marked "docs" when current Microsoft documentation states it (source in `docs/setup/`), otherwise it is assumed. Update to "verified" with a reference to the report as evidence arrives.
 

@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { DiagnosticScreen } from "./diagnostic/DiagnosticScreen";
-import { LogTestScreen } from "./log/LogTestScreen";
 
 // Hash routes: they work on a static host (GitHub Pages) without server rewrites.
 function useHashRoute(): string {
@@ -20,9 +19,9 @@ function Home() {
         <span className="brand__name">Agency Artifact</span>
         <span className="brand__sub">Home</span>
       </header>
-      <p className="muted">Stage 0 test build.</p>
+      <p className="muted">Stage 1 test build.</p>
       <nav className="nav">
-        <a href="#/log">Log half an hour (phone test)</a>
+        <a href="#/diagnostic">Diagnostic</a>
       </nav>
     </main>
   );
@@ -31,6 +30,5 @@ function Home() {
 export function App() {
   const route = useHashRoute();
   if (route.startsWith("#/diagnostic")) return <DiagnosticScreen />;
-  if (route.startsWith("#/log")) return <LogTestScreen />;
   return <Home />;
 }

@@ -1,5 +1,5 @@
 // Minimal Microsoft Graph caller. Delegated token only (see src/auth/graphAuth.ts).
-// Never logs request or response bodies: some lists hold financial data.
+// Never logs request or response bodies.
 
 import { getGraphToken } from "../auth/graphAuth";
 

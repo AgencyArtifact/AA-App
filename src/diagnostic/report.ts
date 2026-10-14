@@ -1,4 +1,4 @@
-// Pure functions for the stage 0 diagnostic: outcome classification and the
+// Pure functions for the stage 1 diagnostic: outcome classification and the
 // plain-text report. No I/O.
 
 // SKIPPED: the step could not be attempted (for example, no row by another
@@ -27,7 +27,7 @@ export interface DiagnosticReport {
   authMode: string;
   interactivePrompts: number;
   lastSilentError: string | null;
-  // Milliseconds from page load to the TestHours write result; null if no write was attempted.
+  // Milliseconds from page load to the Harvest write result; null if no write was attempted.
   writeElapsedMs: number | null;
   // 1 for the run started when the screen opened; higher for "Run again".
   runNumber: number;
@@ -53,7 +53,7 @@ export function formatReport(r: DiagnosticReport): string {
       ? "no write attempted"
       : `${formatElapsed(r.writeElapsedMs)} from page load (run ${r.runNumber}${r.runNumber === 1 ? ", first run" : ", not a cold start"})`;
   const lines: string[] = [
-    "Agency Artifact - stage 0 diagnostic",
+    "Agency Artifact - stage 1 diagnostic",
     `Time:        ${r.timestamp}`,
     `App URL:     ${r.appUrl}`,
     `User:        ${r.user}`,
