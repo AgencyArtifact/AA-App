@@ -6,7 +6,7 @@
 // addresses, so no field value is ever shown, stored or logged.
 // TestHours is operational: its Date, WorkDate and Title values may be shown.
 
-import { config } from "../config";
+import { config, manageScopes } from "../config";
 import { getAuthStats, getHostInfo } from "../auth/graphAuth";
 import type { GraphResult } from "../graph/graph";
 import {
@@ -225,6 +225,61 @@ async function restSteps(rows: HoursRow[], me: Me): Promise<StepResult[]> {
   return steps;
 }
 
+/**
+ * Stage 0 permission test: the same edit and delete of another user's row
+ * with a "manage" scope token (Sites.Manage.All for Graph, AllSites.Manage
+ * for REST), whose level includes Override List Behaviors. Team is still
+ * expected DENIED (delegated: never more than the user's own rights).
+ */
+async function manageSteps(siteId: string, rows: HoursRow[], me: Me): Promise<StepResult[]> {
+  const site = sp.operations.sitePath;
+  const routes = [
+    {
+      label: "Graph, Sites.Manage.All",
+      edit: (id: string, t: string) => updateTestHoursTitle(siteId, id, t, manageScopes.graph),
+      remove: (id: string) => deleteTestHoursItem(siteId, id, manageScopes.graph),
+    },
+    {
+      label: "REST, AllSites.Manage",
+      edit: (id: string, t: string) => spUpdateTitle(site, hoursList, id, t, manageScopes.sharePoint),
+      remove: (id: string) => spRecycleItem(site, hoursList, id, manageScopes.sharePoint),
+    },
+  ];
+  const steps: StepResult[] = [];
+  let deleteTarget = pickDeleteTarget(rows, me);
+  const editTarget = pickEditTarget(rows, me);
+  for (const route of routes) {
+    const editName = `Manage-scope edit of another user's row (${route.label})`;
+    if (!editTarget) {
+      steps.push(skipped(editName, "no row created by another user exists"));
+    } else {
+      const original = editTarget.title.endsWith(EDIT_MARK) ? editTarget.title.slice(0, -EDIT_MARK.length) : editTarget.title;
+      const what = `item ${editTarget.id} by ${creatorName(editTarget)}`;
+      const edited = await route.edit(editTarget.id, original + EDIT_MARK);
+      if (!edited.ok) {
+        steps.push(step(editName, edited, `${what}: edit refused, nothing changed`));
+      } else {
+        const restored = await route.edit(editTarget.id, original);
+        steps.push(
+          restored.ok
+            ? step(editName, edited, `${what}: edited (HTTP ${edited.status}), restored (HTTP ${restored.status})`)
+            : { ...step(editName, restored, `${what}: edit PASS, restore FAILED; set Title back to "${original}" by hand`), outcome: "ERROR" },
+        );
+      }
+    }
+    const deleteName = `Manage-scope delete of another user's row (${route.label})`;
+    if (!deleteTarget) {
+      steps.push(skipped(deleteName, `no "${DELETE_TARGET_TITLE}" row by another user left (an earlier step may have deleted it)`));
+    } else {
+      const what = `item ${deleteTarget.id} by ${creatorName(deleteTarget)}`;
+      const removed = await route.remove(deleteTarget.id);
+      steps.push(step(deleteName, removed, removed.ok ? `${what}: deleted (HTTP ${removed.status})` : `${what}: delete refused, row kept`));
+      if (removed.ok) deleteTarget = null;
+    }
+  }
+  return steps;
+}
+
 /** Every route to TestFees on AA Principals. Ids and counts only. */
 async function principalsSteps(): Promise<StepResult[]> {
   const steps: StepResult[] = [];
@@ -297,7 +352,7 @@ export async function runDiagnostic(): Promise<DiagnosticReport> {
   const now = new Date();
   const report: DiagnosticReport = {
     timestamp: timestamp(now),
-    appUrl: window.location.href,
+    appUrl: `${window.location.href} (build ${__BUILD_TIME__})`,
     user: "unknown",
     host: "unknown",
     timeZone: `${deviceTimeZone()} (${utcOffset(now)})`,
@@ -337,6 +392,8 @@ export async function runDiagnostic(): Promise<DiagnosticReport> {
         // Fresh list: the Graph steps may have deleted the target or created this user's own.
         const again = await listTestHoursRows(ops.id);
         report.steps.push(...(await restSteps(again.rows ?? [], me.data)));
+        const third = await listTestHoursRows(ops.id);
+        report.steps.push(...(await manageSteps(ops.id, third.rows ?? [], me.data)));
       } else {
         report.steps.push(step(`Operations edit of another user's row (${hoursList})`, listed.result, "list read failed"));
       }

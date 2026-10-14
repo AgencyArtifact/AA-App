@@ -282,6 +282,15 @@ Built (SOP first: `data.md` Access routes, `entra-app.md` step 4b):
 - Verified: typecheck, 34 of 34 tests, build, Teams package. **CORS verified** (2026-10-13, preflight from origin `https://agencyartifact.github.io` to `.../sites/AAOperations/_api/...`): HTTP 200, `Access-Control-Allow-Origin: *`, methods include POST and MERGE, headers `authorization,content-type,x-http-method,if-match` allowed.
 - Untested: the SharePoint token through nested app authentication in Teams; whether REST honours the Owner/Coordinator bypass; that team stays refused through REST. Needs Entra step 4b (permission `AllSites.Write` and admin consent) first.
 
+Result of the REST test (2026-10-13 20:34 and 20:37 Los Angeles, Teams web, new build):
+- Teams sign-in issues SharePoint tokens through nested app authentication, silently (`Prompts: 0`). CORS works. Verified.
+- aa.test: REST edit and delete of Galileo's rows DENIED (403 `-2147024891, System.UnauthorizedAccessException`); Principals by REST DENIED; all six Principals routes DENIED (site by path, list by path, by site id, by list id, REST, search 0 hits). Criterion 3, app and search routes, complete on Teams web.
+- Galileo: REST edit and delete of aa.test's rows **DENIED** (same 403). Option 1 as built does not let Owners or coordinators correct hours.
+- First REST call failed once with "Failed to fetch", retry returned 200 (Teams web). On Teams desktop an older cached build failed both REST calls the same way. Suspected: transient first-connection failure, not CORS (SharePoint sends `Access-Control-Allow-Origin: *` even on 401). The retry is kept.
+- Teams desktop kept serving an old build after quit and restart; Teams web with F5 loaded the new one. Every report now shows a build stamp next to the App URL.
+
+Next test (Galileo approved, 2026-10-13): manage scopes `Sites.Manage.All` and `AllSites.Manage`, requested only by new diagnostic steps "Manage-scope edit/delete of another user's row". Entra step 4c.
+
 ## Open questions (brief v2)
 
 - Q10. One static tab (brief v2) or two (Home and Diagnostic, as now)? With one, it should point at `#/diagnostic` for stage 0, so a cold start runs the diagnostic directly (Home has links to the log screen). Recommendation: keep two until stage 0 closes; the checklist works with both.

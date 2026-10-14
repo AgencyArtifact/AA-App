@@ -1,7 +1,7 @@
 // Minimal Microsoft Graph caller. Delegated token only (see src/auth/graphAuth.ts).
 // Never logs request or response bodies: some lists hold financial data.
 
-import { getGraphToken } from "../auth/graphAuth";
+import { getGraphToken, getToken } from "../auth/graphAuth";
 
 const GRAPH_BASE = "https://graph.microsoft.com/v1.0";
 
@@ -19,8 +19,20 @@ export async function graph<T>(
   pathOrUrl: string,
   body?: unknown,
   extraHeaders: Record<string, string> = {},
+  // Explicit scopes for a permission test; token failures then become a result, not a throw.
+  scopes?: readonly string[],
 ): Promise<GraphResult<T>> {
-  const token = await getGraphToken();
+  let token: string;
+  if (scopes) {
+    try {
+      token = await getToken(scopes);
+    } catch (error) {
+      const e = error as { errorCode?: string; message?: string };
+      return { ok: false, status: 0, code: `token: ${e.errorCode || e.message || String(error)}`, data: null };
+    }
+  } else {
+    token = await getGraphToken();
+  }
   const url = pathOrUrl.startsWith("https://") ? pathOrUrl : `${GRAPH_BASE}${pathOrUrl}`;
   let response: Response;
   try {

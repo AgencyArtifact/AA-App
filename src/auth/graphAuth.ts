@@ -176,7 +176,8 @@ async function acquire(state: AuthState, scopes: string[]): Promise<Authenticati
 const inFlight = new Map<string, Promise<string>>();
 let queue: Promise<unknown> = Promise.resolve();
 
-function getToken(scopes: readonly string[]): Promise<string> {
+/** Delegated token for an explicit scope set (stage 0 permission tests). */
+export function getToken(scopes: readonly string[]): Promise<string> {
   const key = scopes.join(" ");
   const existing = inFlight.get(key);
   if (existing) return existing;

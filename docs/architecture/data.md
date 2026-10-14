@@ -49,6 +49,9 @@ Hour lists use the list setting "Create and edit access: create items and edit i
 
 Both are delegated: each can do only what the signed-in user can already do in SharePoint.
 
+Result 2026-10-13 (stage 0 report): through REST with `AllSites.Write` an Owner is refused too (403 `System.UnauthorizedAccessException`); team is refused as expected; REST gives no route into `AA Principals`.
+Suspected cause: SharePoint gives a delegated token the intersection of the user's rights and the scope's level; the `ReadWrite`/`Write` scopes stop short of Override List Behaviors. **Under test (Galileo approved, 2026-10-13):** `Sites.Manage.All` (Graph) and `AllSites.Manage` (SharePoint), requested only by the diagnostic's manage-scope steps. Trade-off: for Owners the app could also manage lists; for team (Contribute) nothing changes. If Graph alone works, keep only `Sites.Manage.All` and remove the SharePoint permissions.
+
 Audit: version history is on for every list holding hours, so every correction shows who changed what. It is checked in each list's Versioning settings. Docs do not state a default for lists. Observed 2026-10-13 (stage 0 report): a new blank list in this tenant had versioning on, 50 versions. Each new list is still checked, not assumed.
 
 ## App registration

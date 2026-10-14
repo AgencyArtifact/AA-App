@@ -6,6 +6,10 @@ export default defineConfig({
   // Derived from config.appUrl.
   base: appBasePath,
   plugins: [react()],
+  // Build stamp shown in the diagnostic report, so a report always says which version ran.
+  define: {
+    __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
+  },
   build: {
     rollupOptions: {
       input: {

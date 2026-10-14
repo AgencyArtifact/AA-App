@@ -5,7 +5,7 @@
 // Stage 0: tests coordinator corrections through the API the SharePoint
 // interface itself uses (docs/architecture/data.md, Access routes).
 
-import { getSharePointToken } from "../auth/graphAuth";
+import { getSharePointToken, getToken } from "../auth/graphAuth";
 import { siteRestBase } from "../config";
 import type { GraphResult } from "./graph";
 
@@ -15,10 +15,12 @@ export async function spRest<T>(
   path: string,
   body?: unknown,
   extraHeaders: Record<string, string> = {},
+  // Explicit scopes for a permission test; default is the AllSites.Write token.
+  scopes?: readonly string[],
 ): Promise<GraphResult<T>> {
   let token: string;
   try {
-    token = await getSharePointToken();
+    token = await (scopes ? getToken(scopes) : getSharePointToken());
   } catch (error) {
     const e = error as { errorCode?: string; message?: string };
     return { ok: false, status: 0, code: `token: ${e.errorCode || e.message || String(error)}`, data: null };
@@ -102,11 +104,12 @@ export function spUpdateTitle(
   listTitle: string,
   itemId: string,
   title: string,
+  scopes?: readonly string[],
 ): Promise<GraphResult<unknown>> {
   return spRest("POST", sitePath, `${listByTitle(listTitle)}/items(${Number(itemId)})`, { Title: title }, {
     "X-HTTP-Method": "MERGE",
     "IF-MATCH": "*",
-  });
+  }, scopes);
 }
 
 /** Moves a list item to the recycle bin, as the interface's Delete does. */
@@ -114,6 +117,7 @@ export function spRecycleItem(
   sitePath: string,
   listTitle: string,
   itemId: string,
+  scopes?: readonly string[],
 ): Promise<GraphResult<unknown>> {
-  return spRest("POST", sitePath, `${listByTitle(listTitle)}/items(${Number(itemId)})/recycle()`);
+  return spRest("POST", sitePath, `${listByTitle(listTitle)}/items(${Number(itemId)})/recycle()`, undefined, {}, scopes);
 }

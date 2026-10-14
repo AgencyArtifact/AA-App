@@ -86,6 +86,15 @@ For coordinator corrections through SharePoint's own API (see `docs/architecture
 4. **Grant admin consent for Agency Artifact** > **Yes**.
 5. Three rows, all *Granted for Agency Artifact*: `User.Read`, `Sites.ReadWrite.All` (Microsoft Graph), `AllSites.Write` (SharePoint).
 
+### 4c. Manage-scope test permissions (stage 0 test, added 2026-10-13)
+
+Approved by Galileo for the coordinator-corrections test. Both are removed again if the test fails; if Graph works, only `AllSites.Manage` (and `AllSites.Write`) are removed.
+
+1. Same page as 4b: <https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/~/CallAnAPI/appId/503412e0-1cec-47b4-8a28-888cda0c8493>.
+2. **Add a permission** > **Microsoft Graph** > **Delegated permissions** > search `Sites.Manage.All` > tick > **Add permissions**.
+3. **Add a permission** > **Microsoft APIs** > **SharePoint** > **Delegated permissions** > **AllSites** > tick **AllSites.Manage** > **Add permissions**.
+4. **Grant admin consent for Agency Artifact** > **Yes**. All rows *Granted*.
+
 Do **not** add anything under *Application permissions*, do not set an
 Application ID URI under **Expose an API**, and do not create anything under
 **Certificates & secrets**.

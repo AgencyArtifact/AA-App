@@ -87,6 +87,15 @@ export const devAuthRedirectUrl = `http://localhost:5173${appBasePath}auth.html`
  * Stage 0 test of coordinator corrections; see docs/architecture/data.md.
  */
 export const sharePointScopes = [`https://${config.sharepoint.hostname}/AllSites.Write`] as const;
+/**
+ * Stage 0 test: "manage" scopes, whose permission level includes Override List
+ * Behaviors. Requested only by the diagnostic's manage-scope steps. Delegated,
+ * so never more than the signed-in user's own rights.
+ */
+export const manageScopes = {
+  graph: ["https://graph.microsoft.com/Sites.Manage.All"],
+  sharePoint: [`https://${config.sharepoint.hostname}/AllSites.Manage`],
+} as const;
 /** SharePoint REST base of a site, e.g. "https://<host>/sites/AAOperations/_api". */
 export function siteRestBase(sitePath: string): string {
   return `https://${config.sharepoint.hostname}${sitePath}/_api`;
