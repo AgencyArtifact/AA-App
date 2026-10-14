@@ -71,6 +71,32 @@ Stage 0 test lists only. Real lists are defined in the Blueprint gate of the sta
 Settings: Read access "Read all items"; Create and Edit access "Create items and edit items that were created by the user"; versioning on.
 Access: team (Contribute) creates rows and edits or deletes its own; coordinators and principals edit or delete any.
 
+### TestCorrections (AA Operations), coordinator corrections by flow
+
+Approved outline: Galileo, 2026-10-13. Setup: `docs/setup/correction-flow.md`.
+
+| Column | SharePoint type | Notes |
+|---|---|---|
+| `Title` | Single line of text (default, required) | Short label, e.g. "fix Monday" |
+| `TargetId` | Number, 0 decimals, required | ID of the `TestHours` row to correct |
+| `Action` | Choice, required: `Edit`, `Delete` | |
+| `NewHours` | Number, 1 decimal | Required for `Edit`. Unit: hours |
+| `Reason` | Single line of text, required | Why the correction is needed |
+| `Status` | Choice: `Requested` (default), `Applied`, `Rejected` | Set by the flow |
+| `Outcome` | Single line of text | Set by the flow: what changed (old and new value) or why rejected |
+
+Settings: Read all items; create and edit own items only; versioning on.
+
+Group `AA Coordinators` (SharePoint group on AA Operations): who may have corrections applied. Owner of the group: `AA Operations Owners`; only owners change membership. Permission level on the site: Contribute (same as any team member; the group grants no extra rights by itself).
+
+Flow `AA Stage0 Corrections` (Galileo's connection):
+- Trigger: a new `TestCorrections` row.
+- Applies the correction only if the row's creator is a member of `AA Coordinators`. Otherwise `Status` = Rejected, `Outcome` = reason. Membership is read from SharePoint at run time, never from the app.
+- `Edit`: sets `Hours` of the target row to `NewHours`. `Delete`: deletes the target row (recycle bin).
+- Always writes `Status` and `Outcome` on the request. `Outcome` keeps the old value, so the request row is the audit record: who asked (Created By), when (Created), what and why.
+- Version history of `TestHours` shows Galileo (the connection), not the coordinator. Accepted deviation, recorded in the stage 0 report.
+- Not in stage 0: validating `NewHours` (half-hour steps, 0 to 24), a correction of a missing row (the run fails and the request stays `Requested`, visible in run history), notifications, an app screen. Parked for the stage that builds hours.
+
 ### TestFees (AA Principals)
 
 | Column | SharePoint type | Notes |
