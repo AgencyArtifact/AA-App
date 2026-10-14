@@ -6,6 +6,10 @@ Run in this order. Paste every copied diagnostic report into
 **Stop rule.** If aa.test can read `TestFees` by **any** route below, stop
 there and report it: that is a no-go on the approach.
 
+**Search word** (Microsoft Search check): `Zanthorpe`, the Project value of the
+one `TestFees` row (Title `Fee test`, Fee 1,000, both fictional), saved
+2026-10-13. Galileo must find it before aa.test's search counts.
+
 ## A. Setup (once)
 
 - [ ] A1. Preconditions from the brief are done (admin role, aa.test with
