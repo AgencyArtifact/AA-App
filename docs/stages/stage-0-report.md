@@ -273,6 +273,15 @@ Options (Galileo's decision; recommendation first):
 3. **Per-row permissions** (each row gets its own unique permissions on creation). Works through Graph, but thousands of unique permissions per year and a fragile setup; not proportionate.
 4. Rejected: switching the setting off and letting the app decide who may edit. CLAUDE.md: the app never decides access.
 
+Decision (Galileo, 2026-10-13): **option 1**, test SharePoint REST for coordinator corrections.
+
+Built (SOP first: `data.md` Access routes, `entra-app.md` step 4b):
+- `src/auth/graphAuth.ts`: tokens for any scope set; `getSharePointToken()` beside `getGraphToken()`. Same NAA in Teams and popup in a browser.
+- `src/graph/spRest.ts` (new, no new dependency): SharePoint REST caller with the same result shape as Graph; count by Id, MERGE of Title, recycle of an item.
+- Diagnostic: new steps "REST token + read (TestHours)", "REST edit of another user's row", "REST delete of another user's row" (recycle, as the interface does), and boundary route "Principals read (TestFees, SharePoint REST)".
+- Verified: typecheck, 34 of 34 tests, build, Teams package. **CORS verified** (2026-10-13, preflight from origin `https://agencyartifact.github.io` to `.../sites/AAOperations/_api/...`): HTTP 200, `Access-Control-Allow-Origin: *`, methods include POST and MERGE, headers `authorization,content-type,x-http-method,if-match` allowed.
+- Untested: the SharePoint token through nested app authentication in Teams; whether REST honours the Owner/Coordinator bypass; that team stays refused through REST. Needs Entra step 4b (permission `AllSites.Write` and admin consent) first.
+
 ## Open questions (brief v2)
 
 - Q10. One static tab (brief v2) or two (Home and Diagnostic, as now)? With one, it should point at `#/diagnostic` for stage 0, so a cold start runs the diagnostic directly (Home has links to the log screen). Recommendation: keep two until stage 0 closes; the checklist works with both.

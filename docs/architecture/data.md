@@ -38,6 +38,16 @@ Hour lists use the list setting "Create and edit access: create items and edit i
 - Observed on screen 2026-10-13 (TestHours, Advanced settings, Item-level Permissions): "Note: Users with the Cancel Checkout permission can read and edit all items." Cancel Checkout is the permission the docs call Override Check-Out (SharePoint in Microsoft 365) and Override List Behaviors (Server). This ties the bypass to the permission the Coordinator level adds, in the SharePoint interface.
 - Not in docs: the item-level setting itself, whether it also blocks deleting other users' rows, and whether the bypass applies to Graph writes the same way as in the SharePoint interface. Tested in stage 0 (criterion 6).
 - **Verified 2026-10-13 (stage 0 report, findings):** the setting blocks both editing and deleting other users' rows, through Graph and in the interface, for Contribute. The bypass works **only in the SharePoint interface**: through Graph an Owner (Full Control) is refused with 403, and gets 200/204 once the setting is off. So coordinator corrections cannot go through Graph with this design. How coordinators correct hours is **open** (Galileo's decision, options in the stage 0 report). The Coordinator row in the table above holds for the interface only until then.
+- **Under test (Galileo's choice 2026-10-13, option 1):** coordinator corrections through the SharePoint REST API (`https://<tenant>.sharepoint.com/sites/<site>/_api/...`), which the SharePoint interface itself uses, with a delegated SharePoint token (scope `https://<tenant>.sharepoint.com/AllSites.Write`). Still per-user and permission-trimmed, no server. Not in docs: whether nested app authentication in Teams issues SharePoint tokens, whether SharePoint REST accepts browser calls from the app's origin (CORS), and whether REST honours the own-items bypass. The stage 0 diagnostic tests all three, plus that team members are still refused through REST and that REST gives no route into `AA Principals`.
+
+## Access routes
+
+| Route | Token audience | Used for |
+|---|---|---|
+| Microsoft Graph | `https://graph.microsoft.com` (`Sites.ReadWrite.All`) | All reads and writes by default |
+| SharePoint REST | `https://<tenant>.sharepoint.com` (`AllSites.Write`) | Under test: coordinator corrections only |
+
+Both are delegated: each can do only what the signed-in user can already do in SharePoint.
 
 Audit: version history is on for every list holding hours, so every correction shows who changed what. It is checked in each list's Versioning settings. Docs do not state a default for lists. Observed 2026-10-13 (stage 0 report): a new blank list in this tenant had versioning on, 50 versions. Each new list is still checked, not assumed.
 

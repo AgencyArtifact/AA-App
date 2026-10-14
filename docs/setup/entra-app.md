@@ -76,6 +76,16 @@ You should now have exactly three SPA redirect URIs and no Web or Mobile platfor
 5. Select **Grant admin consent for <your tenant name>** and confirm **Yes**.
 6. Both rows must show a green tick and *Granted for <tenant>* in the Status column.
 
+### 4b. Add the delegated SharePoint permission (added 2026-10-13)
+
+For coordinator corrections through SharePoint's own API (see `docs/architecture/data.md`, Access routes).
+
+1. Open <https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade> > **Agency Artifact** > **API permissions**.
+2. **Add a permission** > **Microsoft APIs** tab > **SharePoint**.
+3. **Delegated permissions** > expand **AllSites** > tick **AllSites.Write** > **Add permissions**.
+4. **Grant admin consent for Agency Artifact** > **Yes**.
+5. Three rows, all *Granted for Agency Artifact*: `User.Read`, `Sites.ReadWrite.All` (Microsoft Graph), `AllSites.Write` (SharePoint).
+
 Do **not** add anything under *Application permissions*, do not set an
 Application ID URI under **Expose an API**, and do not create anything under
 **Certificates & secrets**.
@@ -85,7 +95,7 @@ Application ID URI under **Expose an API**, and do not create anything under
 - [ ] Supported account types: single tenant.
 - [ ] Exactly the three SPA redirect URIs printed by `npm run entra:values`.
 - [ ] **Expose an API**: no Application ID URI, no scopes.
-- [ ] Two delegated permissions, both granted: `User.Read`, `Sites.ReadWrite.All`.
+- [ ] Three delegated permissions, all granted: `User.Read`, `Sites.ReadWrite.All` (Graph), `AllSites.Write` (SharePoint).
 - [ ] No certificates or secrets.
 - [ ] Client ID and tenant ID pasted into `src/config.ts`.
 

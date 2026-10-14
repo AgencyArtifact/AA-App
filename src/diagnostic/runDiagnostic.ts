@@ -27,6 +27,7 @@ import {
   type HoursRow,
   type Me,
 } from "../graph/sharepoint";
+import { spCountItems, spRecycleItem, spUpdateTitle } from "../graph/spRest";
 import { deviceTimeZone, localDate, localTime, utcOffset } from "../dates";
 import { classify, type DiagnosticReport, type StepResult } from "./report";
 import {
@@ -176,6 +177,51 @@ async function deleteOtherStep(
   );
 }
 
+/**
+ * The same edit and delete through SharePoint REST, the API the SharePoint
+ * interface uses (stage 0 test of coordinator corrections). Team is still
+ * expected DENIED; the question is whether coordinators and principals PASS.
+ */
+async function restSteps(rows: HoursRow[], me: Me): Promise<StepResult[]> {
+  const site = sp.operations.sitePath;
+  const steps: StepResult[] = [];
+
+  const read = await spCountItems(site, hoursList);
+  steps.push(step(`REST token + read (${hoursList})`, read.result, read.count === null ? "token or read failed" : `items: ${read.count}`));
+  if (!read.result.ok) return steps;
+
+  const editName = `REST edit of another user's row (${hoursList})`;
+  const row = pickEditTarget(rows, me);
+  if (!row) {
+    steps.push(skipped(editName, "no row created by another user exists"));
+  } else {
+    const original = row.title.endsWith(EDIT_MARK) ? row.title.slice(0, -EDIT_MARK.length) : row.title;
+    const target = `item ${row.id} by ${creatorName(row)}`;
+    const edited = await spUpdateTitle(site, hoursList, row.id, original + EDIT_MARK);
+    if (!edited.ok) {
+      steps.push(step(editName, edited, `${target}: edit refused, nothing changed`));
+    } else {
+      const restored = await spUpdateTitle(site, hoursList, row.id, original);
+      steps.push(
+        restored.ok
+          ? step(editName, edited, `${target}: edited (HTTP ${edited.status}), restored (HTTP ${restored.status})`)
+          : { ...step(editName, restored, `${target}: edit PASS, restore FAILED; set Title back to "${original}" by hand`), outcome: "ERROR" },
+      );
+    }
+  }
+
+  const deleteName = `REST delete of another user's row (${hoursList})`;
+  const target = pickDeleteTarget(rows, me);
+  if (!target) {
+    steps.push(skipped(deleteName, `no "${DELETE_TARGET_TITLE}" row by another user left (the Graph step may have deleted it)`));
+  } else {
+    const recycled = await spRecycleItem(site, hoursList, target.id);
+    const what = `item ${target.id} by ${creatorName(target)}`;
+    steps.push(step(deleteName, recycled, recycled.ok ? `${what}: moved to the recycle bin (HTTP ${recycled.status})` : `${what}: delete refused, row kept`));
+  }
+  return steps;
+}
+
 /** Every route to TestFees on AA Principals. Ids and counts only. */
 async function principalsSteps(): Promise<StepResult[]> {
   const steps: StepResult[] = [];
@@ -217,7 +263,11 @@ async function principalsSteps(): Promise<StepResult[]> {
     steps.push(skipped(byId, "list id unknown: copy it from a principal's report into config.ts"));
   }
 
-  // Route 5: Microsoft Search for the distinctive word. 0 hits in the site = not visible.
+  // Route 5: SharePoint REST, the interface's own API.
+  const rest = await spCountItems(sp.principals.sitePath, feesList);
+  steps.push(step(`Principals read (${feesList}, SharePoint REST)`, rest.result, rest.count === null ? "read refused or failed" : `items: ${rest.count}`));
+
+  // Route 6: Microsoft Search for the distinctive word. 0 hits in the site = not visible.
   const searchName = `Principals search ("${sp.principals.searchWord}")`;
   const found = await searchListItems(sp.principals.searchWord);
   if (!found.ok || !found.data) {
@@ -281,6 +331,9 @@ export async function runDiagnostic(): Promise<DiagnosticReport> {
       if (listed.rows) {
         report.steps.push(await editOtherStep(ops.id, pickEditTarget(listed.rows, me.data)));
         report.steps.push(await deleteOtherStep(ops.id, listed.rows, me.data, personId));
+        // Fresh list: the Graph steps may have deleted the target or created this user's own.
+        const again = await listTestHoursRows(ops.id);
+        report.steps.push(...(await restSteps(again.rows ?? [], me.data)));
       } else {
         report.steps.push(step(`Operations edit of another user's row (${hoursList})`, listed.result, "list read failed"));
       }
