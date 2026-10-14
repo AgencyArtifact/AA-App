@@ -42,7 +42,7 @@ export const config = {
       // Project ID of "ZT-02 Unassigned" (aa.test not assigned).
       unassignedProjectId: "",
       // Galileo's Harvest user ID, for "Harvest other person's time".
-      otherUserId: "",
+      otherUserId: "5759248",
     },
   },
 

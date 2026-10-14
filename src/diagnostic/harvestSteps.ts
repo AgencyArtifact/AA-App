@@ -22,6 +22,18 @@ const TEST_TASK = "SD";
 const TEST_HOURS = 0.5;
 const TEST_NOTE = "AA stage 1 diagnostic (deleted automatically)";
 
+/** A project matches by its code, or by a name starting with the code ("ZT-01 Test Project"). */
+export function isProject(p: { code: string | null; name: string }, code: string): boolean {
+  return p.code?.trim() === code || p.name.trim().startsWith(code);
+}
+
+/** Non-financial list of assignments for the report: "name [code] (tasks)". */
+function describeAssignments(list: HarvestProjectAssignment[]): string {
+  return list
+    .map((a) => `${a.project.name}${a.project.code ? ` [${a.project.code}]` : ""} (${a.task_assignments.map((t) => t.task.name).join(", ")})`)
+    .join("; ");
+}
+
 function step(name: string, r: HarvestResult<unknown>, detail: string): StepResult {
   const parts = [r.message ? `Harvest: ${r.message}` : "", detail].filter(Boolean);
   return { name, outcome: classify(r.status), httpStatus: r.status, graphCode: null, detail: parts.join(" · ") };
@@ -95,10 +107,10 @@ export async function runHarvestSteps(connectError: string | null): Promise<Harv
     "/users/me/project_assignments?per_page=100",
   );
   const assignments = pa.data?.project_assignments ?? [];
-  steps.push(step("Harvest my assignments", pa, pa.ok ? `count ${assignments.length}; ${moneySummary(pa.data)}` : ""));
+  steps.push(step("Harvest my assignments", pa, pa.ok ? `count ${assignments.length}: ${describeAssignments(assignments)}; ${moneySummary(pa.data)}` : ""));
 
   // Harvest write + delete
-  const test = assignments.find((a) => a.project.code === TEST_PROJECT_CODE);
+  const test = assignments.find((a) => isProject(a.project, TEST_PROJECT_CODE));
   const sd = test?.task_assignments.find((t) => t.task.name === TEST_TASK);
   if (!test || !sd) {
     steps.push(
@@ -137,11 +149,11 @@ export async function runHarvestSteps(connectError: string | null): Promise<Harv
   let lookupNote = "";
   if (!unassignedId) {
     // Only an Administrator (or a manager of the project) can list it.
-    const projects = await harvest<{ projects: { id: number; code: string | null }[] }>(
+    const projects = await harvest<{ projects: { id: number; code: string | null; name: string }[] }>(
       "GET",
       "/projects?is_active=true&per_page=100",
     );
-    const found = projects.data?.projects.find((p) => p.code === UNASSIGNED_PROJECT_CODE);
+    const found = projects.data?.projects.find((p) => isProject(p, UNASSIGNED_PROJECT_CODE));
     if (found) {
       unassignedId = String(found.id);
       lookupNote = `; ${UNASSIGNED_PROJECT_CODE} project ID ${found.id}: put it in config.harvest.test.unassignedProjectId`;
@@ -155,7 +167,9 @@ export async function runHarvestSteps(connectError: string | null): Promise<Harv
       ),
     );
   } else if (!sd) {
-    steps.push(skipped("Harvest unassigned write", `task ${TEST_TASK} ID unknown (no ${TEST_PROJECT_CODE} assignment)`));
+    steps.push(
+      skipped("Harvest unassigned write", `task ${TEST_TASK} ID unknown (no ${TEST_PROJECT_CODE} assignment)${lookupNote}`),
+    );
   } else {
     const r = await harvest<HarvestTimeEntry>("POST", "/time_entries", {
       project_id: Number(unassignedId),
