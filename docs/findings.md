@@ -13,6 +13,13 @@ Cumulative across stages. Every failure or discovery that cost time gets one ent
 
 ## Entries
 
+### 2026-10-14: Teams sign-in popups for a third-party provider need no provider domain in the manifest (docs)
+- Stage and gate: stage 1, T2 (Harvest sign-in).
+- Symptom: none; question from the brief (does `id.getharvest.com` go in `validDomains`?).
+- Cause (docs, [Configure OAuth authentication for tab](https://learn.microsoft.com/en-us/microsoftteams/platform/tabs/how-to/authentication/auth-tab-aad), updated 2026-08-03): the flow "must start on a page that's on your domain", listed in `validDomains` (else an empty popup); the identity provider's domain need not be listed. Microsoft's sample passes the token through `localStorage`, which our money and secrets rule forbids.
+- Fix: `harvest-auth.html` on the app's domain starts the flow and receives the callback; the token returns through `notifySuccess`/`postMessage`, never storage. Manifest unchanged.
+- Rule from now on: a third-party sign-in in Teams starts on our own page. Do not copy the sample's storage hand-off. `overview.md` I2.
+
 ### 2026-10-14: Planner premium plans are outside the Graph Planner API (docs)
 - Stage and gate: stage 1, T1 (setup research).
 - Symptom: none yet; found before testing. Learn: "Premium plans and tasks aren't available on the Planner API in Microsoft Graph." The Update plannerTask page also says Project tasks replicated to Planner accept only `percentComplete` updates.

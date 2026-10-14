@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Connecting Harvest</title>
+  </head>
+  <body>
+    <!-- Harvest sign-in popup: start page (redirects to Harvest) and Redirect URL
+         (hands the result back to the app). Must match the Redirect URL registered
+         in Harvest (docs/setup/harvest.md). Logic in src/auth/harvestAuth.ts. -->
+    <script type="module">
+      import { runHarvestAuthPage } from "/src/auth/harvestAuth.ts";
+      void runHarvestAuthPage();
+    </script>
+  </body>
+</html>

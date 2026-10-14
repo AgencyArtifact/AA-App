@@ -30,6 +30,13 @@ export const config = {
     developerWebsiteUrl: "https://www.agencyartifact.com/",
   },
 
+  harvest: {
+    // Client ID of the Harvest OAuth2 application (Harvest ID > Developers).
+    // Configuration, not a secret. No client secret in stage 1.
+    // See docs/setup/harvest.md.
+    clientId: "REPLACE_ME_HARVEST_CLIENT_ID",
+  },
+
   // Delegated Graph scopes requested at runtime. Must match the API
   // permissions granted in the app registration.
   graphScopes: ["User.Read"],
@@ -56,6 +63,10 @@ export const authRedirectUrl = `${config.appUrl}auth.html`;
 /** Same, for local development with `npm run dev`. */
 export const devAuthRedirectUrl = `http://localhost:5173${appBasePath}auth.html`;
 // No Application ID URI: nested app authentication needs no exposed API.
+
+/** Harvest OAuth2 Redirect URL, and start page of the Harvest sign-in popup.
+ *  Must equal the Redirect URL registered in Harvest (docs/setup/harvest.md). */
+export const harvestAuthUrl = `${config.appUrl}harvest-auth.html`;
 
 export const privacyUrl = `${config.appUrl}privacy.html`;
 export const termsUrl = `${config.appUrl}terms.html`;
