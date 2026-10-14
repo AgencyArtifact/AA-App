@@ -8,7 +8,7 @@ Brief: `stage-0-feasibility.md` version 2. CLAUDE.md 1.1.
 |---|---|---|
 | T0 cleanup | Passed. Report approved, step 8 appended: `docs/stages/stage-0-T0-cleanup-report.md` | 2026-10-13 |
 | Blueprint (T1) | Passed. Approved by Galileo in session | 2026-10-13 |
-| Link (T2 to T5, test matrix) | In progress. T2 checked, T3 revised (built and unit-tested, not yet run against the tenant) | 2026-10-13 |
+| Link (T2 to T5, test matrix) | In progress. T2 checked; T3 revised and committed (`f69ec5d`); T4 reviewed; T5 and the v2 test checklist written. Nothing yet run against the tenant | 2026-10-13 |
 | Stylize | Not started | |
 | Trigger | Not started | |
 
@@ -85,7 +85,66 @@ Assumed (low-risk technical choices):
 
 Untested: everything above against the tenant (test matrix not run).
 
-Needed for the test matrix (goes into the checklist rewrite): a row created by `aa.test` must exist in TestHours, otherwise Galileo's edit test shows SKIPPED; a row created by Galileo (`Galileo row`) must exist for `aa.test`'s.
+Needed for the test matrix (now checklist A5): a row created by `aa.test` must exist in TestHours, otherwise Galileo's edit test shows SKIPPED; a row created by Galileo (`Galileo row`) must exist for `aa.test`'s.
+
+Rechecked on Windows (2026-10-13, this repo): `npm run typecheck` passes, `npm test` 26 of 26, `npm run build` succeeds. Committed locally as `f69ec5d`, not pushed.
+
+Scope note: the app tests **editing** another user's row (as T3 asks). The **delete** half of criterion 6 is tested in Graph Explorer only (checklist D6, E5), as the test matrix asks.
+
+## T4: Teams app package
+
+Reviewed against brief v2. No code change.
+
+Verified (2026-10-13):
+- Schema 1.29 is still the newest version listed as generally available ([manifest schema page](https://learn.microsoft.com/en-us/microsoftteams/platform/resources/schema/manifest-schema), updated 2026-10-01; 1.30 is described there but not in the generally available list).
+- `npm run teams:package` builds `dist-teams/aa-app-0.0.1.zip` with `manifest.json`, `color.png`, `outline.png` at the root. The built `manifest.json` (real values) validates against the official v1.29 JSON schema (ajv 8.17.1, in a scratch folder, no repo dependency added).
+- Icons: `color.png` 192x192, `outline.png` 32x32 with alpha.
+- Personal scope, `validDomains` `agencyartifact.github.io`, tab URLs on `https://agencyartifact.github.io/AA-App/`, `webApplicationInfo.id` the Entra client ID.
+
+Doc fixes in `docs/setup/deploy.md`: catalog step relabelled go criterion 5 (was 4 under brief v1); schema check date and validation recorded; developer website no longer described as `REPLACE_ME`.
+
+Deviation: brief v2 asks for **one** static tab; the manifest has two (Home, Diagnostic), as asked in the v1 round 2 message. Not changed silently: see Q10.
+
+Untested: upload to the org catalog, install from a phone.
+
+## T5: reminder flows
+
+`docs/setup/reminder-flow.md` rewritten for brief v2:
+- Two flows, `AA Stage0 Reminder LA` (Pacific) and `AA Stage0 Reminder India` (India Standard Time); "today" computed in each flow's own zone.
+- Rows are taken by creator (aa.test), then checked twice: `WorkDate` equals today, and the raw `Date` value starts with today. A `MatchLog` step records both counts and the raw values in the run history. A row matched by either column counts as logged.
+- Compressed schedule: reminder and escalation minutes apart, split by a minute threshold on the flow's own clock, with the LA to India clock conversion before and after November 1, 2026.
+- Tests: reminder then escalation; silent when a row exists; date-boundary case (India flow, inside the window); control (outside the window).
+- Export steps, with where to keep the zip (see Q12).
+
+Assumed (low-risk technical choices):
+- "A row from aa.test" means created by aa.test (`Author`), not the `Person` column, because the app leaves `Person` empty when its lookup fails.
+- The Date check compares the first characters of the raw connector value, with no time zone conversion. Not in docs how the connector returns a date-only value; the raw value is logged so the report can interpret it.
+- Get items without an OData filter (Top Count 100), filtered inside the flow, so both checks see the same rows. Fine for a test list, not for real lists.
+- Manual test runs are not used: the stage comes from the clock minute.
+
+Deviation: the brief says the boundary row is written "through the diagnostic screen", but the diagnostic deletes its row right after writing it (T3), so no flow could find it. The procedure uses the diagnostic for the raw values, then the `#/log` screen (same columns, same device-local date) for the row the flow must find. See Q11.
+
+Untested: the whole flow in Power Automate (not built yet). The Filter array operator `starts with` and the `Author`/`Email` shape are from experience with the connector, not checked on screen.
+
+## Test checklist (brief v2)
+
+`docs/stages/stage-0-test-checklist.md` rewritten: preconditions (Teams setup, sharing check, three `TestHours` rows: `aa.test row` dated 2026-01-01 by aa.test, `Galileo row`, `Galileo delete row`), browser smoke test, app matrix at team level (8 cells, with the edit column), four boundary routes plus Graph Explorer edit and delete at team level, Coordinator assignment and reruns (desktop and one phone), routes and delete at coordinator level, version history and recycle bin evidence, three cold-start timings by stopwatch (with a lap at the app tap), Today screen timing via `#/log`, reminder tests, date-boundary case and control.
+
+Choices made in the checklist (low-risk):
+- `aa.test row` is dated in the past so it never silences the reminder flow.
+- The Graph Explorer delete uses a separate `Galileo delete row`, so `Galileo row` survives for the app's edit tests at both levels.
+- Cold start means Teams force-closed and the stopwatch starts on the Teams icon (the strictest reading of "tapping the app in Teams (cold start)"). The lap at the Agency Artifact tap also gives the other reading. This replaces Q3.
+- `#/log` stays: it is the stand-in for the Today screen timing and writes the boundary row.
+
+## Test matrix (brief v2)
+
+To be filled from `docs/stages/stage-0-test-checklist.md`. Paste diagnostic reports and MatchLog lines here, naming client and account.
+
+## Open questions (brief v2)
+
+- Q10. One static tab (brief v2) or two (Home and Diagnostic, as now)? With one, it should point at `#/diagnostic` for stage 0, so a cold start runs the diagnostic directly (Home has links to the log screen). Recommendation: keep two until stage 0 closes; the checklist works with both.
+- Q11. Date-boundary write: accept the diagnostic for raw values plus `#/log` for the row the flow reads (as written), or should the diagnostic gain an option to keep its row?
+- Q12. Flow exports contain the aa.test and Galileo sign-in addresses. While the repo is public, keep them in the git-ignored `Excell/flows/` and move them to `flows/` when the repo goes private? (Written that way in `reminder-flow.md`.)
 
 ## Rounds 1 and 2 (brief v1), kept for reference
 

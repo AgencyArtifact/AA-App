@@ -1,170 +1,149 @@
-# Stage 0 test checklist (for Galileo)
+# Stage 0 test checklist (for Galileo), brief v2
 
-Run in this order. Paste every copied diagnostic report into
-`docs/stages/stage-0-report.md`, section *Test matrix*.
+Run the sections in order. Paste every copied diagnostic report and every flow log line into `docs/stages/stage-0-report.md`, section *Test matrix (brief v2)*, naming the client and the account.
 
-**Stop rule.** If aa.test can read `TestFees` by **any** route below, stop
-there and report it: that is a no-go on the approach.
+**Stop rule.** If aa.test can read `TestFees` by **any** route, at either level, stop there and report it. That is a no-go on the approach.
 
-**Search word** (Microsoft Search check): `Zanthorpe`, the Project value of the
-one `TestFees` row (Title `Fee test`, Fee 1,000, both fictional), saved
-2026-10-13. Galileo must find it before aa.test's search counts.
+**Search word:** `Zanthorpe`, the Project value of the one `TestFees` row (Title `Fee test`, Fee 1,000, both fictional). Galileo's organization-scope search found it on 2026-10-13 (positive control passed).
 
-## A. Setup (once)
+**Addresses** (tenant `agencyartifact.sharepoint.com`):
+- Operations site: `https://agencyartifact.sharepoint.com/sites/AAOperations`
+- Principals site: `https://agencyartifact.sharepoint.com/sites/AAPrincipals`
+- App: `https://agencyartifact.github.io/AA-App/`
 
-- [ ] A1. Preconditions from the brief are done (admin role, aa.test with
-      Business Basic, both sites and lists, custom upload allowed).
-- [ ] A2. Principals site permissions are exactly what we think. As Galileo,
-      open `AA Principals` > **Settings** (gear) > **Site permissions** >
-      **Advanced permissions settings**. Expected: only Galileo and Chris (in
-      Owners / Members), and **no** "Everyone", "Everyone except external
-      users" or "All users" entry anywhere. Also select **Check Permissions**,
-      enter aa.test: expected *None*. Note the result.
-- [ ] A3. `TestFees` has at least one row (any made-up project and fee) so a
-      count of 0 cannot be confused with "no access".
-- [ ] A4. `TestHours` columns are named exactly `Person`, `Date`, `Hours`
-      (internal names; if a column was renamed after creation, tell me).
-- [ ] A5. Entra registration done per `docs/setup/entra-app.md`; IDs in
-      `src/config.ts`.
-- [ ] A6. Site published per `docs/setup/deploy.md`.
-      `https://agencyartifact.github.io/AA-App/#/diagnostic` (or the address
-      in `config.appUrl`) opens in a browser.
-- [ ] A7. `npm run teams:package` built the zip; app uploaded to the org
-      catalog (deploy.md step 5).
+## A. Preconditions (once, before anything else)
+
+- [ ] A1. Teams custom app setup confirmed (`docs/setup/m365-admin.md` part 3): org-wide custom apps on, policy `AA app testers` assigned to Galileo and aa.test, and both accounts see **Upload a custom app**.
+- [ ] A2. Principals sharing check. As Galileo open `https://agencyartifact.sharepoint.com/sites/AAPrincipals/_layouts/15/user.aspx`. Expected: only the three AA Principals groups, no "Everyone", "Everyone except external users" or "All users" entry. **Check Permissions** for `Everyone except external users` and for aa.test: both *None*. (Done once at T1; redo on the test day.)
+- [ ] A3. `TestFees` still has its row (`Fee test`), so a count of 0 cannot be mistaken for "no access".
+- [ ] A4. aa.test is at **Contribute** on AA Operations (not Coordinator yet). Page `https://agencyartifact.sharepoint.com/sites/AAOperations/_layouts/15/user.aspx`, row *AA Test*: Contribute.
+- [ ] A5. Rows in `TestHours` (`https://agencyartifact.sharepoint.com/sites/AAOperations/Lists/TestHours`). All three must exist before section C:
+
+| Title | Created by | Date and WorkDate | Needed for |
+|---|---|---|---|
+| `aa.test row` | **aa.test** (sign in as aa.test in a private window, **+ New**) | `2026-01-01` in both | Galileo's edit test. Without it Galileo's edit step shows **SKIPPED**. Dated in the past so it never silences the reminder flow |
+| `Galileo row` | Galileo (exists) | any | aa.test's edit test, at both levels |
+| `Galileo delete row` | Galileo (**+ New**) | any | The Graph Explorer delete test (section D6 and E5). Recreate it if you repeat E5 |
+
+- [ ] A6. App published to the org catalog (`docs/setup/deploy.md` part 5) and **installed from a phone** as aa.test: Teams > **Apps** > **Built for your org** > **Agency Artifact** > **Add**. Note the phone and the date (go criterion 5).
+- [ ] A7. India device ready (`m365-admin.md` part 6), signed in to Teams as aa.test, app added.
+- [ ] A8. Reminder flows built (`docs/setup/reminder-flow.md`), both on.
 
 ## B. Browser smoke test (desktop browser, Galileo)
 
-- [ ] B1. Open `<appUrl>#/diagnostic`. A Microsoft sign-in popup appears
-      (allow popups if blocked, then **Run again**). Sign in as Galileo. The
-      popup should end on a blank page (`auth.html`) and close by itself; it
-      must never show the app inside the popup.
-- [ ] B2. Expected: Sign-in PASS, Operations read PASS, Operations write +
-      delete PASS, Principals read PASS. **Copy report**, paste in the report.
+- [ ] B1. Open `https://agencyartifact.github.io/AA-App/#/diagnostic`. A Microsoft sign-in popup appears (allow popups if blocked, then **Run again**). Sign in as Galileo. The popup ends on a blank page and closes by itself.
+- [ ] B2. Expected: sign-in PASS, Operations read PASS, write + delete PASS, edit of another user's row PASS (it edits `aa.test row` and restores it), Principals read PASS. **Copy report**.
 
-## C. Test matrix (Teams)
+## C. App matrix, aa.test as team (Contribute)
 
-For each cell: open **Agency Artifact** in Teams, select the **Diagnostic**
-tab, wait for the diagnostic to finish,
-**Copy report**, paste into the report with the client and account named.
-If copy is blocked, the report text is selected below the buttons: copy it by
-hand, or take a screenshot.
+For each cell: open **Agency Artifact** in Teams, **Diagnostic** tab, wait for the report, **Copy report**, paste it into the report. If copy is blocked, the report text is selected below the buttons: copy by hand or screenshot. Note any sign-in or consent prompt (`Prompts: 0` means silent).
 
-Also note for each cell: **was there any sign-in or consent prompt?** (The
-report shows `Prompts: N`; 0 means fully silent.)
+| # | Client | Account | Read | Write | Edit other's row | Principals | Prompts |
+|---|---|---|---|---|---|---|---|
+| C1 | Teams desktop | Galileo | PASS | PASS | PASS | PASS | 0 |
+| C2 | Teams web | Galileo | PASS | PASS | PASS | PASS | 0 |
+| C3 | Teams iOS | Galileo | PASS | PASS | PASS | PASS | 0 |
+| C4 | Teams Android | Galileo | PASS | PASS | PASS | PASS | 0 |
+| C5 | Teams desktop | aa.test | PASS | PASS | **DENIED** | **DENIED** | 0 |
+| C6 | Teams web | aa.test | PASS | PASS | **DENIED** | **DENIED** | 0 |
+| C7 | Teams iOS | aa.test | PASS | PASS | **DENIED** | **DENIED** | 0 |
+| C8 | Teams Android | aa.test | PASS | PASS | **DENIED** | **DENIED** | 0 |
 
-| # | Client | Account | Expected |
-|---|---|---|---|
-| C1 | Teams desktop (Windows) | Galileo | all PASS, Prompts 0 |
-| C2 | Teams web (browser) | Galileo | all PASS, Prompts 0 |
-| C3 | Teams iOS | Galileo | all PASS, Prompts 0 |
-| C4 | Teams Android | Galileo | all PASS, Prompts 0 |
-| C5 | Teams desktop | aa.test | Ops read/write PASS, Principals **DENIED** |
-| C6 | Teams web | aa.test | Ops read/write PASS, Principals **DENIED** |
-| C7 | Teams iOS | aa.test | Ops read/write PASS, Principals **DENIED** |
-| C8 | Teams Android | aa.test | Ops read/write PASS, Principals **DENIED** |
+The values in the table are the expected results.
 
-How to read the Principals result for aa.test:
+How to read the results:
+- Principals `DENIED (HTTP 403 accessDenied)`: expected. `ERROR (HTTP 404 itemNotFound)` with *site lookup failed* is also a denial if Galileo's cells show the site as PASS (SharePoint can hide a site from users without access); record it exactly. Principals `PASS` with any count: **stop**, no-go.
+- Edit of another user's row for aa.test as team: `DENIED` (403) is the expected result, with "edit refused, nothing changed". `PASS` at Contribute means the own-items rule does not hold through Graph: record it and tell Claude Code (criterion 6, not a no-go).
+- `SKIPPED`: the required row from A5 is missing.
+- Any `FATAL` on a Teams client (for example "Nested app authentication is not available"): stop testing that client, copy the report, note the Teams version (Settings > About). No workarounds.
 
-- `DENIED (HTTP 403 accessDenied)`: the expected outcome.
-- `ERROR (HTTP 404 itemNotFound)` on *site lookup failed*: SharePoint can hide
-  a site's existence from users without access. If C1 to C4 show the same site
-  as PASS for Galileo, a 404 for aa.test is also a denial. Record it exactly as
-  shown; I will interpret it in the report.
-- `PASS` with any item count: **stop**, no-go.
+Two accounts on one phone: sign out of Teams and sign in as the other, or use two devices. Note which.
 
-If the app shows `FATAL: Nested app authentication is not available on this
-Teams client`, or any other FATAL on a Teams client: stop testing that
-client, copy the report, note the Teams version (Settings > About), and report.
-Do not try other sign-in workarounds.
+## D. Boundary routes, aa.test as team
 
-Two accounts on one phone: sign out of Teams and sign in as the other account,
-or use two devices. Note which you did.
+Routes for criterion 3: the app (C5 to C8), Graph Explorer, the site URL, Microsoft Search. Plus the delete test for criterion 6.
 
-## D. Graph Explorer (aa.test, any browser)
+- [ ] D1. Graph Explorer: open <https://developer.microsoft.com/graph/graph-explorer> in a private window, **Sign in** as aa.test. If it asks for consent to a permission aa.test cannot grant, sign in as Galileo once, consent for the organisation for Graph Explorer only, sign back in as aa.test, and note it. Remove that grant after stage 0: Entra admin center > **Enterprise apps** > *Graph Explorer* > **Permissions**. For D5 and D6 aa.test needs `Sites.ReadWrite.All` in Graph Explorer (**Modify permissions** tab).
+- [ ] D2. `GET https://graph.microsoft.com/v1.0/sites/agencyartifact.sharepoint.com:/sites/AAPrincipals`. Expected 403 or 404. Copy the status and `error.code`.
+- [ ] D3. `GET https://graph.microsoft.com/v1.0/sites/agencyartifact.sharepoint.com:/sites/AAPrincipals:/lists/TestFees/items`. Expected 403 or 404.
+- [ ] D4. Site URL: in the same private window open `https://agencyartifact.sharepoint.com/sites/AAPrincipals`, then `.../sites/AAPrincipals/Lists/TestFees`. Expected: access denied or a request-access page, both times.
+- [ ] D5. Microsoft Search, **organization scope** (as in the positive control: `https://agencyartifact.sharepoint.com/_layouts/15/search.aspx` or the search box at <https://m365.cloud.microsoft>, then choose *Organization* / *All*), search `Zanthorpe`. Expected: **no results at all**. Also in Graph Explorer: `POST https://graph.microsoft.com/v1.0/search/query` with body `{ "requests": [ { "entityTypes": ["listItem"], "query": { "queryString": "Zanthorpe" } } ] }`. Expected: zero hits.
+- [ ] D6. Delete of Galileo's row, as team. First `GET https://graph.microsoft.com/v1.0/sites/agencyartifact.sharepoint.com:/sites/AAOperations:/lists/TestHours/items?$expand=fields($select=Title)` and note the `id` of `Galileo delete row`. Then `DELETE https://graph.microsoft.com/v1.0/sites/agencyartifact.sharepoint.com:/sites/AAOperations:/lists/TestHours/items/<id>`. Expected: **403**, row still in the list.
+- [ ] D7. Same Graph Explorer edit as team, for completeness: `PATCH .../lists/TestHours/items/<id of Galileo row>/fields` with body `{ "Title": "Galileo row [ge edit]" }`. Expected: 403. (If it passes, set the Title back and tell Claude Code.)
 
-- [ ] D1. Open <https://developer.microsoft.com/graph/graph-explorer> in a
-      private window. **Sign in** as aa.test.
-- [ ] D2. If Graph Explorer asks for consent to `Sites.Read.All` and aa.test
-      cannot grant it, sign in as Galileo once, consent for the organisation
-      only for Graph Explorer, then sign back in as aa.test. Note what you did.
-      This is a tenant-wide grant to Graph Explorer (still delegated, so still
-      limited to each user's own SharePoint access). Remove it after the test:
-      Entra admin center > **Enterprise apps** > *Graph Explorer* >
-      **Permissions**, or delete the enterprise app.
-- [ ] D3. Run `GET https://graph.microsoft.com/v1.0/sites/<tenant>.sharepoint.com:/sites/AAPrincipals`
-      Expected: 403 or 404. Copy status and the `error.code`.
-- [ ] D4. Run `GET https://graph.microsoft.com/v1.0/sites/<tenant>.sharepoint.com:/sites/AAPrincipals:/lists/TestFees/items`
-      Expected: 403 or 404.
-- [ ] D5. Search route: `POST https://graph.microsoft.com/v1.0/search/query` with body
+## E. aa.test as coordinator
 
-      ```json
-      { "requests": [ { "entityTypes": ["listItem"], "query": { "queryString": "TestFees" } } ] }
-      ```
+- [ ] E1. Assign the level. As Galileo, page `https://agencyartifact.sharepoint.com/sites/AAOperations/_layouts/15/user.aspx`. Tick the row *AA Test* > **Edit User Permissions** > untick **Contribute**, tick **Coordinator** > **OK**. Check: **Check Permissions** for aa.test shows *Coordinator* only. Also note the exact label of the extra permission inside the Coordinator level (page **Permission Levels** > *Coordinator*), which was never seen on screen.
+- [ ] E2. App, rerun on **Teams desktop** and on **at least one phone** (record which). Close and reopen the app first so it runs fresh.
 
-      Expected: no hits from `AA Principals`. Repeat with a project name you
-      typed into `TestFees`.
-- [ ] D6. Sanity check the other way: as aa.test,
-      `GET https://graph.microsoft.com/v1.0/sites/<tenant>.sharepoint.com:/sites/AAOperations` returns 200.
+| # | Client | Account | Read | Write | Edit other's row | Principals |
+|---|---|---|---|---|---|---|
+| E2a | Teams desktop | aa.test (Coordinator) | PASS | PASS | **PASS** | **DENIED** |
+| E2b | Phone: ____ | aa.test (Coordinator) | PASS | PASS | **PASS** | **DENIED** |
 
-## E. Other routes (aa.test, browser)
+If edit of another user's row is still DENIED: first check E1 (the level and its permission), then report. That is not a no-go; the fallback is Galileo's decision.
 
-- [ ] E1. Open `https://<tenant>.sharepoint.com/sites/AAPrincipals` directly.
-      Expected: access denied / request access page.
-- [ ] E2. Open `https://<tenant>.sharepoint.com/sites/AAPrincipals/Lists/TestFees`.
-      Expected: denied.
-- [ ] E3. Search for a project name from `TestFees` in the Microsoft 365 app
-      (<https://m365.cloud.microsoft>) and in Teams search. Expected: nothing
-      from `AA Principals`.
+- [ ] E3. Repeat D2, D3, D4 and D5 as coordinator. Expected: all still denied, no search results.
+- [ ] E4. Repeat D7 as coordinator. Expected: 200. Set the Title back to `Galileo row` with a second PATCH.
+- [ ] E5. Repeat D6 as coordinator. Expected: **204**, `Galileo delete row` gone.
+- [ ] E6. Evidence. As Galileo:
+  - `TestHours` > `Galileo row` > **...** > **Version history**: versions with ` [diag edit]` and ` [ge edit]` and their restores, **Modified by aa.test**. Screenshot.
+  - `https://agencyartifact.sharepoint.com/sites/AAOperations/_layouts/15/RecycleBin.aspx`: `Galileo delete row`, **Deleted by aa.test**. Screenshot.
+- [ ] E7. Put aa.test back to **Contribute** (E1 steps in reverse), unless you are about to rerun section E.
 
-## F. Reminder flow
+## F. Phone timing (go criterion 2), one phone, aa.test
 
-Follow the *Test procedure* in `docs/setup/reminder-flow.md`. For each of LA
-and India record: time the reminder reached aa.test's phone, time the
-escalation reached Galileo, run history status, and whether Test 2 sent
-nothing.
+Pick one phone (record which). Stopwatch on a second device or a watch.
 
-## G. Phone timing: log half an hour in under 30 seconds (go criterion 1)
+**Cold start**, three runs. Each run:
+1. Force-close Teams (iOS: swipe it away in the app switcher; Android: **Recent apps** > swipe away).
+2. Start the stopwatch **as you tap the Teams icon** on the home screen.
+3. Take a lap **as you tap Agency Artifact** inside Teams.
+4. Open the **Diagnostic** tab if Teams did not open on it.
+5. Stop **when the report appears** with `Operations write + delete (TestHours): PASS`. (The report appears only when the whole run ends, so this time is slightly longer than the write itself. That is on the safe side.)
+6. **Copy report**: its `Write:` line is the on-screen cross-check (seconds from page load). It must say `run 1, first run`. A rerun inside the same session is not a cold start.
 
-Uses the test screen `#/log` (date, one half-hour stepper, Confirm; writes
-one row to `TestHours`). It is a test screen, not the timecard.
+Pass: every one of the three stopwatch times under 30 seconds. The lap shows how much of it is Teams itself.
 
-The screen shows **Screen open → confirmed**: the time from the log screen
-appearing to the confirmed write. It **cannot** see Teams starting, so the
-criterion is measured with a **stopwatch** (a second phone or a watch).
+| Run | Stopwatch total | Lap at Agency Artifact | On-screen `Write:` | Notes |
+|---|---|---|---|---|
+| 1 | | | | |
+| 2 | | | | |
+| 3 | | | | |
 
-Do this on an iPhone and on an Android phone, signed in as aa.test.
+**Today screen, timed separately, no threshold.** Uses the stand-in log screen `#/log` (one half-hour, Confirm), since the real Today screen is not wired to SharePoint in this stage. Teams open, app open on Home.
+1. Start the stopwatch as you tap **Log half an hour (phone test)**.
+2. Leave the date, tap **+** once (`0:30`), **Confirm**.
+3. Stop when **"Confirmed. Saved to TestHours."** appears. Record the stopwatch time and the on-screen *Screen open → confirmed* time.
+4. **Delete this test row** (a leftover row silences the reminder flow).
 
-Setup, once per phone:
+| Stopwatch | Screen open → confirmed | Notes |
+|---|---|---|
+| | | |
 
-- [ ] G1. The Agency Artifact app is installed (section C done).
-- [ ] G2. Note whether the app is **pinned** in the Teams bottom bar or reached
-      through **More** / **Apps**. Either is fine; record which.
-- [ ] G3. Go to the phone's home screen. Leave Teams running in the
-      background (do not force-close it). Record "Teams in background: yes".
+## G. Reminder flows (go criterion 4)
 
-Each attempt:
+Follow *Tests* in `docs/setup/reminder-flow.md`. aa.test at Contribute. Record:
 
-1. Start the stopwatch **as you tap the Teams icon** on the phone's home screen.
-2. Open **Agency Artifact** (it opens on **Home**).
-3. Tap **Log half an hour (phone test)**.
-4. Leave the date on today. Tap **+** once (shows `0:30`).
-5. Tap **Confirm**.
-6. Stop the stopwatch **when "Confirmed. Saved to TestHours." appears**.
-7. Record: stopwatch time, and the on-screen *Screen open → confirmed* time.
-8. Tap **Delete this test row** (important: a leftover row for today stops
-   the reminder flow from firing in section F).
-
-Three attempts per phone. Pass: every stopwatch time under 30 seconds.
-
-Optional extra: one attempt with Teams force-closed first (cold start).
-Record it separately; it is informative, not the pass criterion, unless you
-decide otherwise.
-
-| Phone | Pinned? | Attempt | Stopwatch | Screen open → confirmed | Notes |
+| Test | Flow | Reminder arrived (time, on phone) | Escalation arrived (time) | Runs succeeded | MatchLog lines |
 |---|---|---|---|---|---|
-| iOS | | 1 | | | |
-| iOS | | 2 | | | |
-| iOS | | 3 | | | |
-| Android | | 1 | | | |
-| Android | | 2 | | | |
-| Android | | 3 | | | |
+| 1 no row | LA | | | | |
+| 1 no row | India | | | | |
+| 2 row exists | LA | none expected | none expected | | |
+| 2 row exists | India | none expected | none expected | | |
+
+**Date-boundary case** (Test 3, inside the window: 11:30 AM to midnight Los Angeles time until November 1, 2026; 10:30 AM to midnight after it) and **control** (Test 4, outside the window):
+
+| Case | LA time | India time | Device `Local today` | Raw Date (diagnostic) | Raw WorkDate (diagnostic) | MatchLog: WorkDate / Date matched | Messages sent |
+|---|---|---|---|---|---|---|---|
+| Boundary | | | | | | | none expected |
+| Control | | | | | | | none expected |
+
+Paste the two diagnostic reports from the India device as well.
+
+## H. After the tests
+
+- [ ] aa.test back at Contribute (E7).
+- [ ] India device time zone set back to automatic.
+- [ ] Flows turned off. Exports saved (`reminder-flow.md`, last section).
+- [ ] Graph Explorer organisation grant removed, if you made one (D1).

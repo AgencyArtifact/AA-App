@@ -71,7 +71,7 @@ Teams desktop > **Apps** > **Manage your apps** > **Upload an app** >
 **Upload a custom app** > choose the zip. The app opens on **Home**; the
 **Diagnostic** tab is next to it.
 
-## 5. Publish to the org app catalog (go criterion 4)
+## 5. Publish to the org app catalog (go criterion 5)
 
 1. <https://admin.teams.microsoft.com> > **Teams apps** > **Manage apps**.
 2. **Upload new app** > **Upload** > choose the zip.
@@ -130,7 +130,9 @@ When the custom subdomain is confirmed (example: `app.<firm domain>`):
 
 - Schema `1.29`, the newest version listed as generally available on the
   [app manifest schema page](https://learn.microsoft.com/en-us/microsoftteams/platform/resources/schema/manifest-schema)
-  on 2026-10-12.
+  (rechecked 2026-10-13, page updated 2026-10-01: 1.30 is described but not
+  listed as generally available). The built `manifest.json` validates
+  against the official 1.29 JSON schema (ajv, 2026-10-13).
 - Name: *Agency Artifact* (short and full). Two static personal tabs: **Home**
   (`#/`) and **Diagnostic** (`#/diagnostic`, kept until stage 0 closes).
   [staticTabs reference](https://learn.microsoft.com/en-us/microsoft-365/extensibility/schema/root-static-tabs).
@@ -138,7 +140,7 @@ When the custom subdomain is confirmed (example: `app.<firm domain>`):
 - `webApplicationInfo.id`: the Entra client ID (recommended for NAA).
 - `developer.privacyUrl` and `termsOfUseUrl`: `privacy.html` and
   `terms.html` in this repo (`public/`). `developer.websiteUrl`: the firm's
-  website, `REPLACE_ME` until Galileo fills it in.
+  website, `https://www.agencyartifact.com/`.
 - Icons ([reference](https://learn.microsoft.com/en-us/microsoft-365/extensibility/schema/root-icons)):
   `color.png` 192×192, the "A" of the website logo as is; `outline.png`
   32×32, white on transparent, the same "A" with the logo's vertical hairline
