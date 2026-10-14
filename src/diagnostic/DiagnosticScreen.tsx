@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { runDiagnostic } from "./runDiagnostic";
+import { runDiagnostic, type RunOptions } from "./runDiagnostic";
 import { formatElapsed, formatReport, type DiagnosticReport, type Outcome } from "./report";
 
 const outcomeColor: Record<Outcome, string> = {
@@ -18,12 +18,12 @@ export function DiagnosticScreen() {
   // Guards against overlapping runs (React StrictMode mounts effects twice in development).
   const busy = useRef(false);
 
-  const run = useCallback(async () => {
+  const run = useCallback(async (options: RunOptions = { harvest: false }) => {
     if (busy.current) return;
     busy.current = true;
     setRunning(true);
     setCopyState("idle");
-    setReport(await runDiagnostic());
+    setReport(await runDiagnostic(options));
     setRunning(false);
     busy.current = false;
   }, []);
@@ -50,7 +50,7 @@ export function DiagnosticScreen() {
     <main className="screen">
       <header className="brand">
         <span className="brand__name">Agency Artifact</span>
-        <span className="brand__sub">Stage 0 diagnostic</span>
+        <span className="brand__sub">Stage 1 diagnostic</span>
       </header>
 
       {running && <p className="muted">Running checks…</p>}
@@ -104,10 +104,13 @@ export function DiagnosticScreen() {
       )}
 
       <div className="actions">
-        <button type="button" onClick={copy} disabled={!report || running}>
+        <button type="button" onClick={() => run({ harvest: true })} disabled={running}>
+          Connect Harvest and run
+        </button>
+        <button type="button" className="secondary" onClick={copy} disabled={!report || running}>
           Copy report
         </button>
-        <button type="button" className="secondary" onClick={run} disabled={running}>
+        <button type="button" className="secondary" onClick={() => run()} disabled={running}>
           Run again
         </button>
       </div>

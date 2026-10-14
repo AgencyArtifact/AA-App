@@ -34,7 +34,16 @@ export const config = {
     // Client ID of the Harvest OAuth2 application (Harvest ID > Developers).
     // Configuration, not a secret. No client secret in stage 1.
     // See docs/setup/harvest.md.
-    clientId: "REPLACE_ME_HARVEST_CLIENT_ID",
+    clientId: "7ky2cvu3dJ9d5EiFTuz5aIsF",
+    // Stage 1 diagnostic test IDs (fictional test account). A Member cannot
+    // look these up, so Galileo's Administrator run of the diagnostic prints
+    // them; paste them here. Empty = the step is skipped.
+    test: {
+      // Project ID of "ZT-02 Unassigned" (aa.test not assigned).
+      unassignedProjectId: "",
+      // Galileo's Harvest user ID, for "Harvest other person's time".
+      otherUserId: "",
+    },
   },
 
   // Delegated Graph scopes requested at runtime. Must match the API

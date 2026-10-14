@@ -46,6 +46,8 @@ Projects. Page: Projects > **+ New project** (`https://<acct>.harvestapp.com/pro
 | Tasks | Concept, SD | Concept, SD |
 | Team | Galileo, aa.test (after step 4) | Galileo only |
 
+On the new project form (seen 2026-10-14, new permissions framework): the **Tasks** table arrives pre-filled with Harvest's sample tasks (Business Development, Design, Marketing, Programming, Project Management), because they are set to be added to all future projects. Remove each with its **X**, then add `Concept` and `SD` in **Add a task...**. Per task row: **Billable** ticked, **Budget** (4000 / 6000), **Billable rate (per hour)** 150. In **Team**, leave only Galileo for now; "Manages this project" ticked for Galileo is fine, and "Missing rate" next to his name can be ignored. To stop the sample tasks reappearing, untick "add to all future projects" on each of them in Manage > Tasks (optional).
+
 The rates and budgets exist only so there is money data to hide. Figures are fictional.
 
 ## 4. Invite aa.test
