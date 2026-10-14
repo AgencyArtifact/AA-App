@@ -44,7 +44,7 @@ export const config = {
     // Bump on every package uploaded to the org catalog (semver).
     version: "0.0.1",
     // The firm's public website (manifest developer.websiteUrl).
-    developerWebsiteUrl: "REPLACE_ME_FIRM_WEBSITE",
+    developerWebsiteUrl: "https://www.agencyartifact.com/",
   },
 
   // Delegated Graph scopes requested at runtime. Must match the API

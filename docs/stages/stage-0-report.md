@@ -281,7 +281,7 @@ item ids only.
 - Q2. Resolved 2026-10-13: `AgencyArtifact/AA-App`, pushed as `AgencyArtifact`.
 - Q3. Stopwatch start: the Teams icon on the phone's home screen (as written), or the Agency Artifact icon inside Teams? And is Teams in the background the pass condition, with a cold start only informative?
 - Q4. During stage 0, should the Home tab open directly on the log test to remove one tap from the timing?
-- Q5. Firm website URL for the manifest (`teamsApp.developerWebsiteUrl`, still `REPLACE_ME`).
+- Q5. Resolved 2026-10-13: `https://www.agencyartifact.com/`.
 - Q6. Do first names and roles of the principals in `CLAUDE.md` and docs count as "staff data" under the public repo rule? I assumed not.
 - Q7. Keep `Handoff/stage-0-feasibility.md` (duplicate of `docs/stages/stage-0-feasibility.md`) in the repo, or remove it? (It was included in the first commit.)
 

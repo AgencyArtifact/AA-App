@@ -28,7 +28,7 @@ Everything is committed and pushed to `main` (`248d463` or later). The Pages dep
 - `docs/setup/entra-app.md`: app registration, sources rechecked 2026-10-13.
 - `docs/setup/sharepoint-sites.md`: sites, members (page by page, with direct `_layouts` addresses), Coordinator level, both lists, sources.
 - `docs/architecture/data.md` 1.1: groupless sites, team never at Edit, test list schemas, documentation status of each assumption.
-- `src/config.ts`: filled (see below). Only `teamsApp.developerWebsiteUrl` is still `REPLACE_ME_FIRM_WEBSITE`, which blocks `npm run teams:package` (T4).
+- `src/config.ts`: fully filled, no `REPLACE_ME` left. Firm website `https://www.agencyartifact.com/` (Galileo, 2026-10-13). `npm run teams:package` builds `dist-teams/aa-app-0.0.1.zip` (built locally, not uploaded; T4 still to be reviewed against brief v2).
 
 ## Tenant facts (set up by Galileo, 2026-10-13)
 
@@ -63,7 +63,7 @@ Evidence for each line: `docs/stages/stage-0-report.md`, "Setup evidence".
 1. Galileo approves T1 (HALT).
 2. Galileo searches `Zanthorpe` as himself and must find the row (positive control for criterion 3).
 3. Done: admin consent granted (screenshot, 2026-10-13).
-4. Firm website URL for the manifest (open question Q5 of the report), needed in T4.
+4. Done: firm website URL set (Q5 resolved).
 5. Galileo confirms the Teams custom app setup (m365-admin.md part 3) and, hours later, that both accounts see **Upload a custom app**.
 6. Optional: the exact label of the permission ticked in the Coordinator level.
 
@@ -72,7 +72,7 @@ Evidence for each line: `docs/stages/stage-0-report.md`, "Setup evidence".
 Much exists from the v1 rounds; these are revisions. Known gaps:
 - T2 `src/auth/graphAuth.ts`: exists (NAA in Teams, popup in browser, silent first). Check against brief v2; likely no change.
 - T3 `src/diagnostic/runDiagnostic.ts` lacks: Teams host client; device time zone and the local "today"; write with both Date and WorkDate and show raw values from Graph; edit a row created by another user, then restore; timer from app start to write result. `src/graph/sharepoint.ts` `createTestHoursItem` does not write `WorkDate`. Read of TestFees must stay count only.
-- T4: manifest 1.29 in `tools/build-teams-package.mjs` (1.30 exists but is not listed as generally available). Needs the firm website URL.
+- T4: manifest 1.29 in `tools/build-teams-package.mjs` (1.30 exists but is not listed as generally available). Package builds; review against brief v2 before upload.
 - T5 `docs/setup/reminder-flow.md`: filters on `Date` only; brief v2 needs Date and WorkDate, log which matched, one flow on LA time and one on India time, the date-boundary case.
 - Test checklist `docs/stages/stage-0-test-checklist.md`: still v1; rewrite for the v2 matrix (four boundary routes, criterion 6, cold-start timing, date-boundary case). Search word `Zanthorpe` is already at the top. Remind Galileo to recreate `Galileo row` before the Graph Explorer delete test.
 - `src/log/` (`#/log`): decide whether it stays for the separate Today-screen timing.
