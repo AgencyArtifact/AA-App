@@ -55,3 +55,39 @@ Reading:
 ## Run D: aa.test, Teams web, Harvest still Galileo (invalid for criterion 4)
 
 2026-10-14 23:11Z, build 2026-10-14T22:40:09Z. Teams web, NAA, prompts 0, Graph user aa.test. Planner: same as run B. Harvest: connected as Galileo, administrator; same outcomes as run A. Not a Member test.
+
+## Run E: aa.test as Member, Teams web (first valid Member run)
+
+2026-10-14 23:14Z, build 2026-10-14T22:40:09Z. Harvest signed out of Galileo's session first, then signed in as aa.test in the popup.
+
+```
+User:        AA TEST <team UPN>
+Host:        TeamsModern web (NAA recommended: true)
+Auth mode:   teams-naa
+Prompts:     0
+Write:       22.1 s from page load (run 2, not a cold start; includes the Harvest sign-in)
+
+Sign-in (Graph /me): PASS (HTTP 200)
+Planner my tasks: PASS (HTTP 200)
+  count 0; "AA Stage1 Test Task" NOT FOUND
+Planner complete: SKIPPED (HTTP 0)
+  test task not listed
+Planner reset: SKIPPED (HTTP 0)
+  test task not listed
+Harvest connect: PASS (HTTP 200)
+  account 2260464; user AA Test, Harvest user ID 5759361; roles: member; money fields: none
+Harvest my assignments: PASS (HTTP 200)
+  count 1: ZT-01 Test Project [ZT-01] (Concept, sd); money fields: budget null, hourly_rate null
+Harvest write + delete: PASS (HTTP 200)
+  write HTTP 201, entry 3028688422; delete HTTP 200; write response money fields: billable_rate null, budget null, cost_rate null, hourly_rate null
+Harvest unassigned write: DENIED (HTTP 422)
+  Harvest: User isn't assigned to the project · expected: refused
+Harvest other person's time: PASS (HTTP 200)
+  expected: refused or only own entries; returned 0 entries, 0 by other people; money fields: none
+```
+
+Reading:
+- Criterion 3, Teams web: PASS (Harvest connected from inside Teams, popup closed, token returned).
+- Criterion 4, Member, Teams web: no money value in any response. Money keys are present with null values (`budget`, `hourly_rate`, `billable_rate`, `cost_rate`); Harvest keeps the keys and empties them. Other person's time: 200 with no entries by anyone else (Harvest filters, does not refuse). **Depends on** Galileo having at least one entry on ZT-01 at the time: to confirm.
+- Criterion 5: write + delete PASS; unassigned project refused with HTTP 422 "User isn't assigned to the project".
+- Planner: same as run B.
