@@ -37,7 +37,7 @@ Everything is committed and pushed to `main` (`248d463` or later). The Pages dep
 | Tenant ID | `6a257495-c628-470a-855d-94ccaedc4d7a` (confirmed against the public OpenID endpoint) |
 | Entra client ID | `503412e0-1cec-47b4-8a28-888cda0c8493` |
 | Entra redirect URIs (SPA) | `brk-multihub://agencyartifact.github.io`, `https://agencyartifact.github.io/AA-App/auth.html`, `http://localhost:5173/AA-App/auth.html` (screenshot) |
-| Admin consent | Asked for; Galileo did not explicitly confirm "Granted for tenant". Confirm before T2 testing |
+| Admin consent | Confirmed (screenshot): `Sites.ReadWrite.All` and `User.Read`, both Delegated, status "Granted for Agency Artifact". The portal lists "Admin consent required: No" for both |
 | SharePoint host | `agencyartifact.sharepoint.com` |
 | Sites | `/sites/AAPrincipals`, `/sites/AAOperations`. Both "Other options" > Team site, no Microsoft 365 group. Time zone Pacific on both |
 | AA Principals | Owners: Galileo and two accounts both named Christopher Torres (Galileo's decision to keep both; not checked whether either is a guest). Members, Visitors empty. Site collection admin: Galileo only. Check Permissions for Everyone except external users: None. `Everyone` cannot be entered in the people picker |
@@ -62,7 +62,7 @@ Evidence for each line: `docs/stages/stage-0-report.md`, "Setup evidence".
 
 1. Galileo approves T1 (HALT).
 2. Galileo searches `Zanthorpe` as himself and must find the row (positive control for criterion 3).
-3. Galileo confirms admin consent shows "Granted for <tenant>" for `User.Read` and `Sites.ReadWrite.All`.
+3. Done: admin consent granted (screenshot, 2026-10-13).
 4. Firm website URL for the manifest (open question Q5 of the report), needed in T4.
 5. Galileo confirms the Teams custom app setup (m365-admin.md part 3) and, hours later, that both accounts see **Upload a custom app**.
 6. Optional: the exact label of the permission ticked in the Coordinator level.

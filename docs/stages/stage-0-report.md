@@ -49,6 +49,7 @@ Setup evidence (Galileo's screenshots, 2026-10-13):
 - `TestHours`: `Galileo row` created by Galileo (Galileo's confirmation, 2026-10-13).
 - `TestHours` item-level permissions (screenshot): Read all items; Create items and edit items that were created by the user. On-screen note: "Users with the Cancel Checkout permission can read and edit all items."
 - Coordinator permission level created on `AA Operations` (Galileo's confirmation, 2026-10-13; the exact label of the ticked permission was not reported). Not assigned to anyone.
+- Entra API permissions (screenshot): `Sites.ReadWrite.All` and `User.Read`, Delegated, "Granted for Agency Artifact"; portal shows "Admin consent required: No" for both.
 - Regional settings time zone: Pacific on both sites (Galileo's confirmation, 2026-10-13).
 - Still to do: Galileo's own Microsoft Search for `Zanthorpe` (positive control), 30 minutes or more after the row was saved.
 
