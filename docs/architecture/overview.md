@@ -38,7 +38,7 @@ These exist to answer the stage 1 go criteria. They are not the production inter
 
 ### I1. Graph sign-in (kept from stage 0)
 - `src/auth/graphAuth.ts`. Nested app authentication in Teams, silent first, popup fallback; MSAL popup with `auth.html` in a browser.
-- Scopes: `User.Read`, `Tasks.ReadWrite` (added in T1 after admin consent). `Sites.ReadWrite.All` removed in T0.
+- Scopes: `User.Read` now; `Tasks.ReadWrite` granted in Entra in T1 (`docs/setup/entra-app.md` step 4c) and requested by the app from T3. `Sites.ReadWrite.All` removed from the app in T0 and from Entra in T1.
 
 ### I2. Harvest sign-in (T2)
 - `src/auth/harvestAuth.ts`. Harvest's client-side OAuth2 flow (`response_type=token`), opened through the Teams authentication popup inside Teams and a normal popup in a browser; callback page alongside `auth.html`. Exact endpoints and parameters: T1, from Harvest docs.

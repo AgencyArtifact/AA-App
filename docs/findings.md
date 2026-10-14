@@ -13,6 +13,27 @@ Cumulative across stages. Every failure or discovery that cost time gets one ent
 
 ## Entries
 
+### 2026-10-14: Planner premium plans are outside the Graph Planner API (docs)
+- Stage and gate: stage 1, T1 (setup research).
+- Symptom: none yet; found before testing. Learn: "Premium plans and tasks aren't available on the Planner API in Microsoft Graph." The Update plannerTask page also says Project tasks replicated to Planner accept only `percentComplete` updates.
+- Cause (docs): premium plans live in Dataverse (Project for the web), not in the basic Planner store.
+- Fix: none. Criterion 1 is run as briefed; it measures whether the replicated copy of aa.test's task is visible and completable. Planner premium setup page warns about it.
+- Rule from now on: never assume a Graph Planner call reaches a premium plan; prove it per call (read, update) at Link.
+
+### 2026-10-14: Harvest is rolling out a new permissions framework
+- Stage and gate: stage 1, T1.
+- Symptom: none; the Harvest help article "Permissions" (updated 2026-10-14) lists six roles (Member, Project Manager, People Admin, Accounting, Executive Manager, Administrator), while the brief uses the old three (Member, Manager, Administrator).
+- Cause (docs): new framework, released per account.
+- Fix: `docs/setup/harvest.md` maps the test roles for both frameworks (coordinator test = Project Manager in the new one).
+- Rule from now on: record which framework the account has before reading any role result.
+
+### 2026-10-14: Harvest API accepts cross-origin calls from the app (verified)
+- Stage and gate: stage 1, T1.
+- Symptom: none. Preflight `OPTIONS https://api.harvestapp.com/v2/users/me` with `Origin: https://agencyartifact.github.io` returned 200, `access-control-allow-origin: *`, allowed headers `authorization, harvest-account-id, content-type`.
+- Cause: n/a.
+- Fix: none needed. The browser sets `User-Agent` itself; Harvest's allowed headers do not include it, so the app must not try to set it.
+- Rule from now on: if Harvest calls fail with no status, re-run this preflight before suspecting the token.
+
 ### 2026-10-13: Contribute can delete version history
 - Stage and gate: stage 0, Link (hours access redesign).
 - Symptom: none observed; found while moving hours from a lock to a record. Docs ([Understanding permission levels](https://learn.microsoft.com/en-us/sharepoint/understanding-permission-levels)): Contribute includes Delete Versions.

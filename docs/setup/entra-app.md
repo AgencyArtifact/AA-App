@@ -1,4 +1,4 @@
-# Entra app registration (stage 0, task T1)
+# Entra app registration (stage 0 T1; permissions updated in stage 1 T1)
 
 Performed by Galileo in the Microsoft Entra admin center, **after the domain is
 confirmed**. About 10 minutes. Result: a client ID and a tenant ID, pasted
@@ -28,7 +28,7 @@ values are:
 | SPA redirect URI | `https://agencyartifact.github.io/AA-App/auth.html` | Plain browser only (testing outside Teams). The sign-in popup returns to this blank page, which hands the result back to the app and closes. |
 | SPA redirect URI | `http://localhost:5173/AA-App/auth.html` | Same, for local development with `npm run dev`. |
 | Application ID URI | **none** | Not needed: the app does not expose an API of its own. |
-| Delegated Graph permissions | `User.Read`, `Sites.ReadWrite.All` | Read the signed-in user's name; read and write list items in the sites that user can already open. |
+| Delegated Graph permissions | `User.Read`, `Tasks.ReadWrite` | Read the signed-in user's name; read and update the Planner tasks that user can already see (stage 1). `Sites.ReadWrite.All` was removed in stage 1 (step 4c). |
 
 If `appUrl` changes (custom subdomain), the three redirect URIs change. Follow
 *Switching the domain* in `docs/setup/deploy.md`.
@@ -72,7 +72,7 @@ You should now have exactly three SPA redirect URIs and no Web or Mobile platfor
 1. Open **API permissions**.
 2. `User.Read` (Microsoft Graph, Delegated) is already listed. Keep it.
 3. Select **Add a permission** > **Microsoft Graph** > **Delegated permissions**.
-4. Search `Sites.ReadWrite.All`, tick it, select **Add permissions**.
+4. Search `Tasks.ReadWrite`, tick it, select **Add permissions**.
 5. Select **Grant admin consent for <your tenant name>** and confirm **Yes**.
 6. Both rows must show a green tick and *Granted for <tenant>* in the Status column.
 
@@ -82,17 +82,29 @@ Tested and removed in stage 0 (2026-10-13, `docs/findings.md`): with `Sites.Mana
 
 1. Open <https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/~/CallAnAPI/appId/503412e0-1cec-47b4-8a28-888cda0c8493>.
 2. On its row: **...** > **Revoke admin consent** > **Yes**, then **...** > **Remove permission** > **Yes**.
-3. Exactly two rows remain: `User.Read` and `Sites.ReadWrite.All`, both *Granted*.
+3. Exactly two rows remain: `User.Read` and `Tasks.ReadWrite`, both *Granted*.
 Do **not** add anything under *Application permissions*, do not set an
 Application ID URI under **Expose an API**, and do not create anything under
 **Certificates & secrets**.
+
+### 4c. Stage 1: swap `Sites.ReadWrite.All` for `Tasks.ReadWrite`
+
+For a registration made in stage 0. Do this **after** the stage 1 T0 build is live (build stamp 2026-10-14T20:37Z or later on the diagnostic): from that build on, the app no longer asks for `Sites.ReadWrite.All`.
+
+Page: <https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/~/CallAnAPI/appId/503412e0-1cec-47b4-8a28-888cda0c8493> (the app's **API permissions**).
+1. On the `Sites.ReadWrite.All` row: **...** > **Revoke admin consent** > **Yes**, then **...** > **Remove permission** > **Yes, remove**.
+2. **Add a permission** > **Microsoft Graph** > **Delegated permissions**, search `Tasks.ReadWrite`, tick it, **Add permissions**.
+3. **Grant admin consent for <your tenant name>** > **Yes**.
+4. You should see exactly two rows, both *Granted*: `User.Read`, `Tasks.ReadWrite`.
+
+The app starts requesting `Tasks.ReadWrite` in T3, when the Planner steps arrive. Granting it now means nobody gets a consent prompt then.
 
 ### 5. Check
 
 - [ ] Supported account types: single tenant.
 - [ ] Exactly the three SPA redirect URIs printed by `npm run entra:values`.
 - [ ] **Expose an API**: no Application ID URI, no scopes.
-- [ ] Exactly two delegated permissions, both granted: `User.Read`, `Sites.ReadWrite.All`. No manage-level and no SharePoint permissions (step 4b).
+- [ ] Exactly two delegated permissions, both granted: `User.Read`, `Tasks.ReadWrite`. No `Sites.*`, no manage-level and no SharePoint permissions (steps 4b, 4c).
 - [ ] No certificates or secrets.
 - [ ] Client ID and tenant ID pasted into `src/config.ts`.
 
@@ -105,17 +117,16 @@ Application ID URI under **Expose an API**, and do not create anything under
 | No Application ID URI, no server | The page's comparison table marks *Register API in Microsoft Entra ID*, *Define a custom scope*, *Authorize Teams client apps* and *Conduct an OBO exchange on the server* as required for traditional Teams SSO but **not** for NAA. | same page, comparison table |
 | `auth.html` redirect | MSAL.js v5 requires a redirect bridge page that calls `broadcastResponseToMainFrame()`, served from the same origin, and matching the registered redirect URI exactly. | [MSAL v4 → v5 migration](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/v4-migration.md) |
 | Single tenant, click path | Only Agency Artifact accounts sign in. Path *Entra ID > App registrations > New registration*; option *Single tenant only*. | [Register an application](https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-register-app) (updated 2026-06-15) |
-| `Sites.ReadWrite.All` delegated | Least-privileged delegated permission for creating, updating and deleting list items (reads need only `Sites.Read.All`, which it includes). | [Create listItem](https://learn.microsoft.com/en-us/graph/api/listitem-create) (updated 2026-07-09), [Update](https://learn.microsoft.com/en-us/graph/api/listitem-update) (2026-06-19), [Delete](https://learn.microsoft.com/en-us/graph/api/listitem-delete) (2026-07-09), permissions tables |
+| `Sites.ReadWrite.All` delegated (stage 0 only, removed in stage 1) | Least-privileged delegated permission for creating, updating and deleting list items (reads need only `Sites.Read.All`, which it includes). | [Create listItem](https://learn.microsoft.com/en-us/graph/api/listitem-create) (updated 2026-07-09), [Update](https://learn.microsoft.com/en-us/graph/api/listitem-update) (2026-06-19), [Delete](https://learn.microsoft.com/en-us/graph/api/listitem-delete) (2026-07-09), permissions tables |
+| `Tasks.ReadWrite` delegated | Least privileged delegated permission for `PATCH /planner/tasks/{id}`; also covers `GET /me/planner/tasks` (least privileged there: `Tasks.Read`). One permission for both stage 1 calls. | [Update plannerTask](https://learn.microsoft.com/en-us/graph/api/plannertask-update) (updated 2025-07-23), [List tasks](https://learn.microsoft.com/en-us/graph/api/planneruser-list-tasks) (updated 2026-05-19), permissions tables (checked 2026-10-14) |
 | Delegated cannot exceed the user | "The application can't access anything the signed-in user couldn't access." | [Permissions overview](https://learn.microsoft.com/en-us/graph/permissions-overview) (updated 2026-09-04) |
 | Admin consent | Path *API permissions > Add a permission > Microsoft Graph > Delegated permissions*; the button is *Grant admin consent for {tenant}*. | [Configure app access to web APIs](https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-configure-app-access-web-apis) (updated 2026-06-15) |
 | `webApplicationInfo.id` in the manifest | Recommended, not required, for NAA (lets admins approve the app's permissions in the Teams admin center). Required only for token prefetch, which is parked. Uses the client ID only. | NAA page, note under the comparison table |
 | Client support | The NAA page has no per-client table and warns that some older clients may lack support (the app then stops with a FATAL message, no fallback). A Microsoft developer blog post (2025-05-06, not Learn) says NAA is supported on desktop, mobile and web for personal tabs. The test matrix verifies each client. | NAA page; [Microsoft 365 Developer blog](https://devblogs.microsoft.com/microsoft365dev/) |
 | Popup, not redirect | Under NAA, `loginRedirect` and `acquireTokenRedirect` are not supported; `acquireTokenSilent`, `ssoSilent` and `acquireTokenPopup` are. `src/auth/graphAuth.ts` uses only those three. | [NAA in Office add-ins](https://learn.microsoft.com/en-us/office/dev/add-ins/develop/enable-nested-app-authentication-in-your-add-in) (updated 2026-01-23), same MSAL behaviour |
 
-## Note on `Sites.ReadWrite.All`
+## Note on `Tasks.ReadWrite`
 
-The name sounds broad. As a **delegated** permission it does not give the app
-access to every site: Graph acts as the signed-in user, and SharePoint applies
-that user's own permissions. aa.test gets nothing on `AA Principals` because
-aa.test is not a member of it. That is what go criterion 3 tests.
-A narrower model (`Sites.Selected`) is parked in the stage report.
+As a **delegated** permission it acts as the signed-in user: aa.test can read and update only the Planner tasks aa.test can already see in Planner. It gives no access to Harvest, which has its own sign-in (`docs/setup/harvest.md`).
+
+`Sites.ReadWrite.All` belonged to the stage 0 SharePoint tests (`docs/archive/stage-0/`) and is removed in step 4c.
