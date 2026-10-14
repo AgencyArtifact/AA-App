@@ -25,12 +25,22 @@ function testHoursItems(siteId: string): string {
 }
 
 /** Counts items by id only, following paging. Never downloads field values. */
-export async function countItems(
+export function countItems(
   siteId: string,
   listName: string,
 ): Promise<{ count: number | null; result: GraphResult<unknown> }> {
+  return countAt(`${listPath(siteId, listName)}/items`);
+}
+
+/**
+ * Counts the items at any Graph list-items address (by site id, by path or
+ * by list id), requesting ids only, following paging.
+ */
+export async function countAt(
+  itemsAddress: string,
+): Promise<{ count: number | null; result: GraphResult<unknown> }> {
   type Page = { value: { id: string }[]; "@odata.nextLink"?: string };
-  let next: string | undefined = `${listPath(siteId, listName)}/items?$select=id&$top=500`;
+  let next: string | undefined = `${itemsAddress}?$select=id&$top=500`;
   let count = 0;
   let last: GraphResult<Page> = { ok: false, status: 0, code: null, data: null };
   while (next) {
@@ -107,51 +117,37 @@ export async function readTestHoursDates(
   };
 }
 
-export interface OtherUserRow {
-  id: string;
-  title: string;
-  createdBy: string; // display name or email, for the report
+export interface RowCreator {
+  id?: string; // Entra object id
+  email?: string;
+  displayName?: string;
 }
 
-/**
- * First TestHours row created by someone other than the signed-in user.
- * Compares the creator's Entra id with the user's id, and falls back to
- * email against UPN. Null if every row is the user's own.
- */
-export async function findRowByOtherUser(
+export interface HoursRow {
+  id: string;
+  title: string;
+  createdBy: RowCreator | null;
+}
+
+/** Every TestHours row with its id, Title and creator, following paging. */
+export async function listTestHoursRows(
   siteId: string,
-  me: Me,
-): Promise<{ row: OtherUserRow | null; result: GraphResult<unknown> }> {
-  type User = { id?: string; email?: string; displayName?: string };
-  type Item = { id: string; createdBy?: { user?: User }; fields?: { Title?: string } };
+): Promise<{ rows: HoursRow[] | null; result: GraphResult<unknown> }> {
+  type Item = { id: string; createdBy?: { user?: RowCreator }; fields?: { Title?: string } };
   type Page = { value: Item[]; "@odata.nextLink"?: string };
-  const upn = me.userPrincipalName.toLowerCase();
   let next: string | undefined =
     `${testHoursItems(siteId)}?$select=id,createdBy&$expand=fields($select=Title)&$top=200`;
   let last: GraphResult<Page> = { ok: false, status: 0, code: null, data: null };
+  const rows: HoursRow[] = [];
   while (next) {
     last = await graph<Page>("GET", next);
-    if (!last.ok || !last.data) return { row: null, result: last };
+    if (!last.ok || !last.data) return { rows: null, result: last };
     for (const item of last.data.value) {
-      const user = item.createdBy?.user;
-      if (!user) continue;
-      const mine =
-        (user.id !== undefined && user.id === me.id) ||
-        (user.email !== undefined && user.email.toLowerCase() === upn);
-      if (!mine) {
-        return {
-          row: {
-            id: item.id,
-            title: item.fields?.Title ?? "",
-            createdBy: user.displayName || user.email || user.id || "unknown",
-          },
-          result: last,
-        };
-      }
+      rows.push({ id: item.id, title: item.fields?.Title ?? "", createdBy: item.createdBy?.user ?? null });
     }
     next = last.data["@odata.nextLink"];
   }
-  return { row: null, result: last };
+  return { rows, result: last };
 }
 
 export function updateTestHoursTitle(
@@ -166,4 +162,46 @@ export function updateTestHoursTitle(
 
 export function deleteTestHoursItem(siteId: string, itemId: string): Promise<GraphResult<unknown>> {
   return graph("DELETE", `${testHoursItems(siteId)}/${encodeURIComponent(itemId)}`);
+}
+
+// ---- Boundary routes (stage 0). Ids and counts only, never field values. ---
+
+/** Items address of a list through the site's server-relative path, no site id needed. */
+export function listItemsByPath(sitePath: string, listName: string): string {
+  return `/sites/${sp.hostname}:${sitePath}:/lists/${encodeURIComponent(listName)}/items`;
+}
+
+/** Items address of a list by site id and list id (GUID). */
+export function listItemsById(siteId: string, listId: string): string {
+  return `/sites/${siteId}/lists/${encodeURIComponent(listId)}/items`;
+}
+
+/** The list's id (GUID). Requests the id only. */
+export async function getListId(
+  siteId: string,
+  listName: string,
+): Promise<GraphResult<{ id: string }>> {
+  return graph("GET", `${listPath(siteId, listName)}?$select=id`);
+}
+
+/**
+ * Microsoft Search over list items, as the signed-in user. Returns only the
+ * total and each hit's address. The response also carries text snippets,
+ * which are parsed in memory and dropped here: never shown, stored or logged.
+ */
+export async function searchListItems(
+  queryString: string,
+): Promise<GraphResult<{ total: number; webUrls: (string | undefined)[] }>> {
+  type Hit = { resource?: { webUrl?: string } };
+  type Response = { value?: { hitsContainers?: { total?: number; hits?: Hit[] }[] }[] };
+  const r = await graph<Response>("POST", "/search/query", {
+    requests: [
+      { entityTypes: ["listItem"], query: { queryString }, fields: ["id", "webUrl"], size: 25 },
+    ],
+  });
+  if (!r.ok || !r.data) return { ...r, data: null };
+  const containers = r.data.value?.[0]?.hitsContainers ?? [];
+  const hits = containers.flatMap((c) => c.hits ?? []);
+  const total = containers.reduce((n, c) => n + (c.total ?? 0), 0);
+  return { ...r, data: { total, webUrls: hits.map((h) => h.resource?.webUrl) } };
 }

@@ -11,85 +11,71 @@ Run the sections in order. Paste every copied diagnostic report and every flow l
 - Principals site: `https://agencyartifact.sharepoint.com/sites/AAPrincipals`
 - App: `https://agencyartifact.github.io/AA-App/`
 
-## A. Preconditions (once, before anything else)
+## A. Preconditions (once)
 
-- [ ] A1. Teams custom app setup confirmed (`docs/setup/m365-admin.md` part 3): org-wide custom apps on, policy `AA app testers` assigned to Galileo and aa.test, and both accounts see **Upload a custom app**.
-- [ ] A2. Principals sharing check. As Galileo open `https://agencyartifact.sharepoint.com/sites/AAPrincipals/_layouts/15/user.aspx`. Expected: only the three AA Principals groups, no "Everyone", "Everyone except external users" or "All users" entry. **Check Permissions** for `Everyone except external users` and for aa.test: both *None*. (Done once at T1; redo on the test day.)
-- [ ] A3. `TestFees` still has its row (`Fee test`), so a count of 0 cannot be mistaken for "no access".
-- [ ] A4. aa.test is at **Contribute** on AA Operations (not Coordinator yet). Page `https://agencyartifact.sharepoint.com/sites/AAOperations/_layouts/15/user.aspx`, row *AA Test*: Contribute.
-- [ ] A5. Rows in `TestHours` (`https://agencyartifact.sharepoint.com/sites/AAOperations/Lists/TestHours`). All three must exist before section C:
+- [x] A1. Teams custom app setup (`docs/setup/m365-admin.md` part 3). Admin side seen 2026-10-13. Still to see: **Upload a custom app** for aa.test (propagation; does not block the tests).
+- [ ] A2. aa.test is at **Contribute** on AA Operations: `https://agencyartifact.sharepoint.com/sites/AAOperations/_layouts/15/user.aspx`, row *AA Test*.
+- [x] A3. Rows: the diagnostic manages its own test rows. Only `aa.test row` (by aa.test, 2026-01-01) and `Hours test` (by Galileo) need to exist, and both do (2026-10-13).
+- [x] A4. App in the org catalog (2026-10-13).
+- [ ] A5. India device ready (`m365-admin.md` part 6), signed in to Teams as aa.test, app added.
 
-| Title | Created by | Date and WorkDate | Needed for |
+## B. What the diagnostic tests by itself
+
+One open of the **Diagnostic** tab runs every Graph check as the signed-in account. Graph Explorer is not needed (Galileo's decision, 2026-10-13: same Graph API, same per-user permission).
+
+| Step in the report | Galileo | aa.test as team | aa.test as coordinator |
 |---|---|---|---|
-| `aa.test row` | **aa.test** (sign in as aa.test in a private window, **+ New**) | `2026-01-01` in both | Galileo's edit test. Without it Galileo's edit step shows **SKIPPED**. Dated in the past so it never silences the reminder flow |
-| `Galileo row` | Galileo (exists) | any | aa.test's edit test, at both levels |
-| `Galileo delete row` | Galileo (**+ New**) | any | The Graph Explorer delete test (section D6 and E5). Recreate it if you repeat E5 |
+| Operations read | PASS | PASS | PASS |
+| Operations write + delete | PASS | PASS | PASS |
+| Operations edit of another user's row | PASS | **DENIED** | **PASS** |
+| Operations delete of another user's row | PASS | **DENIED** | **PASS** |
+| Principals site lookup (by path) | PASS | **DENIED** | **DENIED** |
+| Principals read (TestFees, by path) | PASS | **DENIED** | **DENIED** |
+| Principals read (TestFees, by site id) | PASS | **DENIED** | **DENIED** |
+| Principals read (TestFees, by list id) | PASS | **DENIED** | **DENIED** |
+| Principals search ("Zanthorpe") | PASS (visible) | **DENIED** (not visible) | **DENIED** (not visible) |
 
-- [ ] A6. App published to the org catalog (`docs/setup/deploy.md` part 5) and **installed from a phone** as aa.test: Teams > **Apps** > **Built for your org** > **Agency Artifact** > **Add**. Note the phone and the date (go criterion 5).
-- [ ] A7. India device ready (`m365-admin.md` part 6), signed in to Teams as aa.test, app added.
-- [ ] A8. Reminder flows built (`docs/setup/reminder-flow.md`), both on.
+How to read it:
+- Any Principals step `PASS` for aa.test: **stop**, no-go. A 404 for aa.test counts as denied when Galileo's same step is PASS.
+- `SKIPPED` on the delete step: the other account has not run the diagnostic yet. Each run leaves one row `stage0-delete-target` (dated 2026-01-01) for the other account to try to delete. Run once as the other account, then again.
+- `SKIPPED` on "by site id" or "by list id" for aa.test: Claude Code has not yet copied the ids from Galileo's report into `config.ts`.
+- Any `FATAL`: stop testing that client, copy the report, note the Teams version (Settings > About).
 
-## B. Browser smoke test (desktop browser, Galileo)
+## C. Runs (copy each report, paste all of them in one message)
 
-- [ ] B1. Open `https://agencyartifact.github.io/AA-App/#/diagnostic`. A Microsoft sign-in popup appears (allow popups if blocked, then **Run again**). Sign in as Galileo. The popup ends on a blank page and closes by itself.
-- [ ] B2. Expected: sign-in PASS, Operations read PASS, write + delete PASS, edit of another user's row PASS (it edits `aa.test row` and restores it), Principals read PASS. **Copy report**.
+Order matters only the first time (for the delete targets): Galileo once, then aa.test, then the rest.
 
-## C. App matrix, aa.test as team (Contribute)
+| # | Client | Account |
+|---|---|---|
+| C1 | Teams desktop | Galileo |
+| C2 | Teams web | Galileo |
+| C3 | Teams iOS | Galileo |
+| C4 | Teams Android | Galileo |
+| C5 | Teams desktop | aa.test |
+| C6 | Teams web | aa.test |
+| C7 | Teams iOS | aa.test |
+| C8 | Teams Android | aa.test |
 
-For each cell: open **Agency Artifact** in Teams, **Diagnostic** tab, wait for the report, **Copy report**, paste it into the report. If copy is blocked, the report text is selected below the buttons: copy by hand or screenshot. Note any sign-in or consent prompt (`Prompts: 0` means silent).
+Two accounts on one phone: sign out of Teams and sign in as the other, or use two devices.
 
-| # | Client | Account | Read | Write | Edit other's row | Principals | Prompts |
-|---|---|---|---|---|---|---|---|
-| C1 | Teams desktop | Galileo | PASS | PASS | PASS | PASS | 0 |
-| C2 | Teams web | Galileo | PASS | PASS | PASS | PASS | 0 |
-| C3 | Teams iOS | Galileo | PASS | PASS | PASS | PASS | 0 |
-| C4 | Teams Android | Galileo | PASS | PASS | PASS | PASS | 0 |
-| C5 | Teams desktop | aa.test | PASS | PASS | **DENIED** | **DENIED** | 0 |
-| C6 | Teams web | aa.test | PASS | PASS | **DENIED** | **DENIED** | 0 |
-| C7 | Teams iOS | aa.test | PASS | PASS | **DENIED** | **DENIED** | 0 |
-| C8 | Teams Android | aa.test | PASS | PASS | **DENIED** | **DENIED** | 0 |
+## D. The two routes the app cannot test (aa.test, private browser window, at Contribute)
 
-The values in the table are the expected results.
+- [ ] D1. Open `https://agencyartifact.sharepoint.com/sites/AAPrincipals`. Expected: access denied or request access.
+- [ ] D2. At <https://m365.cloud.microsoft>, search `Zanthorpe`, choose **All** / organization scope. Expected: nothing.
 
-How to read the results:
-- Principals `DENIED (HTTP 403 accessDenied)`: expected. `ERROR (HTTP 404 itemNotFound)` with *site lookup failed* is also a denial if Galileo's cells show the site as PASS (SharePoint can hide a site from users without access); record it exactly. Principals `PASS` with any count: **stop**, no-go.
-- Edit of another user's row for aa.test as team: `DENIED` (403) is the expected result, with "edit refused, nothing changed". `PASS` at Contribute means the own-items rule does not hold through Graph: record it and tell Claude Code (criterion 6, not a no-go).
-- `SKIPPED`: the required row from A5 is missing.
-- Any `FATAL` on a Teams client (for example "Nested app authentication is not available"): stop testing that client, copy the report, note the Teams version (Settings > About). No workarounds.
-
-Two accounts on one phone: sign out of Teams and sign in as the other, or use two devices. Note which.
-
-## D. Boundary routes, aa.test as team
-
-Routes for criterion 3: the app (C5 to C8), Graph Explorer, the site URL, Microsoft Search. Plus the delete test for criterion 6.
-
-- [ ] D1. Graph Explorer: open <https://developer.microsoft.com/graph/graph-explorer> in a private window, **Sign in** as aa.test. If it asks for consent to a permission aa.test cannot grant, sign in as Galileo once, consent for the organisation for Graph Explorer only, sign back in as aa.test, and note it. Remove that grant after stage 0: Entra admin center > **Enterprise apps** > *Graph Explorer* > **Permissions**. For D5 and D6 aa.test needs `Sites.ReadWrite.All` in Graph Explorer (**Modify permissions** tab).
-- [ ] D2. `GET https://graph.microsoft.com/v1.0/sites/agencyartifact.sharepoint.com:/sites/AAPrincipals`. Expected 403 or 404. Copy the status and `error.code`.
-- [ ] D3. `GET https://graph.microsoft.com/v1.0/sites/agencyartifact.sharepoint.com:/sites/AAPrincipals:/lists/TestFees/items`. Expected 403 or 404.
-- [ ] D4. Site URL: in the same private window open `https://agencyartifact.sharepoint.com/sites/AAPrincipals`, then `.../sites/AAPrincipals/Lists/TestFees`. Expected: access denied or a request-access page, both times.
-- [ ] D5. Microsoft Search, **organization scope** (as in the positive control: `https://agencyartifact.sharepoint.com/_layouts/15/search.aspx` or the search box at <https://m365.cloud.microsoft>, then choose *Organization* / *All*), search `Zanthorpe`. Expected: **no results at all**. Also in Graph Explorer: `POST https://graph.microsoft.com/v1.0/search/query` with body `{ "requests": [ { "entityTypes": ["listItem"], "query": { "queryString": "Zanthorpe" } } ] }`. Expected: zero hits.
-- [ ] D6. Delete of Galileo's row, as team. First `GET https://graph.microsoft.com/v1.0/sites/agencyartifact.sharepoint.com:/sites/AAOperations:/lists/TestHours/items?$expand=fields($select=Title)` and note the `id` of `Galileo delete row`. Then `DELETE https://graph.microsoft.com/v1.0/sites/agencyartifact.sharepoint.com:/sites/AAOperations:/lists/TestHours/items/<id>`. Expected: **403**, row still in the list.
-- [ ] D7. Same Graph Explorer edit as team, for completeness: `PATCH .../lists/TestHours/items/<id of Galileo row>/fields` with body `{ "Title": "Galileo row [ge edit]" }`. Expected: 403. (If it passes, set the Title back and tell Claude Code.)
+Send back: "denied, nothing" or what you saw instead.
 
 ## E. aa.test as coordinator
 
-- [ ] E1. Assign the level. As Galileo, page `https://agencyartifact.sharepoint.com/sites/AAOperations/_layouts/15/user.aspx`. Tick the row *AA Test* > **Edit User Permissions** > untick **Contribute**, tick **Coordinator** > **OK**. Check: **Check Permissions** for aa.test shows *Coordinator* only. Also note the exact label of the extra permission inside the Coordinator level (page **Permission Levels** > *Coordinator*), which was never seen on screen.
-- [ ] E2. App, rerun on **Teams desktop** and on **at least one phone** (record which). Close and reopen the app first so it runs fresh.
+- [ ] E1. As Galileo, `https://agencyartifact.sharepoint.com/sites/AAOperations/_layouts/15/user.aspx`: tick *AA Test* > **Edit User Permissions** > untick **Contribute**, tick **Coordinator** > **OK**.
+- [ ] E2. As aa.test, run the diagnostic on **Teams desktop** and on **one phone**. Close and reopen the app first.
+- [ ] E3. Repeat D1 and D2 as aa.test.
+- [ ] E4. Evidence, as Galileo, two screenshots:
+  - `TestHours` > `Hours test` > **...** > **Version history**: the ` [diag edit]` version and its restore, **Modified by AA TEST**.
+  - `https://agencyartifact.sharepoint.com/sites/AAOperations/_layouts/15/RecycleBin.aspx`: a `stage0-delete-target` row **Deleted by AA TEST**.
+- [ ] E5. Put aa.test back to **Contribute** (E1 in reverse).
 
-| # | Client | Account | Read | Write | Edit other's row | Principals |
-|---|---|---|---|---|---|---|
-| E2a | Teams desktop | aa.test (Coordinator) | PASS | PASS | **PASS** | **DENIED** |
-| E2b | Phone: ____ | aa.test (Coordinator) | PASS | PASS | **PASS** | **DENIED** |
-
-If edit of another user's row is still DENIED: first check E1 (the level and its permission), then report. That is not a no-go; the fallback is Galileo's decision.
-
-- [ ] E3. Repeat D2, D3, D4 and D5 as coordinator. Expected: all still denied, no search results.
-- [ ] E4. Repeat D7 as coordinator. Expected: 200. Set the Title back to `Galileo row` with a second PATCH.
-- [ ] E5. Repeat D6 as coordinator. Expected: **204**, `Galileo delete row` gone.
-- [ ] E6. Evidence. As Galileo:
-  - `TestHours` > `Galileo row` > **...** > **Version history**: versions with ` [diag edit]` and ` [ge edit]` and their restores, **Modified by aa.test**. Screenshot.
-  - `https://agencyartifact.sharepoint.com/sites/AAOperations/_layouts/15/RecycleBin.aspx`: `Galileo delete row`, **Deleted by aa.test**. Screenshot.
-- [ ] E7. Put aa.test back to **Contribute** (E1 steps in reverse), unless you are about to rerun section E.
+If the coordinator edit or delete is DENIED: report it. Not a no-go; the fallback is Galileo's decision.
 
 ## F. Phone timing (go criterion 2), one phone, aa.test
 

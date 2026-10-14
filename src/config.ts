@@ -35,6 +35,13 @@ export const config = {
       lists: {
         testFees: "TestFees",
       },
+      // Copied from a principal's diagnostic report, so the boundary test can
+      // also try the by-id routes as a user who cannot look them up. Empty
+      // until then: those steps show SKIPPED. Identifiers, not secrets.
+      siteId: "",
+      testFeesListId: "",
+      // Distinctive fictional word in the one TestFees row (Microsoft Search check).
+      searchWord: "Zanthorpe",
     },
   },
 

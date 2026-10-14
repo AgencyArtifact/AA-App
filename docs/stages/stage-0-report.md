@@ -51,7 +51,8 @@ Setup evidence (Galileo's screenshots, 2026-10-13):
 - Coordinator permission level created on `AA Operations` (Galileo's confirmation, 2026-10-13; the exact label of the ticked permission was not reported). Not assigned to anyone.
 - Entra API permissions (screenshot): `Sites.ReadWrite.All` and `User.Read`, Delegated, "Granted for Agency Artifact"; portal shows "Admin consent required: No" for both.
 - Regional settings time zone: Pacific on both sites (Galileo's confirmation, 2026-10-13).
-- Teams custom app setup (screenshots, 2026-10-13): Org-wide app settings, Custom apps: "Let users install and use available apps by default" On, "Let users interact with custom apps in preview" On. Setup policy `AA app testers`: Upload custom apps On, User pinning On. App setup policy `AA app testers`, direct assignment, on the user pages of both Galileo and aa.test. Not yet seen: **Upload a custom app** in Teams for either account (propagation), which closes checklist A1.
+- Teams custom app setup (screenshots, 2026-10-13): Org-wide app settings, Custom apps: "Let users install and use available apps by default" On, "Let users interact with custom apps in preview" On. Setup policy `AA app testers`: Upload custom apps On, User pinning On. App setup policy `AA app testers`, direct assignment, on the user pages of both Galileo and aa.test. Not yet seen: **Upload a custom app** in Teams for either account (propagation), which closes checklist A1. Checks (screenshots, 2026-10-13): first, shortly after assignment, Upload an app offered only "Submit an app to your org". Later the same day, Galileo: "Upload a custom app", "Upload an app to your org's app catalog" and "Submit an app to your org" (propagated). aa.test: still only "Submit an app to your org" (not propagated yet).
+- Org catalog (Galileo, 2026-10-13): `aa-app-0.0.1.zip` uploaded through Teams > Manage your apps > Upload an app > "Upload an app to your org's app catalog". Reported as working; publishing status in the admin center and phone install not yet seen (criterion 5 open). Org catalog publishing (A6) goes through the Teams admin center and does not wait for this.
 - Microsoft Search positive control passed (screenshot, 2026-10-13): Galileo, organization scope, `Zanthorpe` finds `Fee test` in AA Principals > TestFees, "modified 26 minutes ago". The result snippet shows field values, so aa.test's search must return nothing at all. A first search from the start page was scoped to the root Communication site and found nothing; setup doc corrected.
 
 Decisions at T1 approval (Galileo, 2026-10-13):
@@ -91,6 +92,22 @@ Needed for the test matrix (now checklist A5): a row created by `aa.test` must e
 Rechecked on Windows (2026-10-13, this repo): `npm run typecheck` passes, `npm test` 26 of 26, `npm run build` succeeds. Committed locally as `f69ec5d`, not pushed.
 
 Scope note: the app tests **editing** another user's row (as T3 asks). The **delete** half of criterion 6 is tested in Graph Explorer only (checklist D6, E5), as the test matrix asks.
+
+### T3 extension: all Graph boundary checks in the diagnostic (2026-10-13)
+
+Galileo's decision in session: extend the diagnostic so it runs every Graph check by itself, and drop Graph Explorer from the test matrix. **Deviation from brief v2**, which names Graph Explorer as one of four boundary routes and as the route for the delete test. Reason: Graph Explorer calls the same Graph API with the same delegated, per-user permission, so it adds no evidence about SharePoint's permissions; it cost Galileo a long manual session (consent, site ids, list ids).
+
+New steps in the report:
+- Operations delete of another user's row. Each run keeps one row `stage0-delete-target` of its own (dated 2026-01-01, never today, so it cannot silence the reminder flow); the other account's run tries to delete it. SKIPPED until the other account has run once.
+- Principals routes: site lookup by path (a principal's report shows the site id and the TestFees list id), list items by path, by site id, by list id, and a Microsoft Search query for the search word. Ids and counts only; the search keeps only hit totals and addresses. By-id routes for aa.test use `config.sharepoint.principals.siteId` and `testFeesListId`, empty until copied from Galileo's report (SKIPPED until then).
+- Search outcome: PASS when any hit is inside `/sites/AAPrincipals`, DENIED when none is.
+
+Code: `src/diagnostic/rows.ts` (new, pure selection rules) and `rows.test.ts` (8 tests), `src/graph/sharepoint.ts` (list rows with creators, count at any address, by-path and by-id addresses, list id, search), `src/diagnostic/runDiagnostic.ts`, `src/config.ts`. The edit test now prefers a row that is not a delete target.
+
+Verified (Windows, 2026-10-13): typecheck passes, 34 of 34 tests, build succeeds.
+Untested: every new step against the tenant. Assumed: search hits carry `resource.webUrl` for list items; the by-path list address works once the token has Sites permission (the Graph Explorer 404 on it was before consent).
+
+Checklist rewritten to match: Graph Explorer steps removed; left for Galileo are the runs per client and account, the site URL and the Microsoft 365 search box as aa.test, the Coordinator switch, two screenshots (version history, recycle bin), timing, flows.
 
 ## T4: Teams app package
 
@@ -140,6 +157,71 @@ Choices made in the checklist (low-risk):
 ## Test matrix (brief v2)
 
 To be filled from `docs/stages/stage-0-test-checklist.md`. Paste diagnostic reports and MatchLog lines here, naming client and account.
+
+First run inside Teams (screenshot, 2026-10-13): app installed from the org catalog, opened on Home in Teams desktop. Then `#/log` in Teams web (account not visible in the screenshot): date 10/13/2026, 1:00 h, "Confirmed. Saved to TestHours.", Screen open → confirmed 10.8 s, Page load → confirmed 21.8 s, item 2. First real Graph write from Teams. Not a timing run (desktop browser, not a phone cold start).
+
+### C1: Teams desktop, Galileo (2026-10-13 18:49 Los Angeles)
+
+UPN replaced with `<galileo UPN>` (public repo).
+
+```
+Agency Artifact - stage 0 diagnostic
+Time:        2026-10-14T01:49:00.288Z (local 2026-10-13 18:49:00, America/Los_Angeles)
+App URL:     https://agencyartifact.github.io/AA-App/#/diagnostic
+User:        Galileo Morandi <galileo UPN>
+Host:        TeamsModern desktop (NAA recommended: true)
+Time zone:   America/Los_Angeles (UTC-07:00)
+Local today: 2026-10-13
+Auth mode:   teams-naa
+Prompts:     0
+Write:       2.3 s from page load (run 1, first run)
+
+Sign-in (Graph /me): PASS (HTTP 200)
+Operations read (TestHours): PASS (HTTP 200)
+  items: 2
+Operations write + delete (TestHours): PASS (HTTP 204)
+  created item 5 (HTTP 201). written Date and WorkDate "2026-10-13". Graph returns Date "2026-10-13T07:00:00Z", WorkDate "2026-10-13". deleted (HTTP 204). Person set
+Operations edit of another user's row (TestHours): DENIED (HTTP 403 accessDenied)
+  item 4 by AA TEST: edit refused, nothing changed
+Principals read (TestFees): PASS (HTTP 200)
+  items: 1
+```
+
+Reading:
+- Verified: nested app authentication silent in Teams desktop; Operations read, write and delete; Person lookup; Principals read for a principal.
+- Verified for a Pacific device: a `YYYY-MM-DD` written to the date-only column comes back as midnight Pacific in UTC (`T07:00:00Z` during daylight saving). Matches the data.md assumption on the LA side; India side still to test.
+- **Unexpected: Galileo (Owner, Full Control) is DENIED editing aa.test's row through Graph (403 accessDenied).** Expected PASS. Suspected: through Graph, the item-level "edit only own items" setting applies even to users whose level includes Override List Behaviors. Not yet diagnosed. Per the brief ("If something fails"), criterion 6 is stopped and reported; not a no-go on Microsoft 365. Discriminating checks sent to Galileo: edit in the SharePoint interface, the same PATCH in Graph Explorer, and a rerun with the item-level setting briefly off.
+
+### C6: Teams web, aa.test at Contribute (2026-10-13 18:52 Los Angeles)
+
+UPN replaced with `<aa.test UPN>`.
+
+```
+Agency Artifact - stage 0 diagnostic
+Time:        2026-10-14T01:52:43.243Z (local 2026-10-13 18:52:43, America/Los_Angeles)
+App URL:     https://agencyartifact.github.io/AA-App/#/diagnostic
+User:        AA TEST <aa.test UPN>
+Host:        TeamsModern web (NAA recommended: true)
+Time zone:   America/Los_Angeles (UTC-07:00)
+Local today: 2026-10-13
+Auth mode:   teams-naa
+Prompts:     0
+Write:       1.4 s from page load (run 1, first run)
+
+Sign-in (Graph /me): PASS (HTTP 200)
+Operations read (TestHours): PASS (HTTP 200)
+  items: 7
+Operations write + delete (TestHours): PASS (HTTP 204)
+  created item 14 (HTTP 201). written Date and WorkDate "2026-10-13". Graph returns Date "2026-10-13T07:00:00Z", WorkDate "2026-10-13". deleted (HTTP 204). Person set
+Operations edit of another user's row (TestHours): DENIED (HTTP 403 accessDenied)
+  item 1 by Galileo Morandi: edit refused, nothing changed
+Principals read (TestFees): DENIED (HTTP 403 accessDenied)
+  site lookup failed
+```
+
+Diagnosis of the C1 owner 403, check 1 (Galileo, 2026-10-13 about 18:55): in the SharePoint list interface Galileo edited an aa.test-created row (Title to `aa.test row`, Date and WorkDate to 2026-01-01) and it **saved**. So the own-items bypass works for an Owner in the interface; the 403 is on the Graph route. Galileo also deleted five aa.test-created rows in the interface: allowed. List afterwards (screenshot): `Galileo delete row` (Galileo), `Hours test` (Galileo, today), `aa.test row` (aa.test, 2026-01-01). Checks 2 (same PATCH in Graph Explorer) and 3 (rerun with the item-level setting off) pending. Galileo's own row is titled `Hours test`, not `Galileo row`.
+
+Reading of C6: every result as expected for team. Principals denied at the site lookup (403), app route of criterion 3 holds on Teams web. Edit of Galileo's row denied, as criterion 6 expects for team. TestHours held 7 items at this point (leftover log-screen rows; to be cleaned before the reminder tests).
 
 ## Open questions (brief v2)
 

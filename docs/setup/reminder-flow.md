@@ -217,7 +217,7 @@ To move a test to new minutes: **Edit** > Recurrence > change *At these hours* /
 
 ## Tests
 
-Run LA and India at different minutes so messages are easy to tell apart. Before each test, check that `TestHours` has **no row by aa.test dated today** on that flow's clock (the diagnostic deletes its own row; a `#/log` row stays until you delete it). The row `aa.test row` dated `2026-01-01` (test checklist A5) is in the past and does not count.
+Run LA and India at different minutes so messages are easy to tell apart. Before each test, check that `TestHours` has **no row by aa.test dated today** on that flow's clock (the diagnostic deletes its own row; a `#/log` row stays until you delete it). The rows `aa.test row` and `stage0-delete-target`, dated `2026-01-01`, (test checklist A3) are in the past and do not count.
 
 ### Test 1: reminder, then escalation (no row). Both flows.
 
