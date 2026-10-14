@@ -264,7 +264,7 @@ Reading of C6 (first run): every result as expected for team. Principals denied 
 
 Verified, Teams desktop and web, with the extended diagnostic:
 - aa.test at Contribute: edit and delete of Galileo's rows through Graph DENIED (403). Team half of criterion 6 holds.
-- Galileo, Owner: edit and delete of aa.test's rows through Graph DENIED (403) with the own-items setting on; PASS (200, 204) with it off (run 2026-10-13 19:19 Los Angeles, setting restored afterwards). In the SharePoint interface the Owner can edit and delete them with the setting on.
+- Galileo, Owner: edit and delete of aa.test's rows through Graph DENIED (403) with the own-items setting on; PASS (200, 204) with it off (run 2026-10-13 19:19 Los Angeles; setting restored to "Create items and edit items that were created by the user", Galileo's confirmation the same evening). In the SharePoint interface the Owner can edit and delete them with the setting on.
 - So the Coordinator level (a subset of Owner) cannot correct hours through Graph with this design. Not yet run as Coordinator; expected the same. Per the brief this is stopped and reported, and it is **not a no-go** on Microsoft 365.
 
 Options (Galileo's decision; recommendation first):
