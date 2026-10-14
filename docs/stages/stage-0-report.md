@@ -46,6 +46,7 @@ Setup evidence (Galileo's screenshots, 2026-10-13):
 - `AA Operations` (Galileo's confirmation, 2026-10-13, no screenshot): P1 shows the three AA Operations groups plus `AA Test` at Contribute; Check Permissions for aa.test: Contribute only; Owners Galileo and Chris; aa.test in no site group. Part 2b complete.
 - `TestHours` created on `AA Operations` with columns Title, Person, Date, WorkDate, Hours (screenshot; column types not visible). Versioning settings (screenshot): create a version on each edit Yes, keep 50 versions, content approval No. Galileo: these were already set when the page was first opened, so version history is on by default for a new blank list in this tenant (50 versions).
 - `TestFees` on `AA Principals` (screenshot): columns Title, Project, Fee; one row `Fee test`, `Zanthorpe`, 1,000. Search word recorded in the test checklist.
+- `TestHours`: `Galileo row` created by Galileo (Galileo's confirmation, 2026-10-13).
 
 Open questions for Galileo:
 - Q8. Galileo, 2026-10-13: "I want 2 time zones, India and US." A SharePoint site holds one regional time zone, so two zones are carried by people and devices, not by the site: each entry uses the device's local date (`WorkDate` text), and one reminder flow runs per zone. Proposed: both sites keep Pacific as the storage reference. Awaiting confirmation.
