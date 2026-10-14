@@ -1,12 +1,15 @@
 # Data layer
 
-SOP. Version 1.1, 2026-10-13 (stage 0 Blueprint, T1). Changes from 1.0 are listed at the end.
+SOP. Version 1.2, 2026-10-13 (stage 0, decision on hours access). Changes are listed at the end.
 Status: everything in this file is ASSUMED until the stage 0 report verifies it. Each statement is marked "docs" when current Microsoft documentation states it (source in `docs/setup/`), otherwise it is assumed. Update to "verified" with a reference to the report as evidence arrives.
 
 ## Principle
 
-The financial boundary lives here. Access is decided by SharePoint permissions, applied to the signed-in user's own delegated token. The app never decides access. Because the app can only do what the user can already do in SharePoint, the boundary holds even if the app has a bug.
-Docs: a delegated Graph token "can't access anything the signed-in user couldn't access" (Graph permissions overview).
+Two kinds of rule, enforced in two ways (CLAUDE.md 1.2, *Roles and the financial boundary*):
+
+1. **The financial boundary is a lock.** Access is decided by SharePoint permissions, applied to the signed-in user's own delegated token. The app never decides it. Because the app can only do what the user can already do in SharePoint, the boundary holds even if the app has a bug.
+   Docs: a delegated Graph token "can't access anything the signed-in user couldn't access" (Graph permissions overview).
+2. **Who edits whose hours is a record, not a lock** (Galileo's decision, 2026-10-13). Everyone on `AA Operations` can technically edit any hours row. The app offers each role only its own edits (team: own rows; coordinators and principals: any row). Version history records every change with the person who made it, and only principals can delete versions.
 
 ## Sites
 
@@ -21,27 +24,30 @@ Rules:
 - Hours are operational and live on `AA Operations`. Hours converted into money live only on `AA Principals`.
 - Both sites use the Pacific time zone in their regional settings. Assumed: this setting decides how date-only values are stored (see Dates).
 
-Why no Microsoft 365 group on `AA Operations` either (docs): on group-connected team sites the permissions of the default groups cannot be modified, the Members group has the Edit level, and on Public sites "Everyone except external users" is added to Members automatically. The permission design below needs team members at Contribute, not Edit.
+Why no Microsoft 365 group on `AA Operations` either (docs): on group-connected team sites the permissions of the default groups cannot be modified, the Members group has the Edit level, and on Public sites "Everyone except external users" is added to Members automatically. The permission design below needs a custom level, not Edit.
 
 ## Permission levels on AA Operations
 
-| Role | Level | Effect on hour lists |
-|---|---|---|
-| Principals | Full Control (site Owners group) | Everything |
-| Coordinators | Custom level "Coordinator": Contribute plus Override List Behaviors | Edit and delete any row |
-| Team | Contribute, granted directly or through a custom group, never the default Members group | Create rows; edit and delete only rows they created |
+| Role | Level | Effect on hour lists (SharePoint) | What the app offers |
+|---|---|---|---|
+| Principals | Full Control (site Owners group) | Everything, including deleting versions and changing list settings | Edit and delete any row |
+| Coordinators | Custom level `AA Team` | Create, edit, delete any row; view versions; cannot delete versions or change list settings | Edit and delete any row |
+| Team | Custom level `AA Team` | Same as coordinators | Create rows; edit and delete own rows only |
 
-Team members must never hold Edit (the default Members level). Docs: Edit includes Manage Lists, Contribute does not. With Manage Lists a team member could change list settings, including the own-items rule below.
+`AA Team` = Contribute **without Delete Versions**. Granted directly or through a custom group, never through the default Members group.
+- Docs ([Understanding permission levels](https://learn.microsoft.com/en-us/sharepoint/understanding-permission-levels), updated 2026-07-01): Contribute includes Add, Edit, Delete Items, View Versions and **Delete Versions**; it does not include Manage Lists. Edit (the default Members level) includes Manage Lists and Delete Versions.
+- Why: version history is the control on hours. With Delete Versions a team member could erase the record of a change; with Manage Lists they could switch versioning off. `AA Team` has neither.
+- Coordinators and team share one level on purpose: SharePoint cannot tell them apart for hours through the app (below). The coordinator role, as the app uses it, is decided in the Blueprint of the stage that builds hours (open question).
 
-Hour lists use the list setting "Create and edit access: create items and edit items that were created by the user". Users whose level includes Override List Behaviors bypass it.
-- Docs (SharePoint Server page only): Override List Behaviors lets a user "change or override settings which allow users to read/edit only their own items"; it is in Full Control and Design, not in Edit or Contribute. The SharePoint in Microsoft 365 page names the same permission "Override Check-Out" and does not mention the own-items bypass.
-- Observed on screen 2026-10-13 (TestHours, Advanced settings, Item-level Permissions): "Note: Users with the Cancel Checkout permission can read and edit all items." Cancel Checkout is the permission the docs call Override Check-Out (SharePoint in Microsoft 365) and Override List Behaviors (Server). This ties the bypass to the permission the Coordinator level adds, in the SharePoint interface.
-- Not in docs: the item-level setting itself, whether it also blocks deleting other users' rows, and whether the bypass applies to Graph writes the same way as in the SharePoint interface. Tested in stage 0 (criterion 6).
-- **Verified 2026-10-13 (stage 0 report, findings):** the setting blocks both editing and deleting other users' rows, through Graph and in the interface, for Contribute. The bypass works **only in the SharePoint interface**: through Graph an Owner (Full Control) is refused with 403, and gets 200/204 once the setting is off. So coordinator corrections cannot go through Graph with this design. How coordinators correct hours is **open** (Galileo's decision, options in the stage 0 report). The Coordinator row in the table above holds for the interface only until then.
-- **Verified 2026-10-13, REST and manage-scope tests (stage 0 report, findings):** the own-items setting is checked against the **app's** permission level (the token's scopes), not the user's. With `Sites.ReadWrite.All` (Graph) or `AllSites.Write` (SharePoint REST) everyone is refused, Owners included. With `Sites.Manage.All` or `AllSites.Manage` everyone gets through, **team members included**. No delegated scope gives "coordinators yes, team no". Rules from now on:
-  - The app uses Microsoft Graph with `Sites.ReadWrite.All` only. Never grant the app a manage-level or full-control scope while the own-items setting protects hours.
-  - Coordinator corrections go through a Power Automate flow (Galileo's decision, 2026-10-13). Verified 2026-10-13 (`docs/setup/correction-flow.md`, probe): the Power Automate SharePoint connector, running with an owner's connection, edits other users' rows with the own-items setting on. Delete by flow: assumed, tested with the full design. Version history then shows the connection's account; the coordinator is recorded on the correction request. Request list, coordinator check and flow are designed after the probe.
-Audit: version history is on for every list holding hours, so every correction shows who changed what. It is checked in each list's Versioning settings. Docs do not state a default for lists. Observed 2026-10-13 (stage 0 report): a new blank list in this tenant had versioning on, 50 versions. Each new list is still checked, not assumed.
+Why no "own items only" lock on hour lists (verified 2026-10-13, stage 0 report, findings):
+- The list setting "Create and edit access: create items and edit items that were created by the user" is checked against the **app's** permission (the token's scope), not the user's level. With `Sites.ReadWrite.All` (Graph) or `AllSites.Write` (SharePoint REST) everyone is refused, Owners included. With `Sites.Manage.All` or `AllSites.Manage` everyone gets through, team members included. Only the SharePoint web interface honours the user's Override List Behaviors (Cancel Checkout).
+- No delegated scope gives "coordinators yes, team no". Workarounds (a correction flow on an owner's connection, per-row permissions, a second app registration) were weighed and rejected as heavier than ten people need (Galileo, 2026-10-13). The correction-flow probe passed and is kept as a record in `docs/setup/correction-flow.md`.
+- Rule: the app uses Microsoft Graph with `Sites.ReadWrite.All` only. Never grant it a manage-level or full-control scope.
+
+Audit:
+- Version history is on for every list holding hours: each edit shows who changed what and when. Checked in each list's Versioning settings. Docs do not state a default for lists. Observed 2026-10-13 (stage 0 report): a new blank list in this tenant had versioning on, 50 versions. Each new list is still checked, not assumed.
+- Deletes: a deleted row goes to the site recycle bin with "Deleted by". Assumed from SharePoint's standard behaviour, not checked in docs for this stage: the user can empty it from their own view, then it stays in the second-stage bin, visible to site collection admins, until 93 days after the delete. So the record of a delete is shorter-lived than the record of an edit. Open question for the hours stage: soft delete (the app marks a row deleted instead of removing it), or remove Delete Items from `AA Team` too.
+- Edits made in the SharePoint web interface are recorded the same way as edits through the app.
 
 ## App registration
 
@@ -52,6 +58,7 @@ Docs: `Sites.ReadWrite.All` is the least-privileged delegated permission for cre
 
 Open. The team works in Los Angeles and India.
 Assumed: SharePoint date-only columns are stored as a UTC instant derived from the site's regional time zone, so a "today" written from India can read as a different date elsewhere. Docs are silent on storage and on how to write a date-only value through Graph.
+Verified for a Pacific device (stage 0 report, C1): writing `2026-10-13` returns `2026-10-13T07:00:00Z` (midnight Pacific in UTC). India side still to test.
 Stage 0 compares a date column with a `YYYY-MM-DD` text column. No real list gets a date column until the result is in.
 
 ## Lists
@@ -68,34 +75,12 @@ Stage 0 test lists only. Real lists are defined in the Blueprint gate of the sta
 | `WorkDate` | Single line of text | `WorkDate`: `YYYY-MM-DD`, device-local date | Same date as `Date`, as plain text |
 | `Hours` | Number, 1 decimal | `Hours`: number, multiples of 0.5 | Unit: hours |
 
-Settings: Read access "Read all items"; Create and Edit access "Create items and edit items that were created by the user"; versioning on.
-Access: team (Contribute) creates rows and edits or deletes its own; coordinators and principals edit or delete any.
+Settings: Read access "Read all items"; Create and Edit access "Create and edit all items"; versioning on.
+Access: everyone at `AA Team` or above creates, edits and deletes any row in SharePoint. The stage 0 diagnostic does not limit itself by role (it is a test tool); real screens offer team members their own rows only.
 
-### TestCorrections (AA Operations), coordinator corrections by flow
+### TestCorrections (dropped)
 
-Approved outline: Galileo, 2026-10-13. Setup: `docs/setup/correction-flow.md`.
-
-| Column | SharePoint type | Notes |
-|---|---|---|
-| `Title` | Single line of text (default, required) | Short label, e.g. "fix Monday" |
-| `TargetId` | Number, 0 decimals, required | ID of the `TestHours` row to correct |
-| `Action` | Choice, required: `Edit`, `Delete` | |
-| `NewHours` | Number, 1 decimal | Required for `Edit`. Unit: hours |
-| `Reason` | Single line of text, required | Why the correction is needed |
-| `Status` | Choice: `Requested` (default), `Applied`, `Rejected` | Set by the flow |
-| `Outcome` | Single line of text | Set by the flow: what changed (old and new value) or why rejected |
-
-Settings: Read all items; create and edit own items only; versioning on.
-
-Group `AA Coordinators` (SharePoint group on AA Operations): who may have corrections applied. Owner of the group: `AA Operations Owners`; only owners change membership. Permission level on the site: Contribute (same as any team member; the group grants no extra rights by itself).
-
-Flow `AA Stage0 Corrections` (Galileo's connection):
-- Trigger: a new `TestCorrections` row.
-- Applies the correction only if the row's creator is a member of `AA Coordinators`. Otherwise `Status` = Rejected, `Outcome` = reason. Membership is read from SharePoint at run time, never from the app.
-- `Edit`: sets `Hours` of the target row to `NewHours`. `Delete`: deletes the target row (recycle bin).
-- Always writes `Status` and `Outcome` on the request. `Outcome` keeps the old value, so the request row is the audit record: who asked (Created By), when (Created), what and why.
-- Version history of `TestHours` shows Galileo (the connection), not the coordinator. Accepted deviation, recorded in the stage 0 report.
-- Not in stage 0: validating `NewHours` (half-hour steps, 0 to 24), a correction of a missing row (the run fails and the request stays `Requested`, visible in run history), notifications, an app screen. Parked for the stage that builds hours.
+Designed for coordinator corrections by flow, never built. Dropped with the decision of 2026-10-13: coordinators edit hours directly. Design kept in `docs/setup/correction-flow.md` as a record.
 
 ### TestFees (AA Principals)
 
@@ -111,8 +96,16 @@ Access: principals only, by site membership.
 
 - Can team members read other people's hours, or only their own? Stage 0 uses "Read all items". The direction brief says hours are operational and visible, but not to whom.
 - Is `AA Operations` connected to a Teams team? Stage 0 says no; connecting it would give team members Edit through the group, which this SOP forbids.
+- Hours stage: soft delete or no Delete Items for `AA Team` (see Audit); where the app reads who is a coordinator (a SharePoint group is the likely answer, so the list of coordinators is kept in one place).
 
-## Changes from 1.0
+## Changes from 1.1
+
+- Hours: the "own items only" lock is dropped; version history is the control (Galileo's decision, 2026-10-13; CLAUDE.md 1.2). Reason: the lock is checked against the app's scope (verified), so no app permission separates coordinators from team.
+- New custom level `AA Team` (Contribute without Delete Versions) for team and coordinators. Replaces Contribute for team and the `Coordinator` level. Reason: docs, Contribute includes Delete Versions.
+- `TestCorrections`, `AA Coordinators` group and the correction flow: dropped before being built.
+- Verified Pacific date-only write recorded under Dates.
+
+## Changes from 1.0 to 1.1
 
 - Sites: both are team sites with no Microsoft 365 group, Pacific time zone, URLs fixed. Reason: docs on group-connected sites (default groups not editable, Members at Edit, Everyone except external users on Public sites).
 - Team level: "never the default Members group (Edit)". Reason: docs, Edit includes Manage Lists.

@@ -1,5 +1,5 @@
 // Stage 0 diagnostic: exercises sign-in, the SharePoint permission boundary
-// and the own-items rule with the signed-in user's delegated token.
+// and edits of other users' hours with the signed-in user's delegated token.
 //
 // Principals data rule: every TestFees request asks for ids only ($select=id,
 // no fields expansion), and the search step keeps only hit counts and
@@ -113,7 +113,8 @@ async function writeStep(
 
 /**
  * Edits the Title of a row created by another user, then restores it.
- * Team (Contribute) is expected DENIED; coordinators and principals PASS.
+ * Expected PASS for everyone at AA Team or above (data.md 1.2: no own-items
+ * lock on hours; version history records the change).
  */
 async function editOtherStep(siteId: string, row: HoursRow | null): Promise<StepResult> {
   const name = `Operations edit of another user's row (${hoursList})`;
@@ -138,7 +139,8 @@ async function editOtherStep(siteId: string, row: HoursRow | null): Promise<Step
 /**
  * Deletes the other account's delete-target row, then makes sure the
  * signed-in user has one for the other account's next run.
- * Team (Contribute) is expected DENIED; coordinators and principals PASS.
+ * Expected PASS for everyone at AA Team or above (data.md 1.2); the recycle
+ * bin records who deleted it.
  */
 async function deleteOtherStep(
   siteId: string,

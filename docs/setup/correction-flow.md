@@ -1,5 +1,7 @@
 # Coordinator corrections through a flow (stage 0)
 
+**Superseded 2026-10-13 (Galileo's decision, `data.md` 1.2).** Not to be built. Hours have no own-items lock any more; coordinators edit hours directly and version history is the control. Kept as the record of the probe, which passed. The probe flow `AA Stage0 Correction Probe` can be turned off or deleted.
+
 Decision (Galileo, 2026-10-13): coordinators correct other people's hours through a Power Automate flow, because no app permission separates coordinators from team (`docs/findings.md`). The full design comes after the probe below passes (Link gate: prove the connection first).
 
 ## Probe: can a flow edit another user's row with the own-items rule on?

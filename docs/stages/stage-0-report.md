@@ -313,7 +313,28 @@ Options considered:
 2. **Per-row permissions**: each new row gets unique permissions (creator: Contribute; coordinators and principals: edit), and the own-items setting goes off. SharePoint then checks the user, so team stays refused and coordinators pass, through Graph with today's scope. Costs one permission change per row (by a flow on creation) and many unique permissions over time; proportionate only while volume is small. Untested.
 3. **Separate coordinator app registration** with a manage scope, restricted in Entra to assigned users (coordinators only). Team members could not get its token. Second registration to maintain, and its scope would let coordinators past the rule on every list. Untested.
 
+## Decision: hours are a record, not a lock (2026-10-13, late)
+
+Galileo, in session: the correction flow and its supporting pieces are heavier than ten people need. Decided: drop the own-items lock on hours, let the app offer each role its own edits, and use version history as the control. The financial boundary is unchanged.
+
+**Deviation from brief v2, criterion 6.** The brief asks that aa.test as team be *denied* editing or deleting Galileo's rows, and that aa.test as coordinator be allowed, with version history showing aa.test. New reading: everyone on AA Operations *can* edit any hours row; the app offers team members only their own; every edit shows its author in version history, deletes in the recycle bin; and nobody below principal can delete versions. Planning should confirm the new criterion text. The team-half evidence above (403 by every route) stays as the record of the old design.
+
+Changed (SOP first):
+- `CLAUDE.md` 1.1 to 1.2: new paragraph *Who edits whose hours*; "the app never decides access" narrowed to access to data. Brief v2 expects 1.1: mismatch caused by Galileo's instruction in this session, which ranks above the file.
+- `docs/architecture/data.md` 1.2: Principle split in two (lock for money, record for hours); new level `AA Team` (Contribute without Delete Versions) for team and coordinators; TestHours "Create and edit all items"; TestCorrections dropped; open questions on deletes and on where the app reads the coordinator role.
+- `docs/setup/sharepoint-sites.md` part 3 (convert `Coordinator` into `AA Team`) and part 4 step 3; `correction-flow.md` marked superseded; checklist A2, B, E, H rewritten; diagnostic comments.
+- No change to running code: the diagnostic reports what SharePoint answers; only the expected results moved.
+
+Docs (checked 2026-10-13, [Understanding permission levels](https://learn.microsoft.com/en-us/sharepoint/understanding-permission-levels)): Contribute includes Delete Versions. Without the custom level a team member could erase the record, so `AA Team` is required, not optional.
+
+Assumed: a deleted row stays recoverable and shows "Deleted by" for up to 93 days across the two recycle-bin stages; after that the delete leaves no record. Open for the hours stage (soft delete, or no Delete Items for `AA Team`).
+
+Untested until Galileo applies checklist A2 and runs E1 to E3: the level conversion, aa.test's edit and delete now PASS, version history and recycle bin showing aa.test, aa.test unable to delete versions.
+
 ## Open questions (brief v2)
+
+- Q13. Criterion 6 as reworded above (record, not lock): accepted as the stage 0 criterion? Planning to confirm.
+- Q14. Deletes of hours (hours stage): soft delete in the app, or remove Delete Items from `AA Team`? Recommendation: soft delete, so the record is permanent and the permission level stays simple.
 
 - Q10. One static tab (brief v2) or two (Home and Diagnostic, as now)? With one, it should point at `#/diagnostic` for stage 0, so a cold start runs the diagnostic directly (Home has links to the log screen). Recommendation: keep two until stage 0 closes; the checklist works with both.
 - Q11. Date-boundary write: accept the diagnostic for raw values plus `#/log` for the row the flow reads (as written), or should the diagnostic gain an option to keep its row?

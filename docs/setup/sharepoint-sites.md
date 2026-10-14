@@ -111,7 +111,8 @@ On **P1** again:
 5. Type `aa.test` and select the account. Select **Show options**.
 6. Under **Select a permission level**, choose **Contribute**.
    Not the default (*AA Operations Members*, which is **Edit**): Edit includes
-   *Manage Lists*, which would let aa.test switch off the own-items rule of part 4.
+   *Manage Lists*, which would let aa.test switch off versioning.
+   Since 2026-10-13 aa.test moves from Contribute to **AA Team** (part 3).
 7. Untick **Send an email invitation** if you prefer. **Share**.
 8. The table now shows a row `AA Test`, type User, permission level **Contribute**.
 9. Ribbon **Check Permissions**: type `aa.test`, **Check Now**. Expected: **Contribute**, given directly, and nothing else.
@@ -121,27 +122,31 @@ Check:
 - [ ] Check Permissions for aa.test: Contribute only.
 - [ ] Owners: Galileo and Chris. aa.test is not in Members, Owners or Visitors.
 
-## 3. Coordinator permission level (on AA Operations)
+## 3. AA Team permission level (on AA Operations)
 
-1. On AA Operations, open **P1** (`https://agencyartifact.sharepoint.com/sites/AAOperations/_layouts/15/user.aspx`).
-2. Ribbon **Permission Levels**. Select the name **Contribute** (the link, not the checkbox).
-3. At the bottom select **Copy Permission Level**.
-4. **Name:** `Coordinator`. **Description:** `Contribute plus Override List Behaviors: edit and delete any row in own-items lists.`
-5. Under **List Permissions**, tick **Override List Behaviors** (description:
-   *Discard or check in a document which is checked out to another user, and
-   change or override settings which allow users to read/edit only their own
-   items*). Change nothing else.
-6. Select **Create**.
+Changed 2026-10-13 (`data.md` 1.2): this replaces the earlier `Coordinator`
+level. `AA Team` is Contribute **without Delete Versions**, for team members
+and coordinators alike, so nobody but principals can erase version history.
 
-Do not assign it to anyone yet. The test matrix assigns it to aa.test later.
+**This tenant (the `Coordinator` level already exists): convert it.**
+1. Open the Permission Levels page of AA Operations:
+   `https://agencyartifact.sharepoint.com/sites/AAOperations/_layouts/15/role.aspx`
+   (or **P1** > ribbon **Permission Levels**).
+2. Select the name **Coordinator** (the link).
+3. **Name:** `AA Team`. **Description:** `Contribute without Delete Versions: version history cannot be erased.`
+4. Under **List Permissions**, untick **Override List Behaviors** (some pages
+   say *Override Check-Out*) and untick **Delete Versions**. Change nothing else.
+5. **Submit** at the bottom.
+
+**New tenant: create it.** P1 > **Permission Levels** > select **Contribute**
+> **Copy Permission Level** > Name and Description as above > untick
+**Delete Versions** > **Create**.
 
 Check:
-- [ ] **Permission Levels** lists `Coordinator`. Open it: the Contribute permissions plus Override List Behaviors, nothing else.
+- [ ] **Permission Levels** lists `AA Team` and no `Coordinator`. Open it: the Contribute permissions minus Delete Versions, nothing else.
 
-How to assign it later (test matrix, aa.test as coordinator): on **P1** of
-AA Operations, tick the `aa.test` row > ribbon **Edit User
-Permissions** > tick **Coordinator**, untick **Contribute** > **OK**. To go back,
-reverse the ticks.
+How to assign it: on **P1** of AA Operations, tick the person's row > ribbon
+**Edit User Permissions** > tick **AA Team**, untick **Contribute** > **OK**.
 
 ## 4. List TestHours (on AA Operations)
 
@@ -159,7 +164,7 @@ reverse the ticks.
 3. **Settings** (gear) > **List settings** > **Advanced settings** >
    **Item-level Permissions**:
    - **Read access:** *Read all items*.
-   - **Create and Edit access:** *Create items and edit items that were created by the user*.
+   - **Create and Edit access:** *Create and edit all items* (changed 2026-10-13, `data.md` 1.2: no own-items lock on hours; version history is the control).
    - **OK**.
 4. **Settings** > **List settings** > **Versioning settings** >
    *Create a version each time you edit an item in this list?* **Yes**. Keep the
@@ -219,7 +224,8 @@ stage 0 tests cover those.
 | Members group default is Edit; Edit includes Manage Lists; Contribute does not | Docs | [Understanding permission levels](https://learn.microsoft.com/en-us/sharepoint/understanding-permission-levels) (updated 2026-07-01) |
 | "Everyone except external users" is added to Members automatically on Public group-connected team sites | Docs | same page, note under *Default permission levels* |
 | Permission Levels > select Contribute > Copy Permission Level > Create | Docs | [How to create and edit permission levels](https://learn.microsoft.com/en-us/sharepoint/how-to-create-and-edit-permission-levels) (updated 2026-07-01) |
-| Override List Behaviors: description, and that it overrides "read/edit only their own items" | Docs for SharePoint Server only. The SharePoint in Microsoft 365 page lists the same permission as *Override Check-Out* and describes only check-out | [User permissions and permission levels (Server)](https://learn.microsoft.com/en-us/sharepoint/sites/user-permissions-and-permission-levels) (updated 2023-10-26); tested by go criterion 6 |
+| Contribute includes Delete Versions (reason for `AA Team`) | Docs | [Understanding permission levels](https://learn.microsoft.com/en-us/sharepoint/understanding-permission-levels) (updated 2026-07-01), *List permissions and permission levels*, checked 2026-10-13 |
+| Override List Behaviors: description, and that it overrides "read/edit only their own items" (no longer used, kept for the record) | Docs for SharePoint Server only. The SharePoint in Microsoft 365 page lists the same permission as *Override Check-Out* and describes only check-out | [User permissions and permission levels (Server)](https://learn.microsoft.com/en-us/sharepoint/sites/user-permissions-and-permission-levels) (updated 2023-10-26); tested by go criterion 6 |
 | Item-level Permissions in Advanced settings, option wording | Not in docs. Seen on screen 2026-10-13, with the note "Users with the Cancel Checkout permission can read and edit all items." | Interface (Galileo's screenshot); Graph behaviour tested by go criterion 6 |
 | Versioning settings location | Docs (no default stated for lists) | [Enable and configure versioning](https://support.microsoft.com/en-us/office/enable-and-configure-versioning-for-a-list-or-library-1555d642-23ee-446a-990a-bcab618c7a37) |
 | Check Permissions for Everyone groups | Not in docs | Interface; the behavioural test is go criterion 3 |

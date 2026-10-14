@@ -2,7 +2,7 @@
 
 Run the sections in order. Paste every copied diagnostic report and every flow log line into `docs/stages/stage-0-report.md`, section *Test matrix (brief v2)*, naming the client and the account.
 
-**Stop rule.** If aa.test can read `TestFees` by **any** route, at either level, stop there and report it. That is a no-go on the approach.
+**Stop rule.** If aa.test can read `TestFees` by **any** route, stop there and report it. That is a no-go on the approach.
 
 **Search word:** `Zanthorpe`, the Project value of the one `TestFees` row (Title `Fee test`, Fee 1,000, both fictional). Galileo's organization-scope search found it on 2026-10-13 (positive control passed).
 
@@ -14,7 +14,10 @@ Run the sections in order. Paste every copied diagnostic report and every flow l
 ## A. Preconditions (once)
 
 - [x] A1. Teams custom app setup (`docs/setup/m365-admin.md` part 3). Admin side seen 2026-10-13. Still to see: **Upload a custom app** for aa.test (propagation; does not block the tests).
-- [ ] A2. aa.test is at **Contribute** on AA Operations: `https://agencyartifact.sharepoint.com/sites/AAOperations/_layouts/15/user.aspx`, row *AA Test*.
+- [ ] A2. Hours access changed to "record, not lock" (`data.md` 1.2), three settings, as Galileo:
+  1. `Coordinator` level converted to **AA Team** (`docs/setup/sharepoint-sites.md` part 3): `https://agencyartifact.sharepoint.com/sites/AAOperations/_layouts/15/role.aspx`.
+  2. aa.test moved from Contribute to **AA Team**: `https://agencyartifact.sharepoint.com/sites/AAOperations/_layouts/15/user.aspx`, row *AA Test*.
+  3. TestHours **Create and Edit access** set to *Create and edit all items*: `https://agencyartifact.sharepoint.com/sites/AAOperations/_layouts/15/advsetng.aspx?List=%7B3d4f19f9-ac90-49fb-a089-918818410229%7D`. Read access stays *Read all items*.
 - [x] A3. Rows: the diagnostic manages its own test rows. Only `aa.test row` (by aa.test, 2026-01-01) and `Hours test` (by Galileo) need to exist, and both do (2026-10-13).
 - [x] A4. App in the org catalog (2026-10-13).
 - [ ] A5. India device ready (`m365-admin.md` part 6), signed in to Teams as aa.test, app added.
@@ -23,17 +26,19 @@ Run the sections in order. Paste every copied diagnostic report and every flow l
 
 One open of the **Diagnostic** tab runs every Graph check as the signed-in account. Graph Explorer is not needed (Galileo's decision, 2026-10-13: same Graph API, same per-user permission).
 
-| Step in the report | Galileo | aa.test as team | aa.test as coordinator |
-|---|---|---|---|
-| Operations read | PASS | PASS | PASS |
-| Operations write + delete | PASS | PASS | PASS |
-| Operations edit of another user's row | PASS | **DENIED** | **PASS** |
-| Operations delete of another user's row | PASS | **DENIED** | **PASS** |
-| Principals site lookup (by path) | PASS | **DENIED** | **DENIED** |
-| Principals read (TestFees, by path) | PASS | **DENIED** | **DENIED** |
-| Principals read (TestFees, by site id) | PASS | **DENIED** | **DENIED** |
-| Principals read (TestFees, by list id) | PASS | **DENIED** | **DENIED** |
-| Principals search ("Zanthorpe") | PASS (visible) | **DENIED** (not visible) | **DENIED** (not visible) |
+Expected after A2 (since 2026-10-13 team and coordinators share the AA Team level, so there is one aa.test column):
+
+| Step in the report | Galileo | aa.test (AA Team) |
+|---|---|---|
+| Operations read | PASS | PASS |
+| Operations write + delete | PASS | PASS |
+| Operations edit of another user's row | PASS | PASS (recorded in version history) |
+| Operations delete of another user's row | PASS | PASS (recorded in the recycle bin) |
+| Principals site lookup (by path) | PASS | **DENIED** |
+| Principals read (TestFees, by path) | PASS | **DENIED** |
+| Principals read (TestFees, by site id) | PASS | **DENIED** |
+| Principals read (TestFees, by list id) | PASS | **DENIED** |
+| Principals search ("Zanthorpe") | PASS (visible) | **DENIED** (not visible) |
 
 How to read it:
 - Any Principals step `PASS` for aa.test: **stop**, no-go. A 404 for aa.test counts as denied when Galileo's same step is PASS.
@@ -58,24 +63,22 @@ Order matters only the first time (for the delete targets): Galileo once, then a
 
 Two accounts on one phone: sign out of Teams and sign in as the other, or use two devices.
 
-## D. The two routes the app cannot test (aa.test, private browser window, at Contribute)
+## D. The two routes the app cannot test (aa.test, private browser window, at AA Team)
 
 - [ ] D1. Open `https://agencyartifact.sharepoint.com/sites/AAPrincipals`. Expected: access denied or request access.
 - [ ] D2. At <https://m365.cloud.microsoft>, search `Zanthorpe`, choose **All** / organization scope. Expected: nothing.
 
 Send back: "denied, nothing" or what you saw instead.
 
-## E. aa.test as coordinator
+## E. Hours record (criterion 6 as changed on 2026-10-13)
 
-- [ ] E1. As Galileo, `https://agencyartifact.sharepoint.com/sites/AAOperations/_layouts/15/user.aspx`: tick *AA Test* > **Edit User Permissions** > untick **Contribute**, tick **Coordinator** > **OK**.
-- [ ] E2. As aa.test, run the diagnostic on **Teams desktop** and on **one phone**. Close and reopen the app first.
-- [ ] E3. Repeat D1 and D2 as aa.test.
-- [ ] E4. Evidence, as Galileo, two screenshots:
-  - `TestHours` > `Hours test` > **...** > **Version history**: the ` [diag edit]` version and its restore, **Modified by AA TEST**.
-  - `https://agencyartifact.sharepoint.com/sites/AAOperations/_layouts/15/RecycleBin.aspx`: a `stage0-delete-target` row **Deleted by AA TEST**.
-- [ ] E5. Put aa.test back to **Contribute** (E1 in reverse).
+Replaces the coordinator switch: there is no Coordinator level any more. After A2 and one aa.test diagnostic run:
 
-If the coordinator edit or delete is DENIED: report it. Not a no-go; the fallback is Galileo's decision.
+- [ ] E1. As Galileo, `https://agencyartifact.sharepoint.com/sites/AAOperations/Lists/TestHours/AllItems.aspx` > row `Hours test` > **...** > **Version history**: the ` [diag edit]` version and its restore show **Modified by AA TEST**.
+- [ ] E2. As Galileo, `https://agencyartifact.sharepoint.com/sites/AAOperations/_layouts/15/RecycleBin.aspx`: a `stage0-delete-target` row shows **Deleted by AA TEST**.
+- [ ] E3. As **aa.test** (private window), same list, row `Hours test` > **...** > **Version history**. Expected: versions visible, and **no** *Delete* option on a version and no *Delete All Versions* link. If aa.test can delete a version, stop and report: the record can be erased.
+
+Send back: "E1 yes, E2 yes, E3 no delete" or what you saw instead.
 
 ## F. Phone timing (go criterion 2), one phone, aa.test
 
@@ -109,7 +112,7 @@ Pass: every one of the three stopwatch times under 30 seconds. The lap shows how
 
 ## G. Reminder flows (go criterion 4)
 
-Follow *Tests* in `docs/setup/reminder-flow.md`. aa.test at Contribute. Record:
+Follow *Tests* in `docs/setup/reminder-flow.md`. aa.test at AA Team. Record:
 
 | Test | Flow | Reminder arrived (time, on phone) | Escalation arrived (time) | Runs succeeded | MatchLog lines |
 |---|---|---|---|---|---|
@@ -129,7 +132,8 @@ Paste the two diagnostic reports from the India device as well.
 
 ## H. After the tests
 
-- [ ] aa.test back at Contribute (E7).
+- [ ] aa.test stays at AA Team (no switch back since 2026-10-13).
+- [ ] Probe flow `AA Stage0 Correction Probe` turned off or deleted (correction flow dropped).
 - [ ] India device time zone set back to automatic.
 - [ ] Flows turned off. Exports saved (`reminder-flow.md`, last section).
 - [ ] Graph Explorer organisation grant removed, if you made one (D1).

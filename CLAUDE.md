@@ -1,6 +1,6 @@
 # CLAUDE.md: Agency Artifact Management System
 
-Version 1.1, 2026-10-13. This file is the project constitution. It is law in this repo.
+Version 1.2, 2026-10-13. This file is the project constitution. It is law in this repo.
 
 ## Purpose
 
@@ -55,6 +55,8 @@ The boundary is enforced where the data lives (SharePoint permissions), never on
 
 The app never stores financial data on the device (local storage, IndexedDB, caches) and never writes it to logs.
 
+**Who edits whose hours** is a different kind of rule (Galileo's decision, 2026-10-13). It is operational, not financial, so it is not locked in SharePoint: everyone on `AA Operations` can technically edit any hours row. The app offers each role only the edits it may make (team: own entries; coordinators and principals: anyone's). The control is the record: version history is on for every hours list, and nobody but principals can delete versions (custom permission level, `docs/architecture/data.md`). Every change is traceable to the person who made it. Reason: SharePoint cannot let coordinators past an "own items only" lock without letting everyone past it (`docs/findings.md`), and a lock with workarounds is heavier than ten people need.
+
 Weekly summaries are tailored per role and built only from data that role may see.
 
 ## Runtime architecture: four layers
@@ -64,7 +66,7 @@ Weekly summaries are tailored per role and built only from data that role may se
 3. **Views.** One app with views by role (team, coordinator, principal), running as a Teams personal app. Screens, charts, the weekly brief, Excel exports.
 4. **AI and agents (future).** Read only calculated outputs. Summarize, rank, propose. Never write figures.
 
-Each layer talks only to the one below it, through a defined interface (`docs/architecture/overview.md`). Interfaces change rarely, and only through a stage Blueprint. The app shows and edits data. It never decides access.
+Each layer talks only to the one below it, through a defined interface (`docs/architecture/overview.md`). Interfaces change rarely, and only through a stage Blueprint. The app shows and edits data. It never decides access to data: SharePoint does. The one thing it decides is which operational edits it offers each role (whose hours), and those edits are recorded in version history.
 
 The timecard is the team view of the single app. Its settled experience is kept: three areas (Today, Tasks, Studio), half-hour steps, an explicit confirm action on Today and Tasks only, no strikethrough on completed tasks, percentage rollups as means, hours on an unassigned project flagged for review rather than blocked, English only, Agency Artifact branding only. Denser coordinator and principal screens must not degrade it.
 

@@ -1,5 +1,7 @@
 # Handoff 3: stage 0, Link gate in progress (2026-10-13, late evening Los Angeles)
 
+**Update, same night:** Galileo dropped the own-items lock on hours (CLAUDE.md 1.2, `data.md` 1.2, report section *Decision: hours are a record, not a lock*). Steps 2 and 3 of "Next" below are replaced by checklist A2 and E1 to E3; the correction flow is not built. Step 1 is run after A2, so one aa.test run covers both.
+
 For a new Claude Code session at the repo root. Replaces the "Where stage 0 is" table of `stage-0-handoff-2.md`; that file and `stage-0-handoff.md` stay as records.
 
 ## Read first, in this order

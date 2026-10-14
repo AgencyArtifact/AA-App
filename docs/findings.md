@@ -13,6 +13,13 @@ Cumulative across stages. Every failure or discovery that cost time gets one ent
 
 ## Entries
 
+### 2026-10-13: Contribute can delete version history
+- Stage and gate: stage 0, Link (hours access redesign).
+- Symptom: none observed; found while moving hours from a lock to a record. Docs ([Understanding permission levels](https://learn.microsoft.com/en-us/sharepoint/understanding-permission-levels)): Contribute includes Delete Versions.
+- Cause (docs): the default Contribute level lets a user erase past versions of items they can edit.
+- Fix: custom level `AA Team` = Contribute without Delete Versions, for team and coordinators.
+- Rule from now on: wherever version history is the control, nobody below principal holds Delete Versions or Manage Lists. `data.md` 1.2.
+
 ### 2026-10-13: the own-items setting is checked against the app's scope, not the user's level
 - Stage and gate: stage 0, Link (criterion 6, coordinator corrections).
 - Symptom: with the own-items setting on, editing and deleting another user's TestHours row: `Sites.ReadWrite.All` (Graph) and `AllSites.Write` (REST): 403 for Owner and team alike. `Sites.Manage.All` (Graph) and `AllSites.Manage` (REST): 200/204 for Owner **and for aa.test at Contribute** (diagnostic, Teams web, build 2026-10-14T03:43:21Z, 20:56 and 20:57 Los Angeles).
