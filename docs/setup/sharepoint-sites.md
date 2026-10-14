@@ -130,7 +130,7 @@ reverse the ticks.
 
 ## 4. List TestHours (on AA Operations)
 
-1. On AA Operations: **New** > **List** > **Blank list**. **Name:** `TestHours`. **Create**.
+1. On AA Operations: **New** > **List**. Under *Create from blank* choose **List** (not a template). **Name:** `TestHours`. Leave **Show list in site navigation** ticked: it only adds a link in the site menu and changes no permission. **Create**.
 2. Add columns with **+ Add column**, exactly:
 
    | Name | Type | Settings |
@@ -160,7 +160,7 @@ Check:
 
 ## 5. List TestFees (on AA Principals)
 
-1. On AA Principals: **New** > **List** > **Blank list**. **Name:** `TestFees`. **Create**.
+1. On AA Principals: **New** > **List**. Under *Create from blank* choose **List**. **Name:** `TestFees`. Leave **Show list in site navigation** ticked: it only adds a link in the site menu and changes no permission. **Create**.
 2. Add columns: `Project` (Single line of text), `Fee` (Number).
 3. Add one row: Title `Fee test`, Project a distinctive made-up word that
    appears nowhere else in the tenant (for example `Zanthorpe`), Fee `1000`.
