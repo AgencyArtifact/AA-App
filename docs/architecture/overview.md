@@ -38,7 +38,7 @@ These exist to answer the stage 1 go criteria. They are not the production inter
 
 ### I1. Graph sign-in (kept from stage 0)
 - `src/auth/graphAuth.ts`. Nested app authentication in Teams, silent first, popup fallback; MSAL popup with `auth.html` in a browser.
-- Scopes: `User.Read` now; `Tasks.ReadWrite` granted in Entra in T1 (`docs/setup/entra-app.md` step 4c) and requested by the app from T3. `Sites.ReadWrite.All` removed from the app in T0 and from Entra in T1.
+- Scopes: `User.Read`, `Tasks.ReadWrite` (granted with admin consent 2026-10-14, `docs/setup/entra-app.md` step 4c; requested by the app from T3). `Sites.ReadWrite.All` removed from the app in T0 and from Entra in T1.
 
 ### I2. Harvest sign-in (T2)
 - `src/auth/harvestAuth.ts`. Harvest's client-side OAuth2 flow (`response_type=token`), opened through the Teams authentication popup inside Teams and a normal popup in a browser; callback page alongside `auth.html`. Exact endpoints and parameters: T1, from Harvest docs.
@@ -57,6 +57,7 @@ These exist to answer the stage 1 go criteria. They are not the production inter
 - `GET /me/planner/tasks`; `PATCH /planner/tasks/{id}` with `percentComplete` 100, then 0, each with `If-Match` set to the task's current `@odata.etag`; read again after each.
 - Reports: count; test task found or not; plan, bucket, parent present or not; percent complete.
 - Assumed: tasks in a premium plan are visible to Graph's basic Planner endpoints. Criterion 1 tests this.
+- Detail (T3, 2026-10-14): `src/diagnostic/plannerSteps.ts`. The test task is found by title `AA Stage1 Test Task`; plan title and bucket name read with `GET /planner/plans/{id}` and `GET /planner/buckets/{id}`. v1.0 `plannerTask` documents no parent field, so "parent" reports any key containing "parent" as present, else absent. Complete and reset each PATCH with the etag of the latest read, then read again. If complete is refused, reset is skipped. The Planner lines run on every run (Graph is silent in Teams); only titles of the test task, plan and bucket are printed, never other task titles.
 
 ## Open questions (for later Blueprints)
 

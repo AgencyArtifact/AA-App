@@ -48,7 +48,7 @@ export const config = {
 
   // Delegated Graph scopes requested at runtime. Must match the API
   // permissions granted in the app registration.
-  graphScopes: ["User.Read"],
+  graphScopes: ["User.Read", "Tasks.ReadWrite"],
 } as const;
 
 // ---- Derived addresses. Do not edit; edit config.appUrl. ----------------

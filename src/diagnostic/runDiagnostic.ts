@@ -1,6 +1,6 @@
-// Stage 1 diagnostic: sign-in, host and time zone; with { harvest: true }
-// (from a click), the Harvest lines too. Planner lines follow in T3 once the
-// Tasks.ReadWrite consent is confirmed (docs/stages/stage-1-feasibility.md).
+// Stage 1 diagnostic: sign-in, host, time zone and the Planner lines; with
+// { harvest: true } (from a click), the Harvest lines too
+// (docs/stages/stage-1-feasibility.md, T3).
 //
 // Money rule (CLAUDE.md, financial boundary): a step may report whether a
 // money field is present, never its value.
@@ -10,6 +10,7 @@ import type { GraphResult } from "../graph/graph";
 import { getMe } from "../graph/me";
 import { deviceTimeZone, localDate, localTime, utcOffset } from "../dates";
 import { ensureHarvest, runHarvestSteps } from "./harvestSteps";
+import { runPlannerSteps } from "./plannerSteps";
 import { classify, type DiagnosticReport, type StepResult } from "./report";
 
 let runCount = 0;
@@ -72,6 +73,7 @@ export async function runDiagnostic(options: RunOptions = { harvest: false }): P
       const me = await getMe();
       report.steps.push(step("Sign-in (Graph /me)", me));
       if (me.ok && me.data) report.user = `${me.data.displayName} <${me.data.userPrincipalName}>`;
+      if (me.ok) report.steps.push(...(await runPlannerSteps()));
     } catch (error) {
       fatal(error);
     }

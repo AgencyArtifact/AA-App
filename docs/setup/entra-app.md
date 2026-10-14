@@ -99,6 +99,8 @@ Page: <https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/Applicatio
 
 The app starts requesting `Tasks.ReadWrite` in T3, when the Planner steps arrive. Granting it now means nobody gets a consent prompt then.
 
+Done 2026-10-14 (Galileo): API permissions show exactly `Tasks.ReadWrite` and `User.Read`, both *Granted for Agency Artifact*.
+
 ### 5. Check
 
 - [ ] Supported account types: single tenant.
