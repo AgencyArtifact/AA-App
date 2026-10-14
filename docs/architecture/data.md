@@ -37,7 +37,7 @@ Hour lists use the list setting "Create and edit access: create items and edit i
 - Docs (SharePoint Server page only): Override List Behaviors lets a user "change or override settings which allow users to read/edit only their own items"; it is in Full Control and Design, not in Edit or Contribute. The SharePoint in Microsoft 365 page names the same permission "Override Check-Out" and does not mention the own-items bypass.
 - Not in docs: the item-level setting itself, whether it also blocks deleting other users' rows, and whether the bypass applies to Graph writes the same way as in the SharePoint interface. Tested in stage 0 (criterion 6).
 
-Audit: version history is on for every list holding hours, so every correction shows who changed what. It is switched on explicitly in each list's Versioning settings. Docs do not state a default for lists, so the default is never relied on.
+Audit: version history is on for every list holding hours, so every correction shows who changed what. It is checked in each list's Versioning settings. Docs do not state a default for lists. Observed 2026-10-13 (stage 0 report): a new blank list in this tenant had versioning on, 50 versions. Each new list is still checked, not assumed.
 
 ## App registration
 
