@@ -17,7 +17,7 @@ For a new Claude Code session at the repo root. Replaces nothing: `stage-0-hando
 |---|---|
 | T0 cleanup | Done and approved. `docs/stages/stage-0-T0-cleanup-report.md`. Tag `pre-constitution-1.0`. |
 | T1 Blueprint | Delivered. **Not yet approved by Galileo (HALT).** First action of the new session: ask for approval. |
-| Tenant preconditions | Done by Galileo, except his own Microsoft Search for `Zanthorpe` (see Pending). |
+| Tenant preconditions | Done by Galileo, including the Search positive control. Teams custom app setup not yet confirmed (see Pending). |
 | T2 to T5, test matrix | Not started. |
 
 Everything is committed and pushed to `main` (`248d463` or later). The Pages deploy is green and serves the real Entra IDs.
@@ -61,7 +61,7 @@ Evidence for each line: `docs/stages/stage-0-report.md`, "Setup evidence".
 ## Pending (before or during T2)
 
 1. Galileo approves T1 (HALT).
-2. Galileo searches `Zanthorpe` as himself and must find the row (positive control for criterion 3).
+2. Done: Galileo's own search for `Zanthorpe` (organization scope) finds the row, indexed within 26 minutes. aa.test's search must use organization scope too and return nothing.
 3. Done: admin consent granted (screenshot, 2026-10-13).
 4. Done: firm website URL set (Q5 resolved).
 5. Galileo confirms the Teams custom app setup (m365-admin.md part 3) and, hours later, that both accounts see **Upload a custom app**.

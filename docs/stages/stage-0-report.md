@@ -51,7 +51,7 @@ Setup evidence (Galileo's screenshots, 2026-10-13):
 - Coordinator permission level created on `AA Operations` (Galileo's confirmation, 2026-10-13; the exact label of the ticked permission was not reported). Not assigned to anyone.
 - Entra API permissions (screenshot): `Sites.ReadWrite.All` and `User.Read`, Delegated, "Granted for Agency Artifact"; portal shows "Admin consent required: No" for both.
 - Regional settings time zone: Pacific on both sites (Galileo's confirmation, 2026-10-13).
-- Still to do: Galileo's own Microsoft Search for `Zanthorpe` (positive control), 30 minutes or more after the row was saved.
+- Microsoft Search positive control passed (screenshot, 2026-10-13): Galileo, organization scope, `Zanthorpe` finds `Fee test` in AA Principals > TestFees, "modified 26 minutes ago". The result snippet shows field values, so aa.test's search must return nothing at all. A first search from the start page was scoped to the root Communication site and found nothing; setup doc corrected.
 
 Open questions for Galileo:
 - Q8. Galileo, 2026-10-13: "I want 2 time zones, India and US." A SharePoint site holds one regional time zone, so two zones are carried by people and devices, not by the site: each entry uses the device's local date (`WorkDate` text), and one reminder flow runs per zone. Proposed: both sites keep Pacific as the storage reference. Awaiting confirmation.
