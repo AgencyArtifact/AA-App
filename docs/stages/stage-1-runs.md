@@ -111,3 +111,23 @@ Harvest other person's time: PASS (HTTP 200)
 (Graph and Planner lines as run E. Write 8.2 s from page load, run 2, not a cold start.)
 
 Reading: criterion 4 for Member on Teams web holds. `GET /time_entries?user_id=<Galileo>` as aa.test returns 200 with no entries while Galileo has one on a project both are assigned to: Harvest filters to the Member's own time, it does not refuse. Pass under the proposed rule (only own entries, or 403), which Galileo has not formally confirmed.
+
+## Run G: aa.test as Project Manager (new framework), managing ZT-01, Teams web
+
+2026-10-14 23:25Z, build 2026-10-14T22:40:09Z. Harvest: aa.test role set to Project Manager; "Manages this project" ticked for aa.test on ZT-01. Galileo's 1:00 entry on ZT-01 still present.
+
+```
+Harvest connect: PASS (HTTP 200)
+  account 2260464; user AA Test, Harvest user ID 5759361; roles: project_manager; money fields: none
+Harvest my assignments: PASS (HTTP 200)
+  count 1: ZT-01 Test Project [ZT-01] (Concept, sd); money fields: budget null, hourly_rate null
+Harvest write + delete: PASS (HTTP 200)
+  write HTTP 201, entry 3028692129; delete HTTP 200; write response money fields: billable_rate null, budget null, cost_rate null, hourly_rate null
+Harvest unassigned write: DENIED (HTTP 422)
+  Harvest: User isn't assigned to the project · expected: refused
+Harvest other person's time: ERROR (HTTP 200)
+  expected: refused or only own entries; returned 1 entries, 1 by other people (OTHER PEOPLE'S TIME VISIBLE); money fields: billable_rate null, budget null, cost_rate null, hourly_rate null
+```
+(Graph and Planner lines as run E. Run 3 in the same page; write timing not meaningful.)
+
+Reading: criterion 4 for the coordinator role holds. No money value in any response; cost rates, billable rates and budgets are present as empty keys only, including on Galileo's entry. A Project Manager who manages ZT-01 sees Galileo's hours there: expected for the role (hours are operational); the ERROR label is the Member expectation of the line, not a failure here.
