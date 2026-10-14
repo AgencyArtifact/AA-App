@@ -53,11 +53,14 @@ to the org catalog (go criterion 5 covers the catalog).
 3. **Teams apps** > **Setup policies** > **Add**.
    - Name `AA app testers`, description `Can upload the Agency Artifact test app`.
    - Turn on **Upload custom apps**. Change nothing else. **Save**.
-4. Select the `AA app testers` policy > **Assign users** > add yourself and `aa.test` > **Apply**.
+4. Tick the `AA app testers` row (make sure no other row is ticked) > **Manage users** > **Assign users** > add yourself and `aa.test` > **Apply**.
+
+A grey banner on the Setup policies page says app setup policies have changed and apps are now installed from the Manage apps page. The **Upload custom apps** switch is still in the policy (seen 2026-10-13).
 
 Check:
-- [ ] Org-wide **Custom apps** setting is on.
-- [ ] `AA app testers` policy lists you and `aa.test`.
+- [ ] Org-wide **Custom apps**: the section has two switches, **Let users install and use available apps by default** and **Let users interact with custom apps in preview**. Both On (seen 2026-10-13).
+- [ ] Policy `AA app testers`: **Upload custom apps** On, **User pinning** On (seen 2026-10-13).
+- [ ] The policies page cannot list who a policy is assigned to (its **Manage users** menu only offers *Assign users* and *Bulk unassign users*). Check per user instead: <https://admin.teams.microsoft.com/users> > click the user > **Policies** tab > **App setup policy** reads `AA app testers`. Do it for yourself and for `aa.test`.
 - [ ] Later (allow a few hours): in Teams, **Apps** > **Manage your apps** shows **Upload an app** > **Upload a custom app** for both accounts.
 
 ## 4. Register the app

@@ -51,6 +51,7 @@ Setup evidence (Galileo's screenshots, 2026-10-13):
 - Coordinator permission level created on `AA Operations` (Galileo's confirmation, 2026-10-13; the exact label of the ticked permission was not reported). Not assigned to anyone.
 - Entra API permissions (screenshot): `Sites.ReadWrite.All` and `User.Read`, Delegated, "Granted for Agency Artifact"; portal shows "Admin consent required: No" for both.
 - Regional settings time zone: Pacific on both sites (Galileo's confirmation, 2026-10-13).
+- Teams custom app setup (screenshots, 2026-10-13): Org-wide app settings, Custom apps: "Let users install and use available apps by default" On, "Let users interact with custom apps in preview" On. Setup policy `AA app testers`: Upload custom apps On, User pinning On. App setup policy `AA app testers`, direct assignment, on the user pages of both Galileo and aa.test. Not yet seen: **Upload a custom app** in Teams for either account (propagation), which closes checklist A1.
 - Microsoft Search positive control passed (screenshot, 2026-10-13): Galileo, organization scope, `Zanthorpe` finds `Fee test` in AA Principals > TestFees, "modified 26 minutes ago". The result snippet shows field values, so aa.test's search must return nothing at all. A first search from the start page was scoped to the root Communication site and found nothing; setup doc corrected.
 
 Decisions at T1 approval (Galileo, 2026-10-13):
