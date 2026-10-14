@@ -13,6 +13,13 @@ Cumulative across stages. Every failure or discovery that cost time gets one ent
 
 ## Entries
 
+### 2026-10-14: Harvest's authorize page warns "Unverified app" and offers no account switch
+- Stage and gate: stage 1, T3 (Harvest connect, Teams web).
+- Symptom: the Harvest popup shows a yellow banner "Unverified app. Tokens will be sent to agencyartifact.github.io", then "Allow Agency Artifact Time card (test) to access your Harvest account?" for the person already signed in to Harvest ID, with "full read and write access", and only **Authorize application** or **Deny**. No way to sign in as someone else from there.
+- Cause (observed): Harvest reuses the browser's Harvest ID session and grants the app the person's whole Harvest access (no narrower scope for the client-side flow).
+- Fix: for a test as another person, sign out at `https://id.getharvest.com` in the same browser first.
+- Rule from now on: the rollout must tell the team they will see this warning once, and why it is safe; whether the warning can be removed (Harvest app verification) is an open question for the stage report. The financial boundary rests on the person's Harvest role, since the token carries all of it.
+
 ### 2026-10-14: the Harvest login is independent of the Teams login (verified)
 - Stage and gate: stage 1, T3 (first Harvest run, Teams web, build 2026-10-14T22:00:17Z).
 - Symptom: Teams signed in as aa.test (Graph /me), yet "Harvest connect" returned Galileo's Harvest user, role administrator. No prompt appeared in the Harvest popup.
