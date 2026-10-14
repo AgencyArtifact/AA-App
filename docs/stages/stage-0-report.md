@@ -48,6 +48,9 @@ Setup evidence (Galileo's screenshots, 2026-10-13):
 - `TestFees` on `AA Principals` (screenshot): columns Title, Project, Fee; one row `Fee test`, `Zanthorpe`, 1,000. Search word recorded in the test checklist.
 - `TestHours`: `Galileo row` created by Galileo (Galileo's confirmation, 2026-10-13).
 - `TestHours` item-level permissions (screenshot): Read all items; Create items and edit items that were created by the user. On-screen note: "Users with the Cancel Checkout permission can read and edit all items."
+- Coordinator permission level created on `AA Operations` (Galileo's confirmation, 2026-10-13; the exact label of the ticked permission was not reported). Not assigned to anyone.
+- Regional settings time zone: Pacific on both sites (Galileo's confirmation, 2026-10-13).
+- Still to do: Galileo's own Microsoft Search for `Zanthorpe` (positive control), 30 minutes or more after the row was saved.
 
 Open questions for Galileo:
 - Q8. Galileo, 2026-10-13: "I want 2 time zones, India and US." A SharePoint site holds one regional time zone, so two zones are carried by people and devices, not by the site: each entry uses the device's local date (`WorkDate` text), and one reminder flow runs per zone. Proposed: both sites keep Pacific as the storage reference. Awaiting confirmation.
