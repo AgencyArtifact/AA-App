@@ -69,7 +69,8 @@ async function setPercent(
   };
 }
 
-export async function runPlannerSteps(): Promise<StepResult[]> {
+/** reset false leaves the test task at 100%, so Planner can be checked by eye (criterion 1). */
+export async function runPlannerSteps(reset = true): Promise<StepResult[]> {
   const steps: StepResult[] = [];
 
   // Planner my tasks
@@ -102,6 +103,10 @@ export async function runPlannerSteps(): Promise<StepResult[]> {
   if (complete.result.outcome !== "PASS" || !complete.task) {
     // The brief: if Planner refuses, report it and stop resetting.
     steps.push(skipped("Planner reset", "complete was refused; not resetting"));
+    return steps;
+  }
+  if (!reset) {
+    steps.push(skipped("Planner reset", "left at 100% on purpose: check Planner shows it completed, then run again with the box unticked"));
     return steps;
   }
   steps.push((await setPercent("Planner reset", complete.task, 0)).result);

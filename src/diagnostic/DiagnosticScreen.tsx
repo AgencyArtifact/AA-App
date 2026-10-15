@@ -12,6 +12,7 @@ const outcomeColor: Record<Outcome, string> = {
 export function DiagnosticScreen() {
   const [report, setReport] = useState<DiagnosticReport | null>(null);
   const [running, setRunning] = useState(false);
+  const [keepCompleted, setKeepCompleted] = useState(false);
   const [copyState, setCopyState] = useState<"idle" | "copied" | "manual">("idle");
   const textRef = useRef<HTMLTextAreaElement>(null);
 
@@ -104,16 +105,20 @@ export function DiagnosticScreen() {
       )}
 
       <div className="actions">
-        <button type="button" onClick={() => run({ harvest: true })} disabled={running}>
+        <button type="button" onClick={() => run({ harvest: true, keepPlannerCompleted: keepCompleted })} disabled={running}>
           Connect Harvest and run
         </button>
         <button type="button" className="secondary" onClick={copy} disabled={!report || running}>
           Copy report
         </button>
-        <button type="button" className="secondary" onClick={() => run()} disabled={running}>
+        <button type="button" className="secondary" onClick={() => run({ harvest: false, keepPlannerCompleted: keepCompleted })} disabled={running}>
           Run again
         </button>
       </div>
+      <label className="muted">
+        <input type="checkbox" checked={keepCompleted} onChange={(e) => setKeepCompleted(e.target.checked)} /> Leave the
+        Planner test task completed (to check it in Planner)
+      </label>
       {copyState === "copied" && <p className="muted">Copied.</p>}
       {copyState === "manual" && (
         <p className="muted">Clipboard blocked here. The text below is selected: copy it by hand.</p>

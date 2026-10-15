@@ -151,3 +151,25 @@ Planner reset: SKIPPED (HTTP 0)
 (Harvest lines: aa.test still Project Manager from run G; same as run G.)
 
 Reading (criterion 1, partial): `GET /me/planner/tasks` as aa.test **does list** the premium task, with plan and bucket readable; no parent field, so the phase is not visible through this endpoint. `PATCH percentComplete 100` returned **409** with no error code captured; the task stayed at 0%. Diagnostic changed to capture Graph's message and retry once with a fresh etag; rerun needed before concluding.
+
+## Run I: aa.test, Teams web, Planner complete and reset accepted
+
+2026-10-15 00:18Z, build 2026-10-14T22:40:09Z (deploy of 00:17Z not yet served).
+
+```
+Planner my tasks: PASS (HTTP 200)
+  count 1; "AA Stage1 Test Task" found; plan "ZT-01 Test Project"; bucket "Bucket 1"; parent absent; 0% complete
+Planner complete: PASS (HTTP 204)
+  PATCH percentComplete 100; read again: 100%
+Planner reset: PASS (HTTP 204)
+  PATCH percentComplete 0; read again: 0%
+Harvest connect: PASS (HTTP 200)
+  account 2260464; user AA Test, Harvest user ID 5759361; roles: project_manager; money fields: none
+Harvest other person's time: PASS (HTTP 200)
+  returned 0 entries, 0 by other people; money fields: none
+```
+(Other Harvest lines as run E.)
+
+Reading:
+- Criterion 1, Teams web: Graph lists the premium task (plan, bucket) and accepts `percentComplete` 100 then 0 (204), confirmed by reading again. The 409 of run H three minutes earlier did not repeat (`docs/findings.md`). Open: the phase (parent `SD`) is not exposed; Planner's own display of the completion not yet checked by eye.
+- Harvest: aa.test still Project Manager but no longer managing ZT-01: Galileo's entry not returned. A Project Manager sees other people's time only on projects they manage.

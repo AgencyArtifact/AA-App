@@ -13,6 +13,13 @@ Cumulative across stages. Every failure or discovery that cost time gets one ent
 
 ## Entries
 
+### 2026-10-15: first Planner update of a new premium task returned 409, the next one 204
+- Stage and gate: stage 1, T3 (criterion 1), Teams web, aa.test.
+- Symptom: 00:15Z, `PATCH /planner/tasks/{id}` `percentComplete` 100 with the etag from `GET /me/planner/tasks`: HTTP 409, no error code captured, task stayed 0%. 00:18Z, same build, same call: 204, read again 100%; reset to 0: 204.
+- Cause (suspected): the task had been created in the premium plan minutes earlier; the copy into Planner was probably still settling. Not proved; Graph's message was not captured at the time.
+- Fix: the diagnostic now records Graph's error code and message, and on a 409 reads the task again and retries once with the fresh etag.
+- Rule from now on: a single 409 on a premium task is not a result. Record the message, retry once, and rerun before concluding.
+
 ### 2026-10-14: Harvest's authorize page warns "Unverified app" and offers no account switch
 - Stage and gate: stage 1, T3 (Harvest connect, Teams web).
 - Symptom: the Harvest popup shows a yellow banner "Unverified app. Tokens will be sent to agencyartifact.github.io", then "Allow Agency Artifact Time card (test) to access your Harvest account?" for the person already signed in to Harvest ID, with "full read and write access", and only **Authorize application** or **Deny**. No way to sign in as someone else from there.
