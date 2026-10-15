@@ -11,6 +11,9 @@ export interface GraphResult<T> {
   status: number;
   // Graph error code from the response body, e.g. "accessDenied".
   code: string | null;
+  // Graph error message on failure (first 300 characters), so a report shows why.
+  // Only for operational endpoints (Planner, /me): never money.
+  message: string | null;
   data: T | null;
 }
 
@@ -35,7 +38,7 @@ export async function graph<T>(
       cache: "no-store",
     });
   } catch {
-    return { ok: false, status: 0, code: "networkError", data: null };
+    return { ok: false, status: 0, code: "networkError", message: null, data: null };
   }
 
   const text = await response.text();
@@ -48,9 +51,10 @@ export async function graph<T>(
     }
   }
   if (response.ok) {
-    return { ok: true, status: response.status, code: null, data: json as T };
+    return { ok: true, status: response.status, code: null, message: null, data: json as T };
   }
-  const code =
-    (json as { error?: { code?: string } } | null)?.error?.code ?? null;
-  return { ok: false, status: response.status, code, data: null };
+  const error = (json as { error?: { code?: string; message?: string } } | null)?.error;
+  const code = error?.code || null;
+  const message = (error?.message ?? (json ? null : text) ?? "").slice(0, 300) || null;
+  return { ok: false, status: response.status, code, message, data: null };
 }

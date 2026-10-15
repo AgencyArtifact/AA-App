@@ -31,22 +31,40 @@ function parentKeys(task: PlannerTask): string {
   return keys.length ? `present (${keys.join(", ")})` : "absent";
 }
 
-/** PATCH percentComplete with If-Match, then read the task again. */
-async function setPercent(
-  name: string,
-  task: PlannerTask,
-  percent: number,
-): Promise<{ result: StepResult; task: PlannerTask | null }> {
-  const patch = await graph<unknown>(
+function patchPercent(task: PlannerTask, percent: number) {
+  return graph<unknown>(
     "PATCH",
     `/planner/tasks/${task.id}`,
     { percentComplete: percent },
     { "If-Match": task["@odata.etag"] },
   );
+}
+
+function describe(r: { status: number; code: string | null; message: string | null }): string {
+  return `HTTP ${r.status}${r.code ? ` ${r.code}` : ""}${r.message ? ` "${r.message}"` : ""}`;
+}
+
+/**
+ * PATCH percentComplete with If-Match, then read the task again. A 409 can
+ * mean a stale etag: read the task once more and retry once with the new etag,
+ * reporting both attempts.
+ */
+async function setPercent(
+  name: string,
+  task: PlannerTask,
+  percent: number,
+): Promise<{ result: StepResult; task: PlannerTask | null }> {
+  let patch = await patchPercent(task, percent);
+  let note = "";
+  if (patch.status === 409) {
+    const fresh = await graph<PlannerTask>("GET", `/planner/tasks/${task.id}`);
+    note = `first try ${describe(patch)}; etag ${fresh.data && fresh.data["@odata.etag"] !== task["@odata.etag"] ? "changed" : "unchanged"}; retry: `;
+    if (fresh.data) patch = await patchPercent(fresh.data, percent);
+  }
   const again = await graph<PlannerTask>("GET", `/planner/tasks/${task.id}`);
   const after = again.data ? `${again.data.percentComplete}%` : `read again failed, HTTP ${again.status}`;
   return {
-    result: step(name, patch.status, patch.code, `PATCH percentComplete ${percent}; read again: ${after}`),
+    result: step(name, patch.status, patch.code, `PATCH percentComplete ${percent}: ${note}${describe(patch)}; read again: ${after}`),
     task: again.data,
   };
 }

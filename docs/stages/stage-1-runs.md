@@ -135,3 +135,19 @@ Reading: criterion 4 for the coordinator role holds. No money value in any respo
 ## Correction: Planner lines in runs B to G
 
 2026-10-14 23:30Z. Galileo had not yet set up Planner premium (`docs/setup/planner-premium.md` not run): no premium plan and no test task existed. "NOT FOUND" in runs B to G only shows there was nothing to find. They are **not evidence for criterion 1**. Rerun after the setup.
+
+## Run H: aa.test, Teams web, after the Planner premium setup (first valid Planner run)
+
+2026-10-15 00:15Z, build 2026-10-14T22:40:09Z. Premium plan `ZT-01 Test Project` created by Galileo (Planner Plan 1 licence, Galileo only): phase `SD`, subtask `AA Stage1 Test Task` assigned to aa.test, 0%.
+
+```
+Planner my tasks: PASS (HTTP 200)
+  count 1; "AA Stage1 Test Task" found; plan "ZT-01 Test Project"; bucket "Bucket 1"; parent absent; 0% complete
+Planner complete: ERROR (HTTP 409)
+  PATCH percentComplete 100; read again: 0%
+Planner reset: SKIPPED (HTTP 0)
+  complete was refused; not resetting
+```
+(Harvest lines: aa.test still Project Manager from run G; same as run G.)
+
+Reading (criterion 1, partial): `GET /me/planner/tasks` as aa.test **does list** the premium task, with plan and bucket readable; no parent field, so the phase is not visible through this endpoint. `PATCH percentComplete 100` returned **409** with no error code captured; the task stayed at 0%. Diagnostic changed to capture Graph's message and retry once with a fresh etag; rerun needed before concluding.

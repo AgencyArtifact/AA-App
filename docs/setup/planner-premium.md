@@ -14,6 +14,7 @@ Result: a premium plan `ZT-01 Test Project` with phase `SD` and the task `AA Sta
 Page: Planner in Teams (Teams > Apps > **Planner**), or <https://planner.cloud.microsoft> signed in as you.
 1. Select **Try Project** next to the diamond icon (on the web, **Try Project** or the **Timeline** view also start it).
 2. If it asks for admin approval: approve it in the Microsoft 365 admin center at <https://admin.microsoft.com/#/catalog> (or the request notification you receive), for yourself only.
+   Seen 2026-10-14: the trial can also land on Microsoft's Planner pricing page (columns Microsoft Planner, Planner and Project Plan 3, Planner Plan 1, Microsoft 365 Copilot). Choose **Planner Plan 1 > Try for free** (the brief's licence). Then assign the trial licence to yourself only: admin center > **Billing** > **Licenses** > Planner Plan 1 > **Assign licenses**.
 3. Check at <https://admin.microsoft.com/#/users>: open **aa.test** > **Licenses and apps**. Only **Microsoft 365 Business Basic** is ticked. If the trial added a Project or Planner licence to aa.test, untick it and save.
 
 ## 2. Create the premium plan
