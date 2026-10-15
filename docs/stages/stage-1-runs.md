@@ -173,3 +173,19 @@ Harvest other person's time: PASS (HTTP 200)
 Reading:
 - Criterion 1, Teams web: Graph lists the premium task (plan, bucket) and accepts `percentComplete` 100 then 0 (204), confirmed by reading again. The 409 of run H three minutes earlier did not repeat (`docs/findings.md`). Open: the phase (parent `SD`) is not exposed; Planner's own display of the completion not yet checked by eye.
 - Harvest: aa.test still Project Manager but no longer managing ZT-01: Galileo's entry not returned. A Project Manager sees other people's time only on projects they manage.
+
+## Run J: aa.test, Teams web, task found already at 100%
+
+2026-10-15 00:23Z, build 2026-10-14T22:40:09Z (still the old build; the 00:20Z deploy with the "leave completed" box not yet served).
+
+```
+Planner my tasks: PASS (HTTP 200)
+  count 1; "AA Stage1 Test Task" found; plan "ZT-01 Test Project"; bucket "Bucket 1"; parent absent; 100% complete
+Planner complete: PASS (HTTP 204)
+  PATCH percentComplete 100; read again: 100%
+Planner reset: PASS (HTTP 204)
+  PATCH percentComplete 0; read again: 0%
+```
+(Harvest lines as run I.)
+
+Reading: run I (00:18Z) reset the task to 0% and read 0% back. At 00:23Z Graph read it at 100% before this run touched it. Open question to Galileo: did anyone complete it by hand in between? If not, the premium plan copied its earlier 100% back over the reset: a sync conflict between the premium plan and Graph, relevant to criterion 1.
