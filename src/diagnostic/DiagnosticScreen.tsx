@@ -105,13 +105,13 @@ export function DiagnosticScreen() {
       )}
 
       <div className="actions">
-        <button type="button" onClick={() => run({ harvest: true, keepPlannerCompleted: keepCompleted })} disabled={running}>
+        <button type="button" onClick={() => run({ harvest: true, plannerWrite: true, keepPlannerCompleted: keepCompleted })} disabled={running}>
           Connect Harvest and run
         </button>
         <button type="button" className="secondary" onClick={copy} disabled={!report || running}>
           Copy report
         </button>
-        <button type="button" className="secondary" onClick={() => run({ harvest: false, keepPlannerCompleted: keepCompleted })} disabled={running}>
+        <button type="button" className="secondary" onClick={() => run({ harvest: false, plannerWrite: true, keepPlannerCompleted: keepCompleted })} disabled={running}>
           Run again
         </button>
       </div>

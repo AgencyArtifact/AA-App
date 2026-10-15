@@ -26,6 +26,8 @@ function timestamp(d: Date): string {
 export interface RunOptions {
   /** Connect Harvest (popup, needs a click) and run the Harvest lines. */
   harvest: boolean;
+  /** Complete and reset the Planner test task. Only from a click, so every write shows in a report someone sees. */
+  plannerWrite?: boolean;
   /** Leave the Planner test task completed instead of resetting it to 0%. */
   keepPlannerCompleted?: boolean;
 }
@@ -79,7 +81,7 @@ export async function runDiagnostic(options: RunOptions = { harvest: false }): P
         report.user = `${me.data.displayName} <${me.data.userPrincipalName}>`;
         graphUpn = me.data.userPrincipalName;
       }
-      if (me.ok) report.steps.push(...(await runPlannerSteps(!options.keepPlannerCompleted)));
+      if (me.ok) report.steps.push(...(await runPlannerSteps({ write: options.plannerWrite ?? false, reset: !options.keepPlannerCompleted })));
     } catch (error) {
       fatal(error);
     }

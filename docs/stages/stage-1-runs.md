@@ -189,3 +189,5 @@ Planner reset: PASS (HTTP 204)
 (Harvest lines as run I.)
 
 Reading: run I (00:18Z) reset the task to 0% and read 0% back. At 00:23Z Graph read it at 100% before this run touched it. Open question to Galileo: did anyone complete it by hand in between? If not, the premium plan copied its earlier 100% back over the reset: a sync conflict between the premium plan and Graph, relevant to criterion 1.
+
+Follow-up (00:30Z): Galileo did not complete the task by hand. Every pasted report is "run 2": the diagnostic also runs once by itself when the tab opens (run 1), and since T3 that run completed and reset the task too, with a report nobody saw. Likeliest cause: an unseen automatic run (or another open tab) left the task at 100%. Not provable (no task history on Plan 1; the app keeps no logs). Fix: the automatic run only reads Planner; complete and reset run only from a button. The sync-conflict reading stays open until a clean sequence shows the reset holding.

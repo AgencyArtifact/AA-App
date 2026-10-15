@@ -69,8 +69,14 @@ async function setPercent(
   };
 }
 
-/** reset false leaves the test task at 100%, so Planner can be checked by eye (criterion 1). */
-export async function runPlannerSteps(reset = true): Promise<StepResult[]> {
+export interface PlannerOptions {
+  /** false: read only (the automatic run when the screen opens). Writes only from a click. */
+  write: boolean;
+  /** false leaves the test task at 100%, so Planner can be checked by eye (criterion 1). */
+  reset: boolean;
+}
+
+export async function runPlannerSteps({ write, reset }: PlannerOptions): Promise<StepResult[]> {
   const steps: StepResult[] = [];
 
   // Planner my tasks
@@ -93,6 +99,12 @@ export async function runPlannerSteps(reset = true): Promise<StepResult[]> {
   steps.push(step("Planner my tasks", list.status, list.code, list.ok ? detail : ""));
   if (!task) {
     const why = list.ok ? "test task not listed" : "task list failed";
+    steps.push(skipped("Planner complete", why), skipped("Planner reset", why));
+    return steps;
+  }
+
+  if (!write) {
+    const why = "read only when the screen opens; click a button to complete and reset";
     steps.push(skipped("Planner complete", why), skipped("Planner reset", why));
     return steps;
   }
