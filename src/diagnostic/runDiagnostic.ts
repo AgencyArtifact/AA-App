@@ -1,6 +1,6 @@
-// Stage 1 diagnostic: sign-in, host, time zone and the Planner lines; with
-// { harvest: true } (from a click), the Harvest lines too
-// (docs/stages/stage-1-feasibility.md, T3).
+// Diagnostic: sign-in, host, time zone and the Planner lines. The stage 1
+// Harvest lines were removed 2026-10-27 (the app never calls Harvest; AA-Ops
+// decision 15 and invariant 8). Kept until T8 passes (AA-Ops architecture/app.md).
 //
 // Money rule (CLAUDE.md, financial boundary): a step may report whether a
 // money field is present, never its value.
@@ -9,7 +9,6 @@ import { getAuthStats, getHostInfo } from "../auth/graphAuth";
 import type { GraphResult } from "../graph/graph";
 import { getMe } from "../graph/me";
 import { deviceTimeZone, localDate, localTime, utcOffset } from "../dates";
-import { ensureHarvest, runHarvestSteps } from "./harvestSteps";
 import { runPlannerSteps } from "./plannerSteps";
 import { classify, type DiagnosticReport, type StepResult } from "./report";
 
@@ -24,15 +23,13 @@ function timestamp(d: Date): string {
 }
 
 export interface RunOptions {
-  /** Connect Harvest (popup, needs a click) and run the Harvest lines. */
-  harvest: boolean;
   /** Complete and reset the Planner test task. Only from a click, so every write shows in a report someone sees. */
   plannerWrite?: boolean;
   /** Leave the Planner test task completed instead of resetting it to 0%. */
   keepPlannerCompleted?: boolean;
 }
 
-export async function runDiagnostic(options: RunOptions = { harvest: false }): Promise<DiagnosticReport> {
+export async function runDiagnostic(options: RunOptions = {}): Promise<DiagnosticReport> {
   runCount += 1;
   const now = new Date();
   const report: DiagnosticReport = {
@@ -59,38 +56,25 @@ export async function runDiagnostic(options: RunOptions = { harvest: false }): P
   };
 
   let host: Awaited<ReturnType<typeof getHostInfo>> | null = null;
-  let harvestConnectError: string | null = null;
   try {
     host = await getHostInfo();
     report.host = host.inTeams
       ? `${host.hostName} ${host.clientType} (NAA recommended: ${host.naaRecommended})`
       : "plain browser (not in Teams)";
-    // The Harvest popup opens before the Graph calls, while the click still counts.
-    if (options.harvest) harvestConnectError = await ensureHarvest(host.inTeams);
   } catch (error) {
     fatal(error);
   }
 
-  // Graph and Harvest are independent: a Graph failure does not hide the Harvest lines.
   if (host) {
-    let graphUpn: string | null = null;
     try {
       const me = await getMe();
       report.steps.push(step("Sign-in (Graph /me)", me));
       if (me.ok && me.data) {
         report.user = `${me.data.displayName} <${me.data.userPrincipalName}>`;
-        graphUpn = me.data.userPrincipalName;
       }
       if (me.ok) report.steps.push(...(await runPlannerSteps({ write: options.plannerWrite ?? false, reset: !options.keepPlannerCompleted })));
     } catch (error) {
       fatal(error);
-    }
-
-    if (options.harvest) {
-      const h = await runHarvestSteps(harvestConnectError, graphUpn);
-      report.steps.push(...h.steps);
-      // performance.now() counts from page load: the cold-start timing of criterion 6.
-      if (h.writePassedAt !== null) report.writeElapsedMs = Math.round(h.writePassedAt);
     }
   }
 

@@ -27,7 +27,7 @@ export interface DiagnosticReport {
   authMode: string;
   interactivePrompts: number;
   lastSilentError: string | null;
-  // Milliseconds from page load to the Harvest write result; null if no write was attempted.
+  // Milliseconds from page load to a write result; always null since the stage 1 Harvest lines were removed.
   writeElapsedMs: number | null;
   // 1 for the run started when the screen opened; higher for "Run again".
   runNumber: number;

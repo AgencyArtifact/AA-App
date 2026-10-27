@@ -16,8 +16,6 @@ export default defineConfig({
         main: "index.html",
         // Blank page for browser popup sign-in. Loads only the MSAL bridge, not the app.
         auth: "auth.html",
-        // Harvest sign-in popup: start page and Redirect URL (src/auth/harvestAuth.ts).
-        "harvest-auth": "harvest-auth.html",
       },
     },
   },

@@ -19,7 +19,7 @@ export function DiagnosticScreen() {
   // Guards against overlapping runs (React StrictMode mounts effects twice in development).
   const busy = useRef(false);
 
-  const run = useCallback(async (options: RunOptions = { harvest: false }) => {
+  const run = useCallback(async (options: RunOptions = {}) => {
     if (busy.current) return;
     busy.current = true;
     setRunning(true);
@@ -105,13 +105,10 @@ export function DiagnosticScreen() {
       )}
 
       <div className="actions">
-        <button type="button" onClick={() => run({ harvest: true, plannerWrite: true, keepPlannerCompleted: keepCompleted })} disabled={running}>
-          Connect Harvest and run
-        </button>
-        <button type="button" className="secondary" onClick={copy} disabled={!report || running}>
+        <button type="button" onClick={copy} disabled={!report || running}>
           Copy report
         </button>
-        <button type="button" className="secondary" onClick={() => run({ harvest: false, plannerWrite: true, keepPlannerCompleted: keepCompleted })} disabled={running}>
+        <button type="button" className="secondary" onClick={() => run({ plannerWrite: true, keepPlannerCompleted: keepCompleted })} disabled={running}>
           Run again
         </button>
       </div>
