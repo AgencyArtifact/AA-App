@@ -213,6 +213,46 @@ button:disabled {
   font-weight: 600;
 }
 
+.tasks {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+}
+
+.task {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-top: 1px solid var(--line);
+  padding: 12px 0;
+}
+
+.task__main {
+  min-width: 0;
+}
+
+.task__title {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.task__meta {
+  color: var(--muted);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.task button {
+  flex-shrink: 0;
+  min-width: 96px;
+}
+
+.footnote {
+  font-size: 13px;
+  margin-top: 16px;
+}
+
 .report {
   width: 100%;
   margin-top: 12px;
