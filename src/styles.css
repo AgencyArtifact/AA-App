@@ -243,9 +243,37 @@ button:disabled {
   overflow-wrap: anywhere;
 }
 
+.task--selected {
+  border-left: 3px solid var(--fg);
+  padding-left: 9px;
+}
+
+.task__buttons {
+  display: flex;
+  flex-shrink: 0;
+  gap: 8px;
+}
+
 .task button {
   flex-shrink: 0;
-  min-width: 96px;
+  min-width: 80px;
+  padding: 0 12px;
+}
+
+.entry {
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+  margin-bottom: 16px;
+}
+
+.entry__task {
+  font-weight: 600;
+  margin: 0 0 12px;
+  overflow-wrap: anywhere;
+}
+
+.entry__task .muted {
+  font-weight: 400;
 }
 
 .footnote {

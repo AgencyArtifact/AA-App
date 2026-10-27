@@ -46,9 +46,18 @@ export const config = {
     },
   },
 
+  sharepoint: {
+    // The Agency Artifact team site and the two lists. Identifiers only
+    // (configuration, not data); the app writes only the hours list.
+    siteId: "agencyartifact.sharepoint.com,6a50ff96-92db-4deb-af74-998806940b0f,05d023c3-b67d-48f8-80c6-ed197dd2d7f5",
+    hoursListId: "871a053f-8b47-4eaa-8a4f-94be1a56301c",
+    registerListId: "3c9990e7-c1df-4603-86db-aafa0c3251cb",
+  },
+
   // Delegated Graph scopes requested at runtime. Must match the API
-  // permissions granted in the app registration.
-  graphScopes: ["User.Read", "Tasks.ReadWrite"],
+  // permissions granted in the app registration. Sites.Selected reaches only
+  // the site granted to this client ID (AA-Ops docs/setup/entra.md, part C).
+  graphScopes: ["User.Read", "Tasks.ReadWrite", "Sites.Selected"],
 } as const;
 
 // ---- Derived addresses. Do not edit; edit config.appUrl. ----------------
