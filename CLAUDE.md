@@ -1,5 +1,7 @@
 # CLAUDE.md: AA Time card app, repo AA-App
 
+**Frozen, 2026-11-13.** This repo is no longer developed. The office moved to Float in November 2026 and time tracking left the app. The successor is the private repo AgencyArtifact/AA-Team-App (a HubSpot agent and a Float plus HubSpot overview inside Teams), which reuses the Teams shell, the nested app authentication and the Entra registration from here. The deployed page stays up until the Teams app is replaced in the org catalog. Treat everything below as a record.
+
 Version 4.0, 2026-10-26. Public repository guard. Replaces 2.0 (`archive/CLAUDE-v2.0.md`); a 3.0 draft of the same day was never committed and is kept as a record in the private repo.
 
 ## What this repo is
